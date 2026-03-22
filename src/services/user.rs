@@ -1,9 +1,10 @@
 use crate::error::YukinoError;
 
-struct DevicesRes {
+struct Device {
     name: String,
     hardware_id: String,
-    
 }
 
-pub async fn devices() -> Result<[DevicesRes], YukinoError>
+pub async fn devices(user_id: u32) -> Result<[Device], YukinoError> {
+    
+}
