@@ -20,7 +20,8 @@ impl IntoResponse for YukinoError {
         };
 
         let body = Json(json!({
-            "error": error_message,
+            "error": true,
+            "msg": error_message,
         }));
 
         (status, body).into_response()
