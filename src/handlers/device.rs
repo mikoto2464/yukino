@@ -1,9 +1,9 @@
-use crate::error::YukinoError;
+use crate::utils::error::YukinoError;
 use crate::state::YukinoState;
 use axum::extract::{Path, State};
-use axum::Json;
 use serde::Serialize;
 use std::sync::Arc;
+use crate::utils::response::{YukinoJson, YukinoResponse};
 
 #[derive(Serialize)]
 pub struct Device {
@@ -15,7 +15,7 @@ pub struct Device {
 pub async fn get_devices(
     State(state): State<Arc<YukinoState>>,
     Path(user_id): Path<i64>
-) -> Result<Json<Vec<Device>>, YukinoError> {
+) -> Result<YukinoJson<Vec<Device>>, YukinoError> {
     let devices = sqlx::query_as!(
         Device,
         "SELECT id as 'id!', name, hardware_id FROM devices WHERE user_id = ?",
@@ -25,5 +25,5 @@ pub async fn get_devices(
     .await
     .map_err(|e| YukinoError::DatabaseError(e.to_string()))?;
 
-    Ok(Json(devices))
+    Ok(YukinoResponse::success(devices))
 }

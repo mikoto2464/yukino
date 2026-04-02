@@ -1,12 +1,8 @@
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    Json
-};
+use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
+use chrono::Utc;
 use serde_json::json;
 
 pub enum YukinoError {
-    BadRequest(String),
     NotFound(String),
     DatabaseError(String),
 }
@@ -14,14 +10,15 @@ pub enum YukinoError {
 impl IntoResponse for YukinoError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            YukinoError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             YukinoError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
             YukinoError::DatabaseError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
 
         let body = Json(json!({
-            "error": true,
-            "msg": error_message,
+            "success": false,
+            "data": "",
+            "message": error_message,
+            "timestamp": Utc::now().timestamp()
         }));
 
         (status, body).into_response()

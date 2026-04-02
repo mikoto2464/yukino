@@ -1,4 +1,4 @@
-use crate::error::YukinoError;
+use crate::utils::error::YukinoError;
 use crate::state::YukinoState;
 use axum::response::IntoResponse;
 use axum::Router;

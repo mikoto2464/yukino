@@ -1,9 +1,9 @@
-use crate::error::YukinoError;
+use crate::utils::error::YukinoError;
 use crate::state::YukinoState;
 use axum::extract::{Path, State};
-use axum::Json;
 use serde::Serialize;
 use std::sync::Arc;
+use crate::utils::response::{YukinoJson, YukinoResponse};
 
 #[derive(Serialize)]
 pub struct Project {
@@ -14,7 +14,7 @@ pub struct Project {
 pub async fn create_project(
     State(state): State<Arc<YukinoState>>,
     Path(name): Path<String>,
-) -> Result<Json<Project>, YukinoError> {
+) -> Result<YukinoJson<Project>, YukinoError> {
     let project = sqlx::query_as!(
         Project,
         "INSERT INTO projects (name) VALUES (?) RETURNING id as 'id!', name",
@@ -24,5 +24,5 @@ pub async fn create_project(
     .await
     .map_err(|e| YukinoError::DatabaseError(e.to_string()))?;
 
-    Ok(Json(project))
+    Ok(YukinoResponse::success(project))
 }
