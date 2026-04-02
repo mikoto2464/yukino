@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use crate::error::YukinoError;
+use crate::state::YukinoState;
 use axum::extract::{Path, State};
 use axum::Json;
 use serde::Serialize;
-use crate::state::YukinoState;
-use crate::error::YukinoError;
+use std::sync::Arc;
 
 #[derive(Serialize)]
 pub struct Device {
@@ -22,7 +22,8 @@ pub async fn get_devices(
         user_id
     )
     .fetch_all(&state.db)
-    .await?;
+    .await
+    .map_err(|e| YukinoError::DatabaseError(e.to_string()))?;
 
     Ok(Json(devices))
 }
