@@ -1,15 +1,9 @@
 use crate::utils::error::YukinoError;
 use crate::state::YukinoState;
 use axum::extract::{Path, State};
-use serde::Serialize;
 use std::sync::Arc;
+use crate::models::project::Project;
 use crate::utils::response::{YukinoJson, YukinoResponse};
-
-#[derive(Serialize)]
-pub struct Project {
-    id: i64,
-    name: String,
-}
 
 pub async fn create_project(
     State(state): State<Arc<YukinoState>>,
