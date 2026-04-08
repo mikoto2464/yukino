@@ -18,7 +18,6 @@ pub struct User {
 
 impl AuthUser for User {
     type Id = i64;
-
     fn id(&self) -> Self::Id {
         self.id
     }

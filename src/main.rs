@@ -3,6 +3,7 @@ mod state;
 mod routes;
 pub mod utils;
 pub mod models;
+pub mod auth;
 
 use crate::state::YukinoState;
 use sqlx::SqlitePool;
