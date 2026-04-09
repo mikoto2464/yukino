@@ -1,5 +1,5 @@
 use crate::auth::Backend;
-use crate::models::credential::{Credential, Provider};
+use crate::models::credential::{AuthCredential, Provider};
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
 use crate::utils::telegram_hash::verify_telegram_hash;
@@ -21,13 +21,12 @@ pub async fn telegram_callback(
         ));
     }
 
-    let credential = Credential {
+    let auth_credential = AuthCredential {
         id: params.get("id").unwrap().to_string(),
         provider: Provider::Telegram,
-        user_id: -1,
     };
 
-    let user = auth_session.authenticate(credential).await?;
+    let user = auth_session.authenticate(auth_credential).await?;
 
     match user {
         None => Ok(Redirect::to("/register").into_response()),

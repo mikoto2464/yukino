@@ -18,8 +18,8 @@ pub async fn create_project(
         "#,
         name
     )
-    .fetch_one(&state.db)
-    .await?;
+        .fetch_one(&state.db)
+        .await?;
 
     Ok(YukinoResponse::success(project))
 }
@@ -37,8 +37,8 @@ pub async fn get_project(
         "#,
         name
     )
-    .fetch_one(&state.db)
-    .await?;
+        .fetch_one(&state.db)
+        .await?;
 
     Ok(YukinoResponse::success(project))
 }

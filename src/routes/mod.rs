@@ -1,8 +1,8 @@
 use crate::auth::Backend;
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
-use axum::Router;
 use axum::response::IntoResponse;
+use axum::Router;
 use axum_login::AuthManagerLayer;
 use std::sync::Arc;
 use tower_sessions_sqlx_store::SqliteStore;

@@ -18,8 +18,8 @@ pub async fn get_devices(
         "#,
         user_id
     )
-    .fetch_all(&state.db)
-    .await?;
+        .fetch_all(&state.db)
+        .await?;
 
     Ok(YukinoResponse::success(devices))
 }

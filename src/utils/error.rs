@@ -1,13 +1,13 @@
 use crate::auth::Backend;
 use axum::{
-    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
+    Json,
 };
 use axum_login::Error as AxumLoginError;
 use chrono::Utc;
-use serde_json::Value::Null;
 use serde_json::json;
+use serde_json::Value::Null;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -48,9 +48,7 @@ impl IntoResponse for YukinoError {
 impl From<sqlx::Error> for YukinoError {
     fn from(error: sqlx::Error) -> Self {
         match error {
-            sqlx::Error::RowNotFound => {
-                YukinoError::NotFound("Record not found.".to_string())
-            }
+            sqlx::Error::RowNotFound => YukinoError::NotFound("Record not found.".to_string()),
             _ => YukinoError::DatabaseError(error.to_string()),
         }
     }

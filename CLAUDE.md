@@ -23,6 +23,7 @@ cargo fmt             # Format code
 - **Hyper + Tower** — underlying HTTP/middleware stack (transitive via axum)
 - **Serde + serde_json** — JSON serialization (transitive via axum)
 
-The server binds to port **8088** by default. The single entry point is `src/main.rs`, which builds the Axum `Router` and starts the TCP listener. Routes are registered on the router using Axum's `routing::get/post/etc.` helpers.
+The server binds to port **8088** by default. The single entry point is `src/main.rs`, which builds the Axum `Router`
+and starts the TCP listener. Routes are registered on the router using Axum's `routing::get/post/etc.` helpers.
 
 Rust edition **2024** is used.
