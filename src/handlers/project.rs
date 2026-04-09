@@ -14,9 +14,23 @@ pub async fn create_project(
         "INSERT INTO projects (name) VALUES (?) RETURNING id as 'id!', name",
         name
     )
-    .fetch_one(&state.db)
-    .await
-    .map_err(|e| YukinoError::DatabaseError(e.to_string()))?;
+        .fetch_one(&state.db)
+        .await?;
+
+    Ok(YukinoResponse::success(project))
+}
+
+pub async fn get_project(
+    State(state): State<Arc<YukinoState>>,
+    Path(name): Path<String>,
+) -> Result<YukinoJson<Project>, YukinoError> {
+    let project = sqlx::query_as!(
+        Project,
+        "SELECT * from projects WHERE name = ?",
+        name
+    )
+        .fetch_one(&state.db)
+        .await?;
 
     Ok(YukinoResponse::success(project))
 }

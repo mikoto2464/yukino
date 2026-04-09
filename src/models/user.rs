@@ -1,7 +1,9 @@
 use axum_login::AuthUser;
 use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, sqlx::Type)]
+#[sqlx(type_name = "TEXT")]
+#[sqlx(rename_all = "PascalCase")]
 pub enum Role {
     Admin,
     User

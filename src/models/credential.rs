@@ -8,7 +8,7 @@ pub enum Provider {
 
 #[derive(Clone)]
 pub struct Credentials {
+    pub id: String,
     pub provider: String,
-    pub provider_id: String,
-    pub user_id: String,
+    pub user_id: i64,
 }

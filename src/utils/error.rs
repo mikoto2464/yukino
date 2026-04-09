@@ -1,11 +1,25 @@
+use std::error::Error;
+use std::fmt;
 use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
 use chrono::Utc;
 use serde_json::json;
 
+#[derive(Debug)]
 pub enum YukinoError {
     NotFound(String),
     DatabaseError(String),
 }
+
+impl fmt::Display for YukinoError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            YukinoError::DatabaseError(msg) => msg.fmt(f),
+            YukinoError::NotFound(msg) => msg.fmt(f),
+        }
+    }
+}
+
+impl Error for YukinoError {}
 
 impl IntoResponse for YukinoError {
     fn into_response(self) -> Response {
@@ -27,6 +41,9 @@ impl IntoResponse for YukinoError {
 
 impl From<sqlx::Error> for YukinoError {
     fn from(error: sqlx::Error) -> Self {
-        YukinoError::DatabaseError(error.to_string())
+        match error {
+            sqlx::Error::RowNotFound => YukinoError::NotFound("Record not found".to_string()),
+            _ => YukinoError::DatabaseError(error.to_string())
+        }
     }
 }

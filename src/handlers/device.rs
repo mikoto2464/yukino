@@ -15,8 +15,7 @@ pub async fn get_devices(
         user_id
     )
     .fetch_all(&state.db)
-    .await
-    .map_err(|e| YukinoError::DatabaseError(e.to_string()))?;
+    .await?;
 
     Ok(YukinoResponse::success(devices))
 }

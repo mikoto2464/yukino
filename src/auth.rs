@@ -1,8 +1,8 @@
 use axum_login::{AuthnBackend, UserId};
-use std::convert::Infallible;
 use sqlx::SqlitePool;
 use crate::models::credential::Credentials;
-use crate::models::user::User;
+use crate::models::user::{Role, User};
+use crate::utils::error::YukinoError;
 
 #[derive(Clone)]
 pub struct Backend {
@@ -12,43 +12,41 @@ pub struct Backend {
 impl AuthnBackend for Backend {
     type User = User;
     type Credentials = Credentials;
-    type Error = Infallible;
+    type Error = YukinoError;
 
     async fn authenticate(
         &self,
-        creds: Self::Credentials,
+        credential: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
-        let devices = sqlx::query_as!(
-            Credentials,
-            "SELECT hardware_id, user_id as 'user_id!', name FROM devices WHERE user_id = ?",
-            creds.provider_id
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            select u.id, u.nickname, u.avatar_url, u.role as "role: Role", u.auth_stamp
+            from users u
+            inner join credentials c on c.user_id = u.id
+            where c.id = ?
+            "#,
+            credential.id
         )
-        if creds.provider == "telegram" && creds.provider_uid == "123456789" {
-            // 找到了对应的用户，允许登录！
-            Ok(Some(User {
-                id: 1,
-                username: "tg_master".into(),
-                role: Role::User,
-                auth_stamp: "some-uuid-v4-string".into(),
-            }))
-        } else {
-            // 未绑定该第三方账号，拒绝登录
-            Ok(None)
-        }
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(user)
     }
 
-    // 会话恢复逻辑（完全不需要改变，依然是用 id 查 users 表）
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        // SELECT * FROM users WHERE id = $1
-        if *user_id == 1 {
-            Ok(Some(User {
-                id: 1,
-                username: "tg_master".into(),
-                role: Role::User,
-                auth_stamp: "some-uuid-v4-string".into(),
-            }))
-        } else {
-            Ok(None)
-        }
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            select id, nickname, avatar_url, role as 'role: Role', auth_stamp
+            from users
+            where id = ?
+            "#,
+            user_id
+        )
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(user)
     }
 }
