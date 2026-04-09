@@ -1,4 +1,4 @@
-pub mod user;
+pub mod credential;
 pub mod device;
 pub mod project;
-pub mod credential;
+pub mod user;

@@ -1,14 +1,15 @@
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, sqlx::Type)]
+#[sqlx(type_name = "TEXT")]
 pub enum Provider {
     Telegram,
-    QQ
+    QQ,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Credentials {
     pub id: String,
-    pub provider: String,
+    pub provider: Provider,
     pub user_id: i64,
 }

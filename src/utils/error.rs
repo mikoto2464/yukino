@@ -1,24 +1,27 @@
+use crate::auth::Backend;
 use axum::{
+    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
+use axum_login::Error as AxumLoginError;
 use chrono::Utc;
+use serde_json::Value::Null;
 use serde_json::json;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum YukinoError {
-    #[error("Resource not found: {0}")]
+    #[error("ResourceNotFound::{0}")]
     NotFound(String),
 
-    #[error("Database error: {0}")]
+    #[error("Database::{0}")]
     DatabaseError(String),
 
-    #[error("Authentication error: {0}")]
+    #[error("Authentication::{0}")]
     AuthenticationError(String),
 
-    #[error("Config error: {0}")]
+    #[error("Config::{0}")]
     ConfigError(String),
 }
 
@@ -33,7 +36,7 @@ impl IntoResponse for YukinoError {
 
         let body = Json(json!({
             "success": false,
-            "data": "",
+            "data": Null,
             "message": error_message,
             "timestamp": Utc::now().timestamp()
         }));
@@ -45,8 +48,21 @@ impl IntoResponse for YukinoError {
 impl From<sqlx::Error> for YukinoError {
     fn from(error: sqlx::Error) -> Self {
         match error {
-            sqlx::Error::RowNotFound => YukinoError::NotFound("Record not found".to_string()),
+            sqlx::Error::RowNotFound => {
+                YukinoError::NotFound("Record not found.".to_string())
+            }
             _ => YukinoError::DatabaseError(error.to_string()),
+        }
+    }
+}
+
+impl From<AxumLoginError<Backend>> for YukinoError {
+    fn from(err: AxumLoginError<Backend>) -> Self {
+        match err {
+            AxumLoginError::Backend(e) => e,
+            AxumLoginError::Session(e) => {
+                YukinoError::AuthenticationError(format!("Session error: {}", e))
+            }
         }
     }
 }

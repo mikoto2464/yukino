@@ -6,7 +6,7 @@ use serde::Serialize;
 #[sqlx(rename_all = "PascalCase")]
 pub enum Role {
     Admin,
-    User
+    User,
 }
 
 #[derive(Debug, Clone)]

@@ -1,25 +1,41 @@
-use crate::models::user::{Role, User};
+use crate::auth::Backend;
+use crate::models::credential::{Credentials, Provider};
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
-use crate::utils::response::{YukinoJson, YukinoResponse};
+use crate::utils::telegram_hash::verify_telegram_hash;
 use axum::extract::{Query, State};
+use axum::response::{IntoResponse, Redirect};
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use crate::utils::telegram_hash::verify_telegram_hash;
 
-async fn oauth_callback_telegram(
+pub type AuthSession = axum_login::AuthSession<Backend>;
+
+pub async fn telegram_callback(
+    mut auth_session: AuthSession,
     State(state): State<Arc<YukinoState>>,
-    Query(params): Query<BTreeMap<String, String>>
-) -> Result<YukinoJson<User>, YukinoError> {
+    Query(params): Query<BTreeMap<String, String>>,
+) -> Result<impl IntoResponse, YukinoError> {
     if !verify_telegram_hash(&params, &state.tg_bot_token)? {
-        Err(YukinoError::AuthenticationError("Failed to verify telegram hash".to_string()))?
+        return Err(YukinoError::AuthenticationError(
+            "Failed to verify telegram hash.".to_string(),
+        ));
     }
 
-    Ok(YukinoResponse::success(User {
-        id: 123,
-        nickname: "test".to_string(),
-        avatar_url: "test".to_string(),
-        role: Role::User,
-        auth_stamp: "test".to_string(),
-    }))
+    let credential = Credentials {
+        id: params.get("id").unwrap().to_string(),
+        provider: Provider::Telegram,
+        user_id: -1,
+    };
+
+    let user = auth_session.authenticate(credential).await?;
+
+    match user {
+        None => Ok(Redirect::to("/register").into_response()),
+        Some(user) => {
+            if auth_session.login(&user).await.is_err() {
+                return Ok(Redirect::to("/login?error=session_failed").into_response());
+            }
+            Ok(Redirect::to("/profile").into_response())
+        }
+    }
 }

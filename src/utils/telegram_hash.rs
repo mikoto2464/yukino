@@ -1,14 +1,13 @@
-use hmac::{Hmac, Mac, KeyInit};
-use sha2::Sha256;
-use std::collections::BTreeMap;
 use crate::utils::error::YukinoError;
 use crate::utils::error::YukinoError::ConfigError;
+use hmac::{Hmac, KeyInit, Mac};
+use sha2::Sha256;
+use std::collections::BTreeMap;
 
 pub fn verify_telegram_hash(
     params: &BTreeMap<String, String>,
-    secret_key: &[u8]
+    secret_key: &[u8],
 ) -> Result<bool, YukinoError> {
-
     let Some(hash_hex) = params.get("hash") else {
         return Ok(false);
     };
@@ -19,7 +18,7 @@ pub fn verify_telegram_hash(
     };
 
     let mut mac = Hmac::<Sha256>::new_from_slice(secret_key)
-        .map_err(|_| ConfigError("Invalid key length".to_string()))?;
+        .map_err(|_| ConfigError("Invalid key length.".to_string()))?;
 
     let mut is_first = true;
     for (k, v) in params.iter() {

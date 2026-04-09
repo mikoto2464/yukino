@@ -1,11 +1,11 @@
-use serde::Serialize;
 use axum::Json;
 use chrono::Utc;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct YukinoResponse<T> {
     pub success: bool,
-    pub data: Option<T>,
+    pub data: T,
     pub message: String,
     pub timestamp: i64,
 }
@@ -16,7 +16,7 @@ impl<T> YukinoResponse<T> {
     pub fn success(data: T) -> YukinoJson<T> {
         Json(Self {
             success: true,
-            data: Some(data),
+            data,
             message: "ok".to_string(),
             timestamp: Utc::now().timestamp(),
         })

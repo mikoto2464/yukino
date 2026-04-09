@@ -1,9 +1,9 @@
-use crate::utils::error::YukinoError;
+use crate::models::project::Project;
 use crate::state::YukinoState;
+use crate::utils::error::YukinoError;
+use crate::utils::response::{YukinoJson, YukinoResponse};
 use axum::extract::{Path, State};
 use std::sync::Arc;
-use crate::models::project::Project;
-use crate::utils::response::{YukinoJson, YukinoResponse};
 
 pub async fn create_project(
     State(state): State<Arc<YukinoState>>,
@@ -18,8 +18,8 @@ pub async fn create_project(
         "#,
         name
     )
-        .fetch_one(&state.db)
-        .await?;
+    .fetch_one(&state.db)
+    .await?;
 
     Ok(YukinoResponse::success(project))
 }
@@ -37,8 +37,8 @@ pub async fn get_project(
         "#,
         name
     )
-        .fetch_one(&state.db)
-        .await?;
+    .fetch_one(&state.db)
+    .await?;
 
     Ok(YukinoResponse::success(project))
 }
