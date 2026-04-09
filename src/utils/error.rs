@@ -1,31 +1,34 @@
-use std::error::Error;
-use std::fmt;
-use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
 use chrono::Utc;
 use serde_json::json;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum YukinoError {
+    #[error("Resource not found: {0}")]
     NotFound(String),
+
+    #[error("Database error: {0}")]
     DatabaseError(String),
-}
 
-impl fmt::Display for YukinoError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            YukinoError::DatabaseError(msg) => msg.fmt(f),
-            YukinoError::NotFound(msg) => msg.fmt(f),
-        }
-    }
-}
+    #[error("Authentication error: {0}")]
+    AuthenticationError(String),
 
-impl Error for YukinoError {}
+    #[error("Config error: {0}")]
+    ConfigError(String),
+}
 
 impl IntoResponse for YukinoError {
     fn into_response(self) -> Response {
-        let (status, error_message) = match self {
-            YukinoError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
-            YukinoError::DatabaseError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+        let (status, error_message) = match &self {
+            YukinoError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
+            YukinoError::DatabaseError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
+            YukinoError::ConfigError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
+            YukinoError::AuthenticationError(msg) => (StatusCode::UNAUTHORIZED, msg.clone()),
         };
 
         let body = Json(json!({
@@ -43,7 +46,7 @@ impl From<sqlx::Error> for YukinoError {
     fn from(error: sqlx::Error) -> Self {
         match error {
             sqlx::Error::RowNotFound => YukinoError::NotFound("Record not found".to_string()),
-            _ => YukinoError::DatabaseError(error.to_string())
+            _ => YukinoError::DatabaseError(error.to_string()),
         }
     }
 }

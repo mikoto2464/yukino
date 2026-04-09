@@ -11,7 +11,11 @@ pub async fn create_project(
 ) -> Result<YukinoJson<Project>, YukinoError> {
     let project = sqlx::query_as!(
         Project,
-        "INSERT INTO projects (name) VALUES (?) RETURNING id as 'id!', name",
+        r#"
+        insert into projects (name)
+        values (?)
+        RETURNING id, name
+        "#,
         name
     )
         .fetch_one(&state.db)
@@ -26,7 +30,11 @@ pub async fn get_project(
 ) -> Result<YukinoJson<Project>, YukinoError> {
     let project = sqlx::query_as!(
         Project,
-        "SELECT * from projects WHERE name = ?",
+        r#"
+        select id, name
+        from projects
+        where name = ?
+        "#,
         name
     )
         .fetch_one(&state.db)

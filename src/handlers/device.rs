@@ -11,7 +11,11 @@ pub async fn get_devices(
 ) -> Result<YukinoJson<Vec<Device>>, YukinoError> {
     let devices = sqlx::query_as!(
         Device,
-        "SELECT hardware_id, user_id as 'user_id!', name FROM devices WHERE user_id = ?",
+        r#"
+        select hardware_id, user_id, name
+        from devices
+        where user_id = ?
+        "#,
         user_id
     )
     .fetch_all(&state.db)
