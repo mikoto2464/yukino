@@ -1,4 +1,4 @@
-use crate::models::credential::Credentials;
+use crate::models::credential::Credential;
 use crate::models::user::{Role, User};
 use crate::utils::error::YukinoError;
 use axum_login::{AuthnBackend, UserId};
@@ -11,7 +11,7 @@ pub struct Backend {
 
 impl AuthnBackend for Backend {
     type User = User;
-    type Credentials = Credentials;
+    type Credentials = Credential;
     type Error = YukinoError;
 
     async fn authenticate(
