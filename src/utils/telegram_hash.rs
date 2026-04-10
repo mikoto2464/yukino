@@ -1,8 +1,11 @@
 use crate::utils::error::YukinoError;
 use crate::utils::error::YukinoError::ConfigError;
+use chrono::Utc;
 use hmac::{Hmac, KeyInit, Mac};
 use sha2::Sha256;
 use std::collections::BTreeMap;
+
+const AUTH_DATE_MAX_AGE_SECS: i64 = 86400;
 
 pub fn verify_telegram_hash(
     params: &BTreeMap<String, String>,
@@ -11,6 +14,18 @@ pub fn verify_telegram_hash(
     let Some(hash_hex) = params.get("hash") else {
         return Ok(false);
     };
+
+    let Some(auth_date_str) = params.get("auth_date") else {
+        return Ok(false);
+    };
+    let auth_date: i64 = auth_date_str.parse().map_err(|_| {
+        YukinoError::AuthenticationError("Invalid auth_date.".to_string())
+    })?;
+    if Utc::now().timestamp() - auth_date > AUTH_DATE_MAX_AGE_SECS {
+        return Err(YukinoError::AuthenticationError(
+            "Telegram auth_date expired.".to_string(),
+        ));
+    }
 
     let hash_bytes = match hex::decode(hash_hex) {
         Ok(bytes) => bytes,
