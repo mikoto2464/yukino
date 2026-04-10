@@ -1,14 +1,17 @@
+use crate::handlers::auth::AuthSession;
 use crate::models::device::Device;
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
 use crate::utils::response::{YukinoJson, YukinoResponse};
-use axum::extract::{Path, State};
+use axum::extract::State;
 use std::sync::Arc;
 
 pub async fn get_devices(
     State(state): State<Arc<YukinoState>>,
-    Path(user_id): Path<i64>,
+    auth_session: AuthSession
 ) -> Result<YukinoJson<Vec<Device>>, YukinoError> {
+    let user = auth_session.user.unwrap();
+
     let devices = sqlx::query_as!(
         Device,
         r#"
@@ -16,7 +19,7 @@ pub async fn get_devices(
         from devices
         where user_id = ?
         "#,
-        user_id
+        user.id
     )
         .fetch_all(&state.db)
         .await?;

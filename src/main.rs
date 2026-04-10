@@ -35,7 +35,7 @@ async fn main() {
     let pool = SqlitePoolOptions::new()
         .connect_with(options)
         .await
-        .unwrap();
+        .expect("Failed to connect to the database");
 
     // TELEGRAM_BOT_TOKEN
     let telegram_bot_token = env::var("TELEGRAM_BOT_TOKEN")
@@ -44,12 +44,12 @@ async fn main() {
     hasher.update(telegram_bot_token.as_bytes());
 
     let state = Arc::new(YukinoState {
-        tg_bot_token: hasher.finalize().into(),
+        tg_secret_key: hasher.finalize().into(),
         db: pool.clone(),
     });
 
     let session_store = SqliteStore::new(pool.clone());
-    session_store.migrate().await.unwrap();
+    session_store.migrate().await.expect("Failed to migrate the database");
 
     // session cleaner
     let store_clone = session_store.clone();
@@ -69,11 +69,11 @@ async fn main() {
 
     let app = routes::app_routers(state, auth_layer);
     let addr = env::var("LISTEN_ADDR").unwrap_or("0.0.0.0:8088".to_string());
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let listener = TcpListener::bind(addr).await.expect("Failed to bind");
     info!(
         "Server running on http://{}",
-        listener.local_addr().unwrap()
+        listener.local_addr().expect("Failed to bind listener socket")
     );
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await.expect("Failed to run server");
 }

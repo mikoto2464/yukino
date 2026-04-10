@@ -15,14 +15,17 @@ pub async fn telegram_callback(
     State(state): State<Arc<YukinoState>>,
     Query(params): Query<BTreeMap<String, String>>,
 ) -> Result<impl IntoResponse, YukinoError> {
-    if !verify_telegram_hash(&params, &state.tg_bot_token)? {
+    if !verify_telegram_hash(&params, &state.tg_secret_key)? {
         return Err(YukinoError::AuthenticationError(
             "Failed to verify telegram hash.".to_string(),
         ));
     }
 
+    let Some(id) = params.get("id") else {
+        return Err(YukinoError::AuthenticationError("Telegram callback does not have id param".to_string()))
+    };
     let auth_credential = AuthCredential {
-        id: params.get("id").unwrap().to_string(),
+        id: id.to_string(),
         provider: Provider::Telegram,
     };
 
@@ -32,7 +35,7 @@ pub async fn telegram_callback(
         None => Ok(Redirect::to("/register").into_response()),
         Some(user) => {
             if auth_session.login(&user).await.is_err() {
-                return Ok(Redirect::to("/login?error=session_failed").into_response());
+                return Ok(Redirect::to("/401").into_response());
             }
             Ok(Redirect::to("/profile").into_response())
         }
