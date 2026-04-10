@@ -1,7 +1,8 @@
 /target
+/.idea
 *.db
 *.db-shm
 *.db-wal
 *.local.json
 .env
-.idea/
+CLAUDE.md
