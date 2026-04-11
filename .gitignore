@@ -1,9 +1,0 @@
-/target
-/.idea
-/.claude
-/.sqlx
-*.db
-*.db-shm
-*.db-wal
-.env
-CLAUDE.md
