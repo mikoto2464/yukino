@@ -1,7 +1,1 @@
-/yukino-backend/target
-/yukino-backend/.sqlx
 /.idea
-*.db
-*.db-shm
-*.db-wal
-*.env
