@@ -25,8 +25,6 @@ pub fn app_routers(
         .route("/login", get(|| async { "Please trigger OAuth login." }))
         .nest("/auth", auth::auth_routes())
         .nest("/api", api_routes())
-        .nest("/api/device", device::device_routes())
-        .nest("/api/project", project::project_routes())
         .fallback(handler_404)
         .layer(auth_layer)
         .with_state(state)

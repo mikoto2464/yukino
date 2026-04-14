@@ -1,12 +1,43 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yukino-frontend</title>
+    <title>Yukino</title>
+    <style>
+      :root {
+        --boot-bg: radial-gradient(circle at 20% 20%, rgba(145, 164, 184, 0.22), rgba(236, 241, 246, 1));
+        --boot-text: #526579;
+      }
+    </style>
+    <script>
+      (function () {
+        try {
+          const mode = localStorage.getItem('yukino.theme.mode') || 'system';
+          const bgKey = localStorage.getItem('yukino.theme.background');
+          const cacheKey = bgKey ? `yukino.theme.cached.${bgKey}` : null;
+          const cached = cacheKey ? localStorage.getItem(cacheKey) : null;
+          const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+          if (cached) {
+            const colors = JSON.parse(cached);
+            const base = isDark ? colors.dark : colors.light;
+            const text = isDark ? '#d8e2ec' : '#4f6276';
+            document.documentElement.style.setProperty('--boot-text', text);
+            document.documentElement.style.setProperty(
+              '--boot-bg',
+              `radial-gradient(circle at 20% 20%, ${base.primary}33, ${base.background})`
+            );
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
+    <div id="boot-loading">
+      <div class="ring"></div>
+      <div>Yukino Loading...</div>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

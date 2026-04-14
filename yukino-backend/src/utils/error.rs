@@ -2,55 +2,56 @@ use crate::auth::Backend;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use axum_login::Error as AxumLoginError;
-use chrono::Utc;
-use serde_json::json;
-use serde_json::Value::Null;
 use thiserror::Error;
+use tracing::{error, warn}; // 引入 tracing 用于日志记录
+use crate::utils::response::YukinoResponse;
 
 #[derive(Error, Debug)]
 pub enum YukinoError {
-    #[error("ResourceNotFound::{0}")]
+    #[error("Not Found: {0}")]
     NotFound(String),
 
-    #[error("Database::{0}")]
-    DatabaseError(String),
+    #[error("Database error occurred")]
+    DatabaseError(#[from] sqlx::Error),
 
-    #[error("Authentication::{0}")]
+    #[error("Authentication failed: {0}")]
     AuthenticationError(String),
 
-    #[error("Config::{0}")]
+    #[error("Configuration error occurred")]
     ConfigError(String),
+}
+
+impl YukinoError {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            YukinoError::NotFound(_) => StatusCode::NOT_FOUND,
+            YukinoError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
+            YukinoError::DatabaseError(_) | YukinoError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
 }
 
 impl IntoResponse for YukinoError {
     fn into_response(self) -> Response {
-        let (status, error_message) = match &self {
-            YukinoError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
-            YukinoError::DatabaseError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
-            YukinoError::ConfigError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
-            YukinoError::AuthenticationError(msg) => (StatusCode::UNAUTHORIZED, msg.clone()),
+        let status = self.status_code();
+
+        if status.is_server_error() {
+            error!("Server Error: {:?}", self);
+        } else {
+            warn!("Client Error: {}", self);
+        }
+
+        let user_message = if status.is_server_error() {
+            "Internal server error. Please try again later.".to_string()
+        } else {
+            self.to_string()
         };
 
-        let body = Json(json!({
-            "success": false,
-            "data": Null,
-            "message": error_message,
-            "timestamp": Utc::now().timestamp()
-        }));
+        let body = YukinoResponse::error(user_message);
 
         (status, body).into_response()
-    }
-}
-
-impl From<sqlx::Error> for YukinoError {
-    fn from(error: sqlx::Error) -> Self {
-        match error {
-            sqlx::Error::RowNotFound => YukinoError::NotFound("Record not found.".to_string()),
-            _ => YukinoError::DatabaseError(error.to_string()),
-        }
     }
 }
 

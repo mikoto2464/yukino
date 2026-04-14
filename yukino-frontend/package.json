@@ -9,10 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "@mdi/font": "^7.4.47",
+    "axios": "^1.15.0",
+    "nprogress": "^0.2.0",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.32",
+    "vue-router": "^4.5.0",
+    "vuetify": "^3.10.0"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
+    "@types/nprogress": "^0.2.3",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vue/tsconfig": "^0.9.1",
     "typescript": "~6.0.2",
