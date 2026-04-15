@@ -1,24 +1,26 @@
-﻿#nprogress .bar {
+﻿/*noinspection CssUnusedSymbol*/
+#nprogress .bar {
   background: rgb(var(--v-theme-primary)) !important;
   height: 3px !important;
 }
 
+/*noinspection CssUnusedSymbol*/
 #nprogress .peg {
   box-shadow: 0 0 10px rgb(var(--v-theme-primary)), 0 0 5px rgb(var(--v-theme-primary)) !important;
 }
 
 :root {
+  /* IDE fallback vars: Vuetify will override these at runtime */
+  --v-theme-primary: 123, 142, 161;
+  --v-theme-background: 238, 242, 247;
+  --v-theme-surface: 255, 255, 255;
+  --v-theme-on-surface: 69, 82, 96;
   --yukino-bg-image: none;
-  --yukino-bg-opacity: 0.14;
+  --yukino-bg-opacity: 0.38;
+  --yukino-bg-mask-opacity: 0.52;
 }
 
-.yukino-main {
-  position: relative;
-  isolation: isolate;
-}
-
-.yukino-main::before {
-  content: '';
+.yukino-bg-layer {
   position: fixed;
   inset: 0;
   background-image: var(--yukino-bg-image);
@@ -26,56 +28,171 @@
   background-position: center;
   background-repeat: no-repeat;
   opacity: var(--yukino-bg-opacity);
-  z-index: -2;
+  z-index: 0;
   pointer-events: none;
   transform: scale(1.02);
 }
 
-.yukino-main::after {
-  content: '';
+.yukino-bg-mask {
   position: fixed;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(var(--v-theme-background), 0.76), rgba(var(--v-theme-background), 0.84));
-  z-index: -1;
+  background: rgba(var(--v-theme-background), var(--yukino-bg-mask-opacity));
+  z-index: 1;
   pointer-events: none;
+}
+
+.yukino-main {
+  position: relative;
+  z-index: 2;
 }
 
 .yukino-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
+.panel-surface {
+  background: rgba(var(--v-theme-surface), 0.28);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 16px;
+  animation: yukino-panel-in 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.v-row > .v-col:nth-child(1) .panel-surface {
+  animation-delay: 40ms;
+}
+
+.v-row > .v-col:nth-child(2) .panel-surface {
+  animation-delay: 90ms;
+}
+
+.v-row > .v-col:nth-child(3) .panel-surface {
+  animation-delay: 130ms;
+}
+
+/*noinspection CssUnusedSymbol*/
+.search-field .v-field__input {
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.v-btn {
+  transition: transform 180ms ease, box-shadow 220ms ease;
+}
+
+.v-btn:hover {
+  transform: translateY(-1px);
+}
+
+/*noinspection CssUnusedSymbol*/
 .v-card {
   box-shadow: none !important;
   border-color: rgba(var(--v-theme-on-surface), 0.1) !important;
 }
 
+/*noinspection CssUnusedSymbol*/
+.route-fade-enter-active,
+.route-fade-leave-active {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+/*noinspection CssUnusedSymbol*/
+.route-fade-enter-from,
+.route-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 #boot-loading {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 14px;
-  background: var(--boot-bg);
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(var(--boot-overlay), var(--boot-overlay)),
+    var(--boot-bg-image),
+    var(--boot-base);
+  background-size: cover;
+  background-position: center;
   color: var(--boot-text);
   z-index: 9999;
-  transition: opacity 240ms ease;
+  transition: opacity 420ms ease;
 }
 
+#boot-loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--boot-primary) 30%, transparent), transparent 48%);
+  animation: yukino-glow 2.8s ease-in-out infinite;
+}
+
+/*noinspection CssUnusedSymbol*/
 #boot-loading.hidden {
   opacity: 0;
   pointer-events: none;
 }
 
+#boot-loading .boot-card {
+  width: min(90vw, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 20px 20px;
+  border-radius: 18px;
+  background: var(--boot-surface);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
 #boot-loading .ring {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
-  border: 3px solid rgba(120, 140, 161, 0.25);
-  border-top-color: rgba(120, 140, 161, 0.92);
-  animation: yukino-spin 0.8s linear infinite;
+  border: 3px solid color-mix(in srgb, var(--boot-primary) 26%, transparent);
+  border-top-color: var(--boot-primary);
+  animation: yukino-spin 0.85s linear infinite;
+}
+
+#boot-loading .boot-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+#boot-loading .boot-subtitle {
+  font-size: 0.86rem;
+  opacity: 0.78;
+}
+
+#boot-loading .boot-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--boot-primary) 16%, transparent);
+}
+
+#boot-loading .boot-bar {
+  display: block;
+  width: 38%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--boot-primary);
+  animation: yukino-slide 1.2s ease-in-out infinite;
+}
+
+.yukino-snackbar .v-snackbar__wrapper {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(8px);
+  opacity: 0.98;
 }
 
 @keyframes yukino-spin {
@@ -85,5 +202,58 @@
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes yukino-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  50% {
+    transform: translateX(90%);
+  }
+
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+@keyframes yukino-glow {
+  0%,
+  100% {
+    opacity: 0.52;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes yukino-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-surface,
+  .route-fade-enter-active,
+  .route-fade-leave-active,
+  #boot-loading .ring,
+  #boot-loading .boot-bar,
+  #boot-loading::before {
+    animation: none;
+    transition: none;
+  }
+
+  .v-btn:hover {
+    transform: none;
   }
 }

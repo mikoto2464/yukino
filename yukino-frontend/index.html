@@ -6,8 +6,22 @@
     <title>Yukino</title>
     <style>
       :root {
-        --boot-bg: radial-gradient(circle at 20% 20%, rgba(145, 164, 184, 0.22), rgba(236, 241, 246, 1));
+        --boot-bg-image: none;
+        --boot-base: #eef2f7;
+        --boot-overlay: rgba(238, 242, 247, 0.74);
         --boot-text: #526579;
+        --boot-primary: #7b8ea1;
+        --boot-surface: rgba(255, 255, 255, 0.46);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --boot-base: #11161b;
+          --boot-overlay: rgba(17, 22, 27, 0.68);
+          --boot-text: #d7e1ea;
+          --boot-primary: #9eb2c7;
+          --boot-surface: rgba(19, 24, 29, 0.56);
+        }
       }
     </style>
     <script>
@@ -19,24 +33,40 @@
           const cached = cacheKey ? localStorage.getItem(cacheKey) : null;
           const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
+          const withAlpha = (hex, alphaHex) => {
+            if (typeof hex !== 'string') return isDark ? `rgba(17, 22, 27, 0.68)` : `rgba(238, 242, 247, 0.74)`;
+            const match = hex.trim().match(/^#([0-9a-fA-F]{6})$/);
+            if (!match) return isDark ? `rgba(17, 22, 27, 0.68)` : `rgba(238, 242, 247, 0.74)`;
+            return `#${match[1]}${alphaHex}`;
+          };
+
+          if (bgKey) {
+            document.documentElement.style.setProperty('--boot-bg-image', `url('/background/${bgKey}')`);
+          }
+
           if (cached) {
             const colors = JSON.parse(cached);
             const base = isDark ? colors.dark : colors.light;
-            const text = isDark ? '#d8e2ec' : '#4f6276';
+            const text = isDark ? base['on-background'] || '#d7e1ea' : base['on-background'] || '#4f6276';
+            const surface = isDark ? 'rgba(19, 24, 29, 0.56)' : 'rgba(255, 255, 255, 0.50)';
             document.documentElement.style.setProperty('--boot-text', text);
-            document.documentElement.style.setProperty(
-              '--boot-bg',
-              `radial-gradient(circle at 20% 20%, ${base.primary}33, ${base.background})`
-            );
+            document.documentElement.style.setProperty('--boot-primary', base.primary || '#7b8ea1');
+            document.documentElement.style.setProperty('--boot-base', base.background || (isDark ? '#11161b' : '#eef2f7'));
+            document.documentElement.style.setProperty('--boot-overlay', withAlpha(base.background, isDark ? 'B0' : 'BA'));
+            document.documentElement.style.setProperty('--boot-surface', surface);
           }
         } catch (_) {}
       })();
     </script>
   </head>
   <body>
-    <div id="boot-loading">
-      <div class="ring"></div>
-      <div>Yukino Loading...</div>
+    <div id="boot-loading" aria-live="polite">
+      <div class="boot-card">
+        <div class="ring"></div>
+        <div class="boot-title">Yukino</div>
+        <div class="boot-subtitle">正在加载控制台资源...</div>
+        <div class="boot-track"><span class="boot-bar"></span></div>
+      </div>
     </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>

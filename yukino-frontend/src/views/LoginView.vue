@@ -1,14 +1,14 @@
 ﻿<template>
   <v-container class="pa-4 pa-sm-6" fluid>
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card class="pa-6" rounded="xl" elevation="2">
+      <v-col cols="12" lg="4" md="6" sm="8">
+        <v-card class="pa-6" elevation="2" rounded="xl">
           <h1 class="text-h6 font-weight-bold mb-2 text-primary">登录模拟</h1>
           <p class="text-medium-emphasis mb-6">无后端阶段，使用 Mock 用户进行鉴权演示。</p>
 
           <div class="d-flex flex-column ga-3">
-            <v-btn color="primary" :loading="loadingUser" @click="loginAsUser">登录为普通用户</v-btn>
-            <v-btn color="secondary" :loading="loadingAdmin" @click="loginAsAdmin">登录为管理员</v-btn>
+            <v-btn :loading="loadingUser" color="primary" @click="loginAsUser">登录为普通用户</v-btn>
+            <v-btn :loading="loadingAdmin" color="secondary" @click="loginAsAdmin">登录为管理员</v-btn>
           </div>
         </v-card>
       </v-col>
@@ -16,11 +16,11 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { useFeedbackStore } from '../stores/feedback'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {useAuthStore} from '../stores/auth'
+import {useFeedbackStore} from '../stores/feedback'
 
 const router = useRouter()
 const route = useRoute()
@@ -37,7 +37,7 @@ function doneRedirect() {
     return
   }
 
-  router.push({ name: 'dashboard' })
+  router.push({name: 'dashboard'})
 }
 
 function mockLogin(role: 'user' | 'admin') {

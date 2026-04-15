@@ -1,14 +1,14 @@
 ﻿<template>
   <v-container class="pa-4 pa-sm-6" fluid>
     <v-row>
-      <v-col cols="12" md="8" lg="7">
+      <v-col cols="12" lg="7" md="8">
         <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2 text-primary">Yukino Public</h1>
         <p class="text-medium-emphasis mb-6">公共页面，任何用户均可访问。</p>
 
-        <v-btn v-if="authStore.isAuthenticated" color="primary" size="large" :to="{ name: 'dashboard' }">
+        <v-btn v-if="authStore.isAuthenticated" :to="{ name: 'dashboard' }" color="primary" size="large">
           前往控制台
         </v-btn>
-        <v-btn v-else color="primary" size="large" :to="{ name: 'login' }">
+        <v-btn v-else :to="{ name: 'login' }" color="primary" size="large">
           登录
         </v-btn>
       </v-col>
@@ -16,8 +16,8 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-import { useAuthStore } from '../stores/auth'
+<script lang="ts" setup>
+import {useAuthStore} from '../stores/auth'
 
 const authStore = useAuthStore()
 </script>

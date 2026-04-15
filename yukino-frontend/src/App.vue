@@ -1,11 +1,17 @@
 ﻿<template>
   <v-app>
-    <RouterView />
-    <GlobalSnackbar />
+    <div class="yukino-bg-layer"/>
+    <div class="yukino-bg-mask"/>
+    <RouterView v-slot="{ Component, route }">
+      <Transition mode="out-in" name="route-fade">
+        <component :is="Component" :key="route.fullPath"/>
+      </Transition>
+    </RouterView>
+    <GlobalSnackbar/>
   </v-app>
 </template>
 
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
+<script lang="ts" setup>
+import {RouterView} from 'vue-router'
 import GlobalSnackbar from './components/GlobalSnackbar.vue'
 </script>

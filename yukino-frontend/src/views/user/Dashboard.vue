@@ -1,112 +1,129 @@
 ﻿<template>
   <v-row class="ga-0">
-    <v-col cols="12" md="6" lg="4" class="mb-4">
-      <v-card rounded="xl" elevation="2" class="pa-4 pa-md-5 fill-height">
+    <v-col class="mb-4" cols="12" md="6">
+      <section class="panel-surface h-100">
         <h2 class="text-h6 font-weight-bold mb-4 text-primary">用户信息</h2>
 
         <div class="d-flex align-center mb-4">
-          <v-avatar size="80" color="primary" variant="tonal" class="me-4">
+          <v-avatar class="me-4" color="primary" size="80" variant="tonal">
             <span class="text-h6 font-weight-bold">{{ user.initials }}</span>
           </v-avatar>
 
           <div>
             <div class="text-subtitle-1 font-weight-bold">{{ user.name }}</div>
-            <div class="text-body-2 text-medium-emphasis">{{ user.email }}</div>
+            <div class="text-body-2 text-medium-emphasis">用户编号: {{ user.userId }}</div>
             <div class="text-body-2 text-medium-emphasis">绑定 Telegram: {{ user.telegram }}</div>
           </div>
         </div>
 
         <div class="d-flex ga-2 flex-wrap">
-          <v-btn color="error" variant="tonal" :loading="unbindLoading" @click="handleUnbind">解绑</v-btn>
-          <v-btn color="primary" variant="tonal" :loading="rebindLoading" @click="handleRebind">换绑</v-btn>
+          <v-btn :loading="unbindLoading" color="error" variant="tonal" @click="handleUnbind">解绑</v-btn>
+          <v-btn :loading="rebindLoading" color="primary" variant="tonal" @click="handleRebind">换绑</v-btn>
         </div>
-      </v-card>
+      </section>
     </v-col>
 
-    <v-col cols="12" md="6" lg="4" class="mb-4">
-      <v-card rounded="xl" elevation="2" class="pa-4 pa-md-5 fill-height">
+    <v-col class="mb-4" cols="12" md="6">
+      <section class="panel-surface h-100">
         <h2 class="text-h6 font-weight-bold mb-4 text-primary">在线设备</h2>
 
-        <v-list lines="two" class="pa-0 mb-2 bg-transparent">
+        <v-list class="pa-0 mb-3 bg-transparent" lines="two">
           <v-list-item
-            v-for="device in devices"
-            :key="device.id"
-            :title="device.name"
-            :subtitle="`最后心跳: ${device.lastSeen}`"
-            class="px-0"
+              v-for="device in devices"
+              :key="device.id"
+              :subtitle="`最后心跳: ${device.lastSeen}`"
+              :title="device.name"
+              class="px-0"
           >
             <template #prepend>
-              <v-avatar color="secondary" variant="tonal" size="36">
-                <v-icon :icon="device.icon" />
+              <v-avatar color="secondary" size="36" variant="tonal">
+                <v-icon :icon="device.icon"/>
               </v-avatar>
             </template>
             <template #append>
               <v-btn
-                size="small"
-                color="error"
-                variant="text"
-                :loading="kickLoadingId === device.id"
-                @click="kickDevice(device.id)"
+                  :loading="kickLoadingId === device.id"
+                  color="error"
+                  size="small"
+                  variant="text"
+                  @click="kickDevice(device.id)"
               >
                 下线
               </v-btn>
             </template>
           </v-list-item>
         </v-list>
-      </v-card>
-    </v-col>
 
-    <v-col cols="12" md="6" lg="4" class="mb-4">
-      <v-card rounded="xl" elevation="2" class="pa-4 pa-md-5 fill-height">
-        <h2 class="text-h6 font-weight-bold mb-4 text-primary">卡密激活</h2>
-
-        <v-form @submit.prevent="submitActivation">
-          <v-text-field
-            v-model="activationCode"
-            label="请输入卡密"
-            variant="outlined"
-            rounded="lg"
-            color="primary"
-            class="mb-3"
-            :disabled="activationLoading"
-          />
-
-          <v-btn
-            block
-            size="large"
-            color="primary"
-            rounded="lg"
-            elevation="1"
-            type="submit"
-            :loading="activationLoading"
-          >
-            激活
-          </v-btn>
-        </v-form>
-      </v-card>
+        <v-row class="align-end">
+          <v-col cols="12" sm="8">
+            <v-text-field
+                v-model="bindCode"
+                color="primary"
+                density="comfortable"
+                hide-details
+                label="输入绑定代码"
+                rounded="lg"
+                variant="outlined"
+            />
+          </v-col>
+          <v-col cols="12" sm="4">
+            <v-btn :loading="bindLoading" block color="primary" rounded="lg" size="large" @click="bindDevice">新增设备
+            </v-btn>
+          </v-col>
+        </v-row>
+      </section>
     </v-col>
 
     <v-col cols="12">
-      <v-card rounded="xl" elevation="2" class="pa-4 pa-md-5">
-        <h2 class="text-h6 font-weight-bold mb-4 text-primary">可用项目</h2>
+      <section class="panel-surface">
+        <div class="d-flex flex-column flex-md-row align-md-center justify-space-between mb-4 ga-3">
+          <h2 class="text-h6 font-weight-bold text-primary">可用项目</h2>
 
-        <v-row>
-          <v-col cols="12" sm="6" md="4" v-for="project in projects" :key="project.id" class="mb-2">
-            <v-card rounded="xl" elevation="2" variant="flat" border class="pa-4">
-              <div class="text-subtitle-1 font-weight-bold mb-1">{{ project.name }}</div>
-              <div class="text-body-2 text-medium-emphasis mb-3">{{ project.description }}</div>
-              <v-chip color="primary" size="small" variant="tonal">{{ project.status }}</v-chip>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card>
+          <div class="d-flex flex-column flex-sm-row ga-2" style="min-width: min(100%, 680px)">
+            <v-text-field
+                v-model="activationCode"
+                class="flex-grow-1"
+                color="primary"
+                density="comfortable"
+                hide-details
+                label="输入卡密"
+                rounded="lg"
+                variant="outlined"
+            />
+            <v-btn :loading="activationLoading" color="primary" rounded="lg" size="large" @click="submitActivation">
+              激活卡密
+            </v-btn>
+          </div>
+        </div>
+
+        <div class="d-flex justify-end mb-3">
+          <v-text-field
+              v-model="projectSearch"
+              class="search-field"
+              clearable
+              density="compact"
+              hide-details
+              placeholder="搜索项目 / 状态"
+              prepend-inner-icon="mdi-magnify"
+              style="max-width: 340px"
+              variant="solo-filled"
+          />
+        </div>
+
+        <v-data-table :headers="projectHeaders" :items="filteredProjects" :items-per-page="8" class="elevation-0">
+          <template v-slot:[`item.status`]="{ item }">
+            <v-chip color="primary" size="small" variant="tonal">{{ item.status }}</v-chip>
+          </template>
+        </v-data-table>
+      </section>
     </v-col>
   </v-row>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useFeedbackStore } from '../../stores/feedback'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import http from '../../api/axios'
+import {useFeedbackStore} from '../../stores/feedback'
 
 interface DeviceItem {
   id: string
@@ -115,45 +132,62 @@ interface DeviceItem {
   icon: string
 }
 
-interface ProjectItem {
+interface ProjectRow {
   id: string
   name: string
-  description: string
   status: string
+  version: string
+  expiresAt: string
 }
 
+const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false'
 const feedback = useFeedbackStore()
 
 const user = {
   initials: 'YU',
   name: 'Yukino User',
-  email: 'user@yukino.app',
+  userId: 'user_20314',
   telegram: '@yukino_user'
 }
 
 const devices = ref<DeviceItem[]>([
-  { id: 'dev-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor' },
-  { id: 'dev-2', name: 'MacBook Pro', lastSeen: '2 分钟前', icon: 'mdi-laptop' },
-  { id: 'dev-3', name: 'Android Phone', lastSeen: '5 分钟前', icon: 'mdi-cellphone' }
+  {id: 'dev-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor'},
+  {id: 'dev-2', name: 'MacBook Pro', lastSeen: '2 分钟前', icon: 'mdi-laptop'},
+  {id: 'dev-3', name: 'Android Phone', lastSeen: '5 分钟前', icon: 'mdi-cellphone'}
 ])
 
-const projects = ref<ProjectItem[]>([
-  { id: 'proj-1', name: 'Yukino Agent', description: '设备侧守护程序与自动更新组件。', status: '可激活' },
-  { id: 'proj-2', name: 'Yukino Launcher', description: '桌面分发启动器，支持多版本并行。', status: '可下载' },
-  { id: 'proj-3', name: 'Yukino Monitor', description: '运行态监控与远程运维工具。', status: '内测开放' }
+const projects = ref<ProjectRow[]>([
+  {id: 'proj-1', name: 'Yukino Agent', status: '已授权', version: 'v2.3.1', expiresAt: '2026-11-12'},
+  {id: 'proj-2', name: 'Yukino Launcher', status: '可下载', version: 'v1.9.8', expiresAt: '2026-08-01'},
+  {id: 'proj-3', name: 'Yukino Monitor', status: '内测开放', version: 'v0.9.0-beta', expiresAt: '2026-05-30'}
 ])
 
+const projectHeaders = [
+  {title: '项目名', key: 'name', sortable: false},
+  {title: '状态', key: 'status', sortable: false},
+  {title: '版本', key: 'version', sortable: false},
+  {title: '到期时间', key: 'expiresAt', sortable: false}
+]
 const unbindLoading = ref(false)
 const rebindLoading = ref(false)
 const kickLoadingId = ref('')
+const bindCode = ref('')
+const bindLoading = ref(false)
 const activationCode = ref('')
 const activationLoading = ref(false)
+const projectSearch = ref('')
+
+const filteredProjects = computed(() => {
+  const kw = projectSearch.value.trim().toLowerCase()
+  if (!kw) return projects.value
+  return projects.value.filter((item) => [item.name, item.status, item.version].join(' ').toLowerCase().includes(kw))
+})
 
 function handleUnbind() {
   unbindLoading.value = true
   setTimeout(() => {
     unbindLoading.value = false
-    feedback.open({ type: 'info', message: '解绑请求已提交' })
+    feedback.open({type: 'info', message: '解绑请求已提交'})
   }, 600)
 }
 
@@ -161,7 +195,7 @@ function handleRebind() {
   rebindLoading.value = true
   setTimeout(() => {
     rebindLoading.value = false
-    feedback.open({ type: 'success', message: '换绑验证流程已启动' })
+    feedback.open({type: 'success', message: '换绑验证流程已启动'})
   }, 600)
 }
 
@@ -170,20 +204,46 @@ function kickDevice(deviceId: string) {
   setTimeout(() => {
     devices.value = devices.value.filter((item) => item.id !== deviceId)
     kickLoadingId.value = ''
-    feedback.open({ type: 'success', message: '设备已下线' })
+    feedback.open({type: 'success', message: '设备已下线'})
   }, 500)
+}
+
+async function bindDevice() {
+  if (!bindCode.value.trim()) {
+    feedback.open({type: 'error', message: '请输入有效的设备绑定代码'})
+    return
+  }
+
+  bindLoading.value = true
+  try {
+    if (!USE_MOCK) {
+      await http.post('/user/devices/bind', {code: bindCode.value.trim()})
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 600))
+    }
+
+    devices.value = [
+      {id: crypto.randomUUID(), name: `New Device ${devices.value.length + 1}`, lastSeen: '刚刚', icon: 'mdi-laptop'},
+      ...devices.value
+    ]
+
+    bindCode.value = ''
+    feedback.open({type: 'success', message: '设备绑定成功'})
+  } finally {
+    bindLoading.value = false
+  }
 }
 
 function submitActivation() {
   if (!activationCode.value.trim()) {
-    feedback.open({ type: 'error', message: '请输入有效卡密' })
+    feedback.open({type: 'error', message: '请输入有效卡密'})
     return
   }
 
   activationLoading.value = true
   setTimeout(() => {
     activationLoading.value = false
-    feedback.open({ type: 'success', message: '卡密激活成功（Mock）' })
+    feedback.open({type: 'success', message: '卡密激活成功（Mock）'})
     activationCode.value = ''
   }, 900)
 }

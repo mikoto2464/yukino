@@ -1,31 +1,53 @@
 ﻿<template>
   <v-layout class="min-h-screen">
     <v-app-bar color="primary" prominent>
-      <RouterLink :to="{ name: 'home' }" class="brand-link ms-3">Yukino</RouterLink>
+      <RouterLink :to="{ name: 'home' }" class="brand-link ms-4">Yukino</RouterLink>
 
-      <div class="d-flex align-center ga-2 ms-4" v-if="authStore.isAdmin">
-        <v-btn :to="{ name: 'admin' }" variant="text" class="text-none">前往管理员页面</v-btn>
+      <div v-if="authStore.isAdmin" class="d-flex align-center ga-2 ms-4">
+        <v-btn :to="{ name: 'admin' }" class="text-none" variant="text">前往管理员页面</v-btn>
       </div>
 
       <template #append>
-        <ThemeControls />
+        <div class="d-flex align-center ga-2">
+          <ThemeControls/>
+          <v-btn v-if="authStore.isAuthenticated" :loading="logoutLoading" class="text-none" variant="text"
+                 @click="logout">
+            退出登录
+          </v-btn>
+        </div>
       </template>
     </v-app-bar>
 
     <v-main class="yukino-main">
-      <v-container fluid class="pa-4 pa-md-6 bg-background fill-height yukino-content">
-        <RouterView />
+      <v-container class="pa-4 pa-md-6 yukino-content" fluid>
+        <RouterView/>
       </v-container>
     </v-main>
   </v-layout>
 </template>
 
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {RouterLink, RouterView, useRouter} from 'vue-router'
 import ThemeControls from '../components/ThemeControls.vue'
-import { useAuthStore } from '../stores/auth'
+import {useAuthStore} from '../stores/auth'
+import {useFeedbackStore} from '../stores/feedback'
 
+const router = useRouter()
 const authStore = useAuthStore()
+const feedbackStore = useFeedbackStore()
+const logoutLoading = ref(false)
+
+function logout() {
+  logoutLoading.value = true
+
+  setTimeout(() => {
+    authStore.clearAuth()
+    feedbackStore.open({type: 'success', message: '已退出登录'})
+    logoutLoading.value = false
+    router.push({name: 'home'})
+  }, 240)
+}
 </script>
 
 <style scoped>
@@ -37,10 +59,10 @@ const authStore = useAuthStore()
   letter-spacing: 0.01em;
 }
 
-.brand-link:hover,
-.brand-link:focus,
 .brand-link:visited,
-.brand-link:active {
+.brand-link:active,
+.brand-link:hover,
+.brand-link:focus {
   color: inherit;
   text-decoration: none;
 }
