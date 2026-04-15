@@ -3,6 +3,10 @@ import type {ThemeInstance} from 'vuetify/lib/framework.mjs'
 import {BACKGROUND_OPTIONS, extractThemeFromBackground, getFallbackThemeColors} from './backgroundPalette'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
+interface ThemeTransitionOrigin {
+    x: number
+    y: number
+}
 
 const STORAGE_MODE_KEY = 'yukino.theme.mode'
 const STORAGE_BACKGROUND_KEY = 'yukino.theme.background'
@@ -111,8 +115,60 @@ async function applyTheme(recompute = false) {
     Object.assign(themeInstance.themes.value.dark.colors, colors.dark)
 
     const dark = getEffectiveThemeName() === 'dark'
-    themeInstance.change(dark ? 'dark' : 'light')
-    applyBackgroundStyle(dark)
+    await applyThemeWithTransition(dark)
+}
+
+async function applyThemeWithTransition(dark: boolean, origin?: ThemeTransitionOrigin) {
+    if (!themeInstance) {
+        return
+    }
+
+    const apply = () => {
+        themeInstance?.change(dark ? 'dark' : 'light')
+        applyBackgroundStyle(dark)
+    }
+
+    if (!origin || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        apply()
+        return
+    }
+
+    const doc = document as Document & {
+        startViewTransition?: (callback: () => void) => {ready: Promise<void>}
+    }
+
+    if (!doc.startViewTransition) {
+        apply()
+        return
+    }
+
+    const endRadius = Math.hypot(
+        Math.max(origin.x, window.innerWidth - origin.x),
+        Math.max(origin.y, window.innerHeight - origin.y)
+    )
+
+    const transition = doc.startViewTransition(() => {
+        apply()
+    })
+
+    try {
+        await transition.ready
+        document.documentElement.animate(
+            {
+                clipPath: [
+                    `circle(0px at ${origin.x}px ${origin.y}px)`,
+                    `circle(${endRadius}px at ${origin.x}px ${origin.y}px)`
+                ]
+            },
+            {
+                duration: 520,
+                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+                pseudoElement: '::view-transition-new(root)'
+            }
+        )
+    } catch {
+        // fallback: theme has already been applied
+    }
 }
 
 function randomBackgroundKey() {
@@ -151,9 +207,14 @@ export async function initThemeEngine(theme: ThemeInstance) {
 }
 
 export function useThemePreferences() {
-    function setMode(mode: ThemeMode) {
+    function setMode(mode: ThemeMode, origin?: ThemeTransitionOrigin) {
         state.mode = mode
         writeStorage()
+        if (origin) {
+            const dark = getEffectiveThemeName() === 'dark'
+            void applyThemeWithTransition(dark, origin)
+            return
+        }
         void applyTheme(false)
     }
 
@@ -171,8 +232,8 @@ export function useThemePreferences() {
         setBackground(randomBackgroundKey())
     }
 
-    function toggleLightDark() {
-        setMode(getEffectiveThemeName() === 'dark' ? 'light' : 'dark')
+    function toggleLightDark(origin?: ThemeTransitionOrigin) {
+        setMode(getEffectiveThemeName() === 'dark' ? 'light' : 'dark', origin)
     }
 
     return {
@@ -190,4 +251,3 @@ export function useThemePreferences() {
         isDark: () => getEffectiveThemeName() === 'dark'
     }
 }
-

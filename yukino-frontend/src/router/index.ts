@@ -1,5 +1,6 @@
 ﻿import {createRouter, createWebHistory} from 'vue-router'
 import NProgress from 'nprogress'
+import http from '../api/axios'
 import {useAuthStore} from '../stores/auth'
 import {useFeedbackStore} from '../stores/feedback'
 
@@ -18,6 +19,40 @@ NProgress.configure({
 })
 
 type AccessLevel = 'public' | 'auth' | 'admin'
+
+interface SessionUserResponse {
+    id: number
+    nickname: string
+    avatar_url: string
+    role: string
+    auth_stamp: string
+}
+
+let sessionRefreshed = false
+
+async function refreshSessionUser() {
+    if (sessionRefreshed) {
+        return
+    }
+    sessionRefreshed = true
+
+    const authStore = useAuthStore()
+    try {
+        const user = await http.get('/user/me', {silentError: true} as any) as SessionUserResponse
+        const role = user.role.toLowerCase() === 'admin' ? 'admin' : 'user'
+
+        authStore.setSessionUser({
+            id: String(user.id),
+            name: user.nickname,
+            roles: role === 'admin' ? ['user', 'admin'] : ['user'],
+            nickname: user.nickname,
+            avatarUrl: user.avatar_url,
+            authStamp: user.auth_stamp
+        })
+    } catch {
+        // ignore unauthenticated session
+    }
+}
 
 const router = createRouter({
     history: createWebHistory(),
@@ -73,7 +108,7 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     NProgress.start()
 
     const authStore = useAuthStore()
@@ -83,6 +118,8 @@ router.beforeEach((to) => {
     if (access === 'public') {
         return true
     }
+
+    await refreshSessionUser()
 
     if (!authStore.isAuthenticated) {
         feedbackStore.open({
@@ -121,3 +158,4 @@ router.onError(() => {
 })
 
 export default router
+

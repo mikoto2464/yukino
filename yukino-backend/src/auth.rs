@@ -32,6 +32,31 @@ impl AuthnBackend for Backend {
             .fetch_optional(&self.db)
             .await?;
 
+        if user.is_none() {
+            let user = sqlx::query_as!(
+                User,
+                r#"
+                insert into users (nickname, avatar_url)
+                values (?, ?)
+                RETURNING id, nickname, avatar_url, role as 'role: Role', auth_stamp
+                "#,
+                credential.nickname, credential.avatar_url
+            )
+                .fetch_one(&self.db)
+                .await?;
+
+            sqlx::query!(
+                r#"
+                insert into credentials (id, provider, user_id)
+                values (?, ?, ?)
+                "#,
+                credential.id, credential.provider, user.id
+            )
+                .execute(&self.db)
+                .await?;
+            return Ok(Some(user));
+        }
+
         Ok(user)
     }
 

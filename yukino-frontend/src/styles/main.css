@@ -195,6 +195,12 @@
   opacity: 0.98;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 @keyframes yukino-spin {
   from {
     transform: rotate(0deg);

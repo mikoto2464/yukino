@@ -29,6 +29,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import {RouterLink, RouterView, useRouter} from 'vue-router'
+import http from '../api/axios'
 import ThemeControls from '../components/ThemeControls.vue'
 import {useAuthStore} from '../stores/auth'
 import {useFeedbackStore} from '../stores/feedback'
@@ -38,15 +39,17 @@ const authStore = useAuthStore()
 const feedbackStore = useFeedbackStore()
 const logoutLoading = ref(false)
 
-function logout() {
+async function logout() {
   logoutLoading.value = true
 
-  setTimeout(() => {
+  try {
+    await http.delete('/auth/logout')
     authStore.clearAuth()
     feedbackStore.open({type: 'success', message: '已退出登录'})
-    logoutLoading.value = false
     router.push({name: 'home'})
-  }, 240)
+  } finally {
+    logoutLoading.value = false
+  }
 }
 </script>
 

@@ -9,6 +9,9 @@ export interface AuthUser {
     id: string
     name: string
     roles: UserRole[]
+    nickname?: string
+    avatarUrl?: string
+    authStamp?: string
 }
 
 interface AuthState {
@@ -40,14 +43,18 @@ export const useAuthStore = defineStore('auth', {
         user: readUser()
     }),
     getters: {
-        isAuthenticated: (state) => Boolean(state.token),
+        isAuthenticated: (state) => Boolean(state.user || state.token),
         isAdmin: (state) => state.user?.roles.includes('admin') ?? false,
         roles: (state) => state.user?.roles ?? []
     },
     actions: {
         setToken(token: string) {
             this.token = token
-            localStorage.setItem(TOKEN_KEY, token)
+            if (token) {
+                localStorage.setItem(TOKEN_KEY, token)
+                return
+            }
+            localStorage.removeItem(TOKEN_KEY)
         },
         setUser(user: AuthUser | null) {
             this.user = user
@@ -59,6 +66,10 @@ export const useAuthStore = defineStore('auth', {
         },
         setAuth(token: string, user: AuthUser) {
             this.setToken(token)
+            this.setUser(user)
+        },
+        setSessionUser(user: AuthUser) {
+            this.setToken('')
             this.setUser(user)
         },
         clearAuth() {

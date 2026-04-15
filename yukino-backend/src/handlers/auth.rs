@@ -2,42 +2,45 @@ use crate::auth::Backend;
 use crate::models::credential::{AuthCredential, Provider};
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
-use crate::utils::telegram_hash::verify_telegram_hash;
-use axum::extract::{Query, State};
-use axum::response::{IntoResponse, Redirect};
-use std::collections::BTreeMap;
+use crate::utils::telegram_hash::{verify_telegram_hash, TelegramCallbackParams};
+use axum::extract::State;
+use axum::Json;
 use std::sync::Arc;
+use crate::models::user::User;
+use crate::utils::response::{YukinoJson, YukinoResponse};
 
 pub type AuthSession = axum_login::AuthSession<Backend>;
 
 pub async fn telegram_callback(
     mut auth_session: AuthSession,
     State(state): State<Arc<YukinoState>>,
-    Query(params): Query<BTreeMap<String, String>>,
-) -> Result<impl IntoResponse, YukinoError> {
-    if !verify_telegram_hash(&params, &state.tg_secret_key)? {
+    Json(payload): Json<TelegramCallbackParams>,
+) -> Result<YukinoJson<User>, YukinoError> {
+    if !verify_telegram_hash(&payload, &state.tg_secret_key)? {
         return Err(YukinoError::AuthenticationError(
             "Failed to verify telegram hash.".to_string(),
         ));
     }
 
-    let Some(id) = params.get("id") else {
-        return Err(YukinoError::AuthenticationError("Telegram callback does not have id param".to_string()))
-    };
     let auth_credential = AuthCredential {
-        id: id.to_string(),
+        id: payload.id.to_string(),
         provider: Provider::Telegram,
+        nickname: payload.username,
+        avatar_url: payload.photo_url
     };
 
-    let user = auth_session.authenticate(auth_credential).await?;
+    let user = auth_session.authenticate(auth_credential).await?.unwrap();
 
-    match user {
-        None => Ok(Redirect::to("/register").into_response()),
-        Some(user) => {
-            if auth_session.login(&user).await.is_err() {
-                return Ok(Redirect::to("/401").into_response());
-            }
-            Ok(Redirect::to("/profile").into_response())
-        }
+    if auth_session.login(&user).await.is_err() {
+        return Err(YukinoError::AuthenticationError("Login failed.".to_string()));
     }
+
+    Ok(YukinoResponse::success(user))
+}
+
+pub async fn logout(
+    mut auth_session: AuthSession
+) -> Result<YukinoJson<String>, YukinoError> {
+    auth_session.logout().await?;
+    Ok(YukinoResponse::success("Logout".to_string()))
 }

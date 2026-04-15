@@ -6,7 +6,8 @@
 
         <div class="d-flex align-center mb-4">
           <v-avatar class="me-4" color="primary" size="80" variant="tonal">
-            <span class="text-h6 font-weight-bold">{{ user.initials }}</span>
+            <v-img v-if="user.avatarUrl" :src="user.avatarUrl" alt="avatar" cover/>
+            <span v-else class="text-h6 font-weight-bold">{{ user.initials }}</span>
           </v-avatar>
 
           <div>
@@ -123,6 +124,7 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import http from '../../api/axios'
+import {useAuthStore} from '../../stores/auth'
 import {useFeedbackStore} from '../../stores/feedback'
 
 interface DeviceItem {
@@ -141,14 +143,28 @@ interface ProjectRow {
 }
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false'
+const authStore = useAuthStore()
 const feedback = useFeedbackStore()
 
-const user = {
-  initials: 'YU',
-  name: 'Yukino User',
-  userId: 'user_20314',
-  telegram: '@yukino_user'
-}
+const user = computed(() => {
+  const current = authStore.user
+  const name = current?.nickname || current?.name || '未知用户'
+  const cleanName = name.trim()
+  const initials = cleanName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('') || 'U'
+
+  return {
+    initials,
+    name,
+    userId: current?.id || '--',
+    telegram: cleanName ? `@${cleanName.replace(/^@/, '')}` : '--',
+    avatarUrl: current?.avatarUrl || ''
+  }
+})
 
 const devices = ref<DeviceItem[]>([
   {id: 'dev-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor'},

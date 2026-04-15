@@ -9,7 +9,7 @@ pub enum Role {
     User,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct User {
     pub id: i64,
     pub nickname: String,

@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="d-flex align-center ga-2">
-    <v-btn :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" variant="text" @click="toggleLightDark"/>
+    <v-btn :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" variant="text" @click="toggleLightDarkFromTrigger"/>
 
     <v-menu location="bottom end">
       <template #activator="{ props }">
@@ -72,4 +72,18 @@ const {
   isDark: getIsDark
 } = useThemePreferences()
 const isDark = computed(() => getIsDark())
+
+function toggleLightDarkFromTrigger(event: MouseEvent) {
+  const trigger = event.currentTarget as HTMLElement | null
+  if (!trigger) {
+    toggleLightDark()
+    return
+  }
+
+  const rect = trigger.getBoundingClientRect()
+  toggleLightDark({
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
+  })
+}
 </script>

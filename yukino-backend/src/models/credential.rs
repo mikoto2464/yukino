@@ -11,6 +11,8 @@ pub enum Provider {
 pub struct AuthCredential {
     pub id: String,
     pub provider: Provider,
+    pub nickname: String,
+    pub avatar_url: String,
 }
 
 #[derive(Debug, Clone)]
