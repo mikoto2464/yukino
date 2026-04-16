@@ -5,7 +5,7 @@ use axum::{
 };
 use axum_login::Error as AxumLoginError;
 use thiserror::Error;
-use tracing::{error, warn}; // 引入 tracing 用于日志记录
+use tracing::{error, warn};
 use crate::utils::response::YukinoResponse;
 
 #[derive(Error, Debug)]
@@ -13,14 +13,17 @@ pub enum YukinoError {
     #[error("Not Found: {0}")]
     NotFound(String),
 
-    #[error("Database error occurred")]
-    DatabaseError(#[from] sqlx::Error),
-
     #[error("Authentication failed: {0}")]
     AuthenticationError(String),
 
+    #[error("Invalid parameters: {0}")]
+    InvalidParamentsError(String),
+
     #[error("Configuration error occurred")]
     ConfigError(String),
+
+    #[error("Database error occurred")]
+    DatabaseError(#[from] sqlx::Error),
 }
 
 impl YukinoError {
@@ -29,6 +32,7 @@ impl YukinoError {
             YukinoError::NotFound(_) => StatusCode::NOT_FOUND,
             YukinoError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
             YukinoError::DatabaseError(_) | YukinoError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            YukinoError::InvalidParamentsError(_) => StatusCode::BAD_REQUEST,
         }
     }
 }

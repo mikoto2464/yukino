@@ -26,9 +26,13 @@
 
     <v-col class="mb-4" cols="12" md="6">
       <section class="panel-surface h-100">
-        <h2 class="text-h6 font-weight-bold mb-4 text-primary">在线设备</h2>
+        <h2 class="text-h6 font-weight-bold mb-4 text-primary">设备列表</h2>
 
-        <v-list class="pa-0 mb-3 bg-transparent" lines="two">
+        <v-list
+            :class="{'device-list-scroll': devices.length > 3}"
+            class="pa-0 mb-3 bg-transparent"
+            lines="two"
+        >
           <v-list-item
               v-for="device in devices"
               :key="device.id"
@@ -47,7 +51,7 @@
                   color="error"
                   size="small"
                   variant="text"
-                  @click="kickDevice(device.id)"
+                  @click="deleteDevice(device.id)"
               >
                 下线
               </v-btn>
@@ -68,7 +72,7 @@
             />
           </v-col>
           <v-col cols="12" sm="4">
-            <v-btn :loading="bindLoading" block color="primary" rounded="lg" size="large" @click="bindDevice">新增设备
+            <v-btn :loading="bindLoading" block color="primary" rounded="lg" size="large" @click="createDevice">新增设备
             </v-btn>
           </v-col>
         </v-row>
@@ -142,7 +146,13 @@ interface ProjectRow {
   expiresAt: string
 }
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false'
+interface Device {
+  hardware_id: string
+  user_id: number
+  name: string
+  last_seen: number
+}
+
 const authStore = useAuthStore()
 const feedback = useFeedbackStore()
 
@@ -169,7 +179,7 @@ const user = computed(() => {
 const devices = ref<DeviceItem[]>([
   {id: 'dev-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor'},
   {id: 'dev-2', name: 'MacBook Pro', lastSeen: '2 分钟前', icon: 'mdi-laptop'},
-  {id: 'dev-3', name: 'Android Phone', lastSeen: '5 分钟前', icon: 'mdi-cellphone'}
+  {id: 'dev-3', name: 'Android Phone', lastSeen: '5 分钟前', icon: 'mdi-cellphone'},
 ])
 
 const projects = ref<ProjectRow[]>([
@@ -215,16 +225,16 @@ function handleRebind() {
   }, 600)
 }
 
-function kickDevice(deviceId: string) {
+function deleteDevice(deviceId: string) {
   kickLoadingId.value = deviceId
-  setTimeout(() => {
-    devices.value = devices.value.filter((item) => item.id !== deviceId)
+  setTimeout(async () => {
+    await http.delete('/user/devices/' + deviceId)
     kickLoadingId.value = ''
     feedback.open({type: 'success', message: '设备已下线'})
   }, 500)
 }
 
-async function bindDevice() {
+async function createDevice() {
   if (!bindCode.value.trim()) {
     feedback.open({type: 'error', message: '请输入有效的设备绑定代码'})
     return
@@ -232,14 +242,15 @@ async function bindDevice() {
 
   bindLoading.value = true
   try {
-    if (!USE_MOCK) {
-      await http.post('/user/devices/bind', {code: bindCode.value.trim()})
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, 600))
+    let device_data = atob(bindCode.value.trim()).split(':')
+    let data = {
+      hardware_id: device_data[0],
+      name: device_data[1],
     }
+    const device = await http.post('/user/devices', data) as Device
 
     devices.value = [
-      {id: crypto.randomUUID(), name: `New Device ${devices.value.length + 1}`, lastSeen: '刚刚', icon: 'mdi-laptop'},
+      {id: device.hardware_id, name: device.name, lastSeen: '刚刚', icon: 'mdi-laptop'},
       ...devices.value
     ]
 
@@ -264,3 +275,10 @@ function submitActivation() {
   }, 900)
 }
 </script>
+
+<style scoped>
+.device-list-scroll {
+  max-height: 190px;
+  overflow-y: auto;
+}
+</style>

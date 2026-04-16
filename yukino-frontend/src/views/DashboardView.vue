@@ -34,7 +34,7 @@ const logoutLoading = ref(false)
 async function logout() {
   logoutLoading.value = true
   try {
-    await http.delete('/auth/logout')
+    await http.delete('/user/logout')
     authStore.clearAuth()
     feedbackStore.open({
       type: 'success',
