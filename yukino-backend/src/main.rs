@@ -7,8 +7,8 @@ pub mod utils;
 
 use crate::auth::Backend;
 use crate::state::YukinoState;
-use axum_login::tower_sessions::{ExpiredDeletion, SessionManagerLayer};
 use axum_login::AuthManagerLayerBuilder;
+use axum_login::tower_sessions::{ExpiredDeletion, SessionManagerLayer};
 use dotenvy::dotenv;
 use sha2::{Digest, Sha256};
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
@@ -49,7 +49,10 @@ async fn main() {
     });
 
     let session_store = SqliteStore::new(pool.clone());
-    session_store.migrate().await.expect("Failed to migrate the database");
+    session_store
+        .migrate()
+        .await
+        .expect("Failed to migrate the database");
 
     // session cleaner
     let store_clone = session_store.clone();
@@ -72,8 +75,12 @@ async fn main() {
     let listener = TcpListener::bind(addr).await.expect("Failed to bind");
     info!(
         "Server running on http://{}",
-        listener.local_addr().expect("Failed to bind listener socket")
+        listener
+            .local_addr()
+            .expect("Failed to bind listener socket")
     );
 
-    axum::serve(listener, app).await.expect("Failed to run server");
+    axum::serve(listener, app)
+        .await
+        .expect("Failed to run server");
 }

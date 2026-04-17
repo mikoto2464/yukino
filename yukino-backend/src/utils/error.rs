@@ -1,4 +1,5 @@
 use crate::auth::Backend;
+use crate::utils::response::YukinoResponse;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -6,7 +7,6 @@ use axum::{
 use axum_login::Error as AxumLoginError;
 use thiserror::Error;
 use tracing::{error, warn};
-use crate::utils::response::YukinoResponse;
 
 #[derive(Error, Debug)]
 pub enum YukinoError {
@@ -31,7 +31,9 @@ impl YukinoError {
         match self {
             YukinoError::NotFound(_) => StatusCode::NOT_FOUND,
             YukinoError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
-            YukinoError::DatabaseError(_) | YukinoError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            YukinoError::DatabaseError(_) | YukinoError::ConfigError(_) => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
             YukinoError::InvalidParamentsError(_) => StatusCode::BAD_REQUEST,
         }
     }

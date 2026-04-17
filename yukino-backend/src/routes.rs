@@ -1,13 +1,14 @@
 use crate::auth::Backend;
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
-use axum::response::IntoResponse;
 use axum::Router;
+use axum::response::IntoResponse;
 use axum_login::AuthManagerLayer;
 use std::sync::Arc;
 use tower_sessions_sqlx_store::SqliteStore;
 
 mod auth;
+pub mod device;
 pub mod user;
 
 async fn handler_404() -> impl IntoResponse {
@@ -29,4 +30,5 @@ pub fn api_routes() -> Router<Arc<YukinoState>> {
     Router::new()
         .nest("/auth", auth::auth_routes())
         .nest("/user", user::user_routes())
+        .nest("/device", device::device_routes())
 }

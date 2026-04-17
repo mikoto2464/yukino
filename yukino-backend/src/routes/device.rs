@@ -6,9 +6,12 @@ use axum::routing::{delete, get};
 use axum_login::login_required;
 use std::sync::Arc;
 
-pub fn user_routes() -> Router<Arc<YukinoState>> {
+pub fn device_routes() -> Router<Arc<YukinoState>> {
     Router::new()
-        .route("/session", delete(handlers::user::logout))
-        .route("/me", get(handlers::user::me))
+        .route(
+            "/",
+            get(handlers::device::get_devices).post(handlers::device::create_device),
+        )
+        .route("/{hardware_id}", delete(handlers::device::delete_device))
         .route_layer(login_required!(Backend, login_url = "/login"))
 }

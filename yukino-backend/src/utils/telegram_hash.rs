@@ -2,8 +2,8 @@ use crate::utils::error::YukinoError;
 use crate::utils::error::YukinoError::ConfigError;
 use chrono::Utc;
 use hmac::{Hmac, KeyInit, Mac};
-use sha2::Sha256;
 use serde::Deserialize;
+use sha2::Sha256;
 
 const AUTH_DATE_MAX_AGE_SECS: i64 = 86400;
 
@@ -23,7 +23,9 @@ pub fn verify_telegram_hash(
     secret_key: &[u8],
 ) -> Result<bool, YukinoError> {
     if Utc::now().timestamp() - params.auth_date > AUTH_DATE_MAX_AGE_SECS {
-        return Err(YukinoError::AuthenticationError("Telegram authentication expired.".to_string()));
+        return Err(YukinoError::AuthenticationError(
+            "Telegram authentication expired.".to_string(),
+        ));
     }
 
     let data_check_vec = [
