@@ -43,9 +43,14 @@ async fn main() {
     let mut hasher = Sha256::new();
     hasher.update(telegram_bot_token.as_bytes());
 
+    // CREATE_PROJECT_KEY
+    let create_project_key = env::var("CREATE_PROJECT_KEY")
+        .expect("CREATE_PROJECT_KEY environment variable is missing.");
+
     let state = Arc::new(YukinoState {
         tg_secret_key: hasher.finalize().into(),
         db: pool.clone(),
+        create_project_key
     });
 
     let session_store = SqliteStore::new(pool.clone());

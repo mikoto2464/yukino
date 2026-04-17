@@ -4,4 +4,5 @@ use sqlx::sqlite::SqlitePool;
 pub struct YukinoState {
     pub tg_secret_key: [u8; 32],
     pub db: SqlitePool,
+    pub create_project_key: String,
 }
