@@ -23,7 +23,7 @@ pub fn verify_telegram_hash(
     secret_key: &[u8],
 ) -> Result<bool, YukinoError> {
     if Utc::now().timestamp() - params.auth_date > AUTH_DATE_MAX_AGE_SECS {
-        return Err(YukinoError::AuthenticationError("Auth expired".to_string()));
+        return Err(YukinoError::AuthenticationError("Telegram authentication expired.".to_string()));
     }
 
     let data_check_vec = [
@@ -37,12 +37,12 @@ pub fn verify_telegram_hash(
     let data_check_string = data_check_vec.join("\n");
 
     let mut mac = Hmac::<Sha256>::new_from_slice(secret_key)
-        .map_err(|_| ConfigError("Invalid key length".to_string()))?;
+        .map_err(|_| ConfigError("Invalid key length.".to_string()))?;
 
     mac.update(data_check_string.as_bytes());
 
     let hash_bytes = hex::decode(&params.hash)
-        .map_err(|_| YukinoError::AuthenticationError("Invalid hex hash".to_string()))?;
+        .map_err(|_| YukinoError::AuthenticationError("Invalid hex hash.".to_string()))?;
 
     Ok(mac.verify_slice(&hash_bytes).is_ok())
 }

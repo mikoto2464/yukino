@@ -125,12 +125,12 @@ pub async fn delete_device(
         .execute(&state.db)
         .await?;
 
-    Ok(YukinoResponse::success("Deleted".to_string()))
+    Ok(YukinoResponse::success("".to_string()))
 }
 
 pub async fn logout(
     mut auth_session: AuthSession
 ) -> Result<YukinoJson<String>, YukinoError> {
     auth_session.logout().await?;
-    Ok(YukinoResponse::success("Logout".to_string()))
+    Ok(YukinoResponse::success("".to_string()))
 }
