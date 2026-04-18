@@ -10,7 +10,6 @@ use crate::utils::Pagination;
 use crate::utils::response::{YukinoJson, YukinoResponse};
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateProjectParams {
     pub create_project_key: String,
     pub name: String,
