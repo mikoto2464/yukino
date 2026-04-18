@@ -8,7 +8,6 @@ use sha2::Sha256;
 const AUTH_DATE_MAX_AGE_SECS: i64 = 86400;
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct TelegramCallbackParams {
     pub id: i64,
     pub first_name: String,
