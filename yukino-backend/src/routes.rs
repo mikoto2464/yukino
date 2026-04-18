@@ -10,6 +10,7 @@ use tower_sessions_sqlx_store::SqliteStore;
 mod auth;
 pub mod device;
 pub mod user;
+pub mod project;
 
 async fn handler_404() -> impl IntoResponse {
     YukinoError::NotFound("This path does not exist.".to_string())
@@ -31,4 +32,5 @@ pub fn api_routes() -> Router<Arc<YukinoState>> {
         .nest("/auth", auth::auth_routes())
         .nest("/user", user::user_routes())
         .nest("/device", device::device_routes())
+        .nest("/project", project::project_routes())
 }
