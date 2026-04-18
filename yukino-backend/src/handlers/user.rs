@@ -16,7 +16,7 @@ pub async fn me(
     let user = sqlx::query_as!(
         User,
         r#"
-        select id , nickname, avatar_url, role as 'role: Role', auth_stamp
+        select id, nickname, avatar_url, role as 'role: Role', auth_stamp
         from users
         where id = ?
         "#,
