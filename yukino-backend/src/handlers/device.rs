@@ -30,6 +30,7 @@ pub async fn get_devices(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateDeviceParams {
     hardware_id: String,
     name: String,
