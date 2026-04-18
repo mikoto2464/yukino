@@ -5,8 +5,8 @@
         <v-card class="pa-6" elevation="2" rounded="xl">
           <h1 class="text-h6 font-weight-bold mb-2 text-primary">登录</h1>
           <div class="d-flex flex-column ga-3">
-            <v-btn :loading="loadingUser" color="primary" @click="loginByTelegram">使用Telegram登录</v-btn>
-            <v-btn :loading="loadingAdmin" color="secondary" @click="loginAsAdmin">登录为管理员</v-btn>
+            <v-btn :loading="loadingTelegram" color="primary" @click="loginByTelegram">使用Telegram登录</v-btn>
+            <v-btn :loading="loadingQQ" color="primary" @click="loginByQQ">使用QQ登录</v-btn>
           </div>
         </v-card>
       </v-col>
@@ -21,23 +21,23 @@ import { useAuthStore } from '../stores/auth'
 import { useFeedbackStore } from '../stores/feedback'
 import http from '../api/axios'
 
-const router = useRouter()
-const route = useRoute()
-const authStore = useAuthStore()
-const feedbackStore = useFeedbackStore()
-
-const loadingUser = ref(false)
-const loadingAdmin = ref(false)
-
-const botId = '8691993144'
-
-interface TelegramAuthUser {
+interface TelegramAuth {
   id: number
   nickname: string
   avatar_url: string
   role: string
   auth_stamp: string
 }
+
+const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
+const feedbackStore = useFeedbackStore()
+
+const loadingTelegram = ref(false)
+const loadingQQ = ref(false)
+
+const botId = '8691993144'
 
 onMounted(() => {
   if (!document.getElementById('telegram-widget-script')) {
@@ -77,7 +77,6 @@ function mockLogin(role: 'user' | 'admin') {
 }
 
 function loginByTelegram() {
-  // 检查 JS 库是否加载完成
   if (!(window as any).Telegram || !(window as any).Telegram.Login) {
     feedbackStore.open({
       type: 'info',
@@ -86,17 +85,15 @@ function loginByTelegram() {
     return
   }
 
-  loadingUser.value = true
+  loadingTelegram.value = true
 
-  // 手动唤起 Telegram 授权弹窗
   ;(window as any).Telegram.Login.auth(
       {
         bot_id: botId,
         request_access: 'write',
       },
       async (data: any) => {
-        // 弹窗关闭，取消按钮 loading 状态
-        loadingUser.value = false
+        loadingTelegram.value = false
 
         if (!data) {
           feedbackStore.open({ type: 'info', message: '用户取消了授权' })
@@ -104,7 +101,7 @@ function loginByTelegram() {
         }
 
         try {
-          const user = await http.post('/auth/telegram/callback', data) as TelegramAuthUser
+          const user = await http.post('/auth/telegram/callback', data) as TelegramAuth
           const role = user.role.toLowerCase() === 'admin' ? 'admin' : 'user'
 
           authStore.setSessionUser({
@@ -124,11 +121,11 @@ function loginByTelegram() {
   )
 }
 
-function loginAsAdmin() {
-  loadingAdmin.value = true
+function loginByQQ() {
+  loadingQQ.value = true
   setTimeout(() => {
-    mockLogin('admin')
-    loadingAdmin.value = false
+    mockLogin('user')
+    loadingQQ.value = false
   }, 500)
 }
 </script>

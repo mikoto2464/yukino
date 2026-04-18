@@ -42,7 +42,7 @@ async function logout() {
   logoutLoading.value = true
 
   try {
-    await http.delete('/user/logout')
+    await http.delete('/user/session')
     authStore.clearAuth()
     feedbackStore.open({type: 'success', message: '已退出登录'})
     await router.push({name: 'home'})

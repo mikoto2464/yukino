@@ -177,9 +177,6 @@ const user = computed(() => {
 })
 
 const devices = ref<DeviceItem[]>([
-  {id: 'dev-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor'},
-  {id: 'dev-2', name: 'MacBook Pro', lastSeen: '2 分钟前', icon: 'mdi-laptop'},
-  {id: 'dev-3', name: 'Android Phone', lastSeen: '5 分钟前', icon: 'mdi-cellphone'},
 ])
 
 const projects = ref<ProjectRow[]>([
@@ -228,7 +225,7 @@ function handleRebind() {
 function deleteDevice(deviceId: string) {
   kickLoadingId.value = deviceId
   setTimeout(async () => {
-    await http.delete('/user/devices/' + deviceId)
+    await http.delete('/device/' + deviceId)
     kickLoadingId.value = ''
     feedback.open({type: 'success', message: '设备已下线'})
   }, 500)
@@ -247,7 +244,7 @@ async function createDevice() {
       hardware_id: device_data[0],
       name: device_data[1],
     }
-    const device = await http.post('/user/devices', data) as Device
+    const device = await http.post('/device', data) as Device
 
     devices.value = [
       {id: device.hardware_id, name: device.name, lastSeen: '刚刚', icon: 'mdi-laptop'},
