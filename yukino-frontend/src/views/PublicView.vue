@@ -2,7 +2,7 @@
   <v-container class="pa-4 pa-sm-6" fluid>
     <v-row>
       <v-col cols="12" lg="7" md="8">
-        <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2 text-primary">Yukino Software</h1>
+        <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2 text-primary">Yukino</h1>
         <p class="text-medium-emphasis mb-6">Mikoto的个人软件分发中心。</p>
 
         <v-btn v-if="authStore.isAuthenticated" :to="{ name: 'dashboard' }" color="primary" size="large">
