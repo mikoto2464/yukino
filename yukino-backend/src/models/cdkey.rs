@@ -10,7 +10,7 @@ pub enum Period {
     Year
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Cdkey {
     pub key: String,
     pub project_id: i64,

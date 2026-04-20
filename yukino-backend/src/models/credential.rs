@@ -16,7 +16,7 @@ pub struct AuthCredential {
     pub avatar_url: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Credential {
     pub id: String,
     pub provider: Provider,
