@@ -50,7 +50,7 @@ async fn main() {
     let state = Arc::new(YukinoState {
         tg_secret_key: hasher.finalize().into(),
         db: pool.clone(),
-        create_project_key
+        create_project_key,
     });
 
     let session_store = SqliteStore::new(pool.clone());

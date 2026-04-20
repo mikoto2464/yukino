@@ -9,8 +9,8 @@ use tower_sessions_sqlx_store::SqliteStore;
 
 mod auth;
 pub mod device;
-pub mod user;
 pub mod project;
+pub mod user;
 
 async fn handler_404() -> impl IntoResponse {
     YukinoError::NotFound("This path does not exist.".to_string())

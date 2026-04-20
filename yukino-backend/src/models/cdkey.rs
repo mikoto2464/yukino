@@ -7,7 +7,7 @@ pub enum Period {
     Hour,
     Day,
     Month,
-    Year
+    Year,
 }
 
 #[derive(Debug, Clone, Serialize)]
