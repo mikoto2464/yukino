@@ -7,12 +7,13 @@ pub enum Period {
     Hour,
     Day,
     Month,
+    Season,
     Year,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Cdkey {
-    pub key: String,
+    pub cdkey: String,
     pub project_id: i64,
     pub period: Period,
 }
