@@ -4,8 +4,8 @@ use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
 use crate::utils::error::YukinoError::InvalidParamentsError;
 use crate::utils::response::{YukinoJson, YukinoResponse};
-use axum::extract::State;
 use axum::Json;
+use axum::extract::State;
 use chrono::Utc;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -19,7 +19,7 @@ pub struct RedemptionParams {
 pub async fn redemption(
     State(state): State<Arc<YukinoState>>,
     auth_session: AuthSession,
-    Json(payload): Json<RedemptionParams>
+    Json(payload): Json<RedemptionParams>,
 ) -> Result<YukinoJson<Vec<Subscription>>, YukinoError> {
     if payload.cdkey.is_empty() {
         return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
@@ -36,8 +36,8 @@ pub async fn redemption(
         "#,
         payload.cdkey
     )
-        .fetch_all(&mut *tx)
-        .await?;
+    .fetch_all(&mut *tx)
+    .await?;
 
     if cdkeys.is_empty() {
         return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
@@ -51,8 +51,8 @@ pub async fn redemption(
         "#,
         payload.cdkey
     )
-        .execute(&mut *tx)
-        .await?;
+    .execute(&mut *tx)
+    .await?;
 
     let mut subscriptions = Vec::with_capacity(cdkeys.len());
     let now_ts = Utc::now().timestamp();
@@ -64,10 +64,11 @@ pub async fn redemption(
             FROM subscriptions
             WHERE user_id = ? AND project_id = ?
             "#,
-            user_id, cdkey.project_id
+            user_id,
+            cdkey.project_id
         )
-            .fetch_optional(&mut *tx)
-            .await?;
+        .fetch_optional(&mut *tx)
+        .await?;
 
         let base_ts = match current_subscription {
             Some(end) if end > now_ts => end,
@@ -85,10 +86,12 @@ pub async fn redemption(
             DO UPDATE SET end = excluded.end
             RETURNING user_id, project_id, end
             "#,
-            user_id, cdkey.project_id, new_end
+            user_id,
+            cdkey.project_id,
+            new_end
         )
-            .fetch_one(&mut *tx)
-            .await?;
+        .fetch_one(&mut *tx)
+        .await?;
 
         subscriptions.push(subscription);
     }

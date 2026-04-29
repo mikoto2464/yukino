@@ -26,9 +26,15 @@ impl Period {
         let expire_time = match self {
             Period::Hour => base_time + Duration::hours(1),
             Period::Day => base_time + Duration::days(1),
-            Period::Month => base_time.checked_add_months(Months::new(1)).expect("overflow"),
-            Period::Season => base_time.checked_add_months(Months::new(3)).expect("overflow"),
-            Period::Year => base_time.checked_add_months(Months::new(12)).expect("overflow"),
+            Period::Month => base_time
+                .checked_add_months(Months::new(1))
+                .expect("overflow"),
+            Period::Season => base_time
+                .checked_add_months(Months::new(3))
+                .expect("overflow"),
+            Period::Year => base_time
+                .checked_add_months(Months::new(12))
+                .expect("overflow"),
         };
         expire_time.timestamp()
     }

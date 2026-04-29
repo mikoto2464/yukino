@@ -2,7 +2,7 @@ use crate::auth::Backend;
 use crate::handlers;
 use crate::state::YukinoState;
 use axum::Router;
-use axum::routing::{get};
+use axum::routing::get;
 use axum_login::login_required;
 use std::sync::Arc;
 
