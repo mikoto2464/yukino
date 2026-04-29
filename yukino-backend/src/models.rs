@@ -1,4 +1,3 @@
-pub mod cdkey;
 pub mod credential;
 pub mod device;
 pub mod project;

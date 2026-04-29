@@ -1,6 +1,5 @@
 use crate::handlers::auth::AuthSession;
-use crate::models::cdkey::{Cdkey, Period};
-use crate::models::subscription::Subscription;
+use crate::models::subscription::{Cdkey, Period, Subscription};
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
 use crate::utils::error::YukinoError::InvalidParamentsError;
@@ -13,14 +12,14 @@ use std::sync::Arc;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ActivateCdkeyParams {
+pub struct RedemptionParams {
     cdkey: String,
 }
 
-pub async fn activate_cdkey(
+pub async fn redemption(
     State(state): State<Arc<YukinoState>>,
     auth_session: AuthSession,
-    Json(payload): Json<ActivateCdkeyParams>
+    Json(payload): Json<RedemptionParams>
 ) -> Result<YukinoJson<Vec<Subscription>>, YukinoError> {
     if payload.cdkey.is_empty() {
         return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
@@ -46,7 +45,8 @@ pub async fn activate_cdkey(
 
     sqlx::query!(
         r#"
-        DELETE FROM cdkeys
+        DELETE
+        FROM cdkeys
         WHERE cdkey = ?
         "#,
         payload.cdkey

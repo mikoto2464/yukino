@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 pub fn project_routes() -> Router<Arc<YukinoState>> {
     let need_login_router = Router::new()
-        .route("/all", get(handlers::project::get_projects))
+        .route("/", get(handlers::project::get_projects))
         .route_layer(login_required!(Backend, login_url = "/login"));
 
     Router::new()

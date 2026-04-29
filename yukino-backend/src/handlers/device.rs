@@ -17,9 +17,9 @@ pub async fn get_devices(
     let devices = sqlx::query_as!(
         Device,
         r#"
-        select hardware_id, user_id, name, last_seen
-        from devices
-        where user_id = ?
+        SELECT hardware_id, user_id, name, last_seen
+        FROM devices
+        WHERE user_id = ?
         "#,
         user.id
     )
@@ -45,9 +45,9 @@ pub async fn create_device(
 
     let max_devices = sqlx::query_scalar!(
         r#"
-        select max_devices
-        from users
-        where id = ?
+        SELECT max_devices
+        FROM users
+        WHERE id = ?
         "#,
         user.id
     )
@@ -56,9 +56,9 @@ pub async fn create_device(
 
     let devices_count = sqlx::query_scalar!(
         r#"
-        select count(1)
-        from devices
-        where user_id = ?
+        SELECT count(1)
+        FROM devices
+        WHERE user_id = ?
         "#,
         user.id
     )
@@ -74,9 +74,9 @@ pub async fn create_device(
     let device = sqlx::query_as!(
         Device,
         r#"
-        insert into devices (hardware_id, user_id, name)
-        values (?, ?, ?)
-        returning hardware_id, user_id, name, last_seen
+        INSERT INTO devices (hardware_id, user_id, name)
+        VALUES (?, ?, ?)
+        RETURNING hardware_id, user_id, name, last_seen
         "#,
         payload.hardware_id,
         user.id,
@@ -97,9 +97,9 @@ pub async fn delete_device(
 
     sqlx::query!(
         r#"
-        delete
-        from devices
-        where user_id = ? and hardware_id = ?
+        DELETE
+        FROM devices
+        WHERE user_id = ? AND hardware_id = ?
         "#,
         user.id,
         hardware_id
@@ -107,5 +107,5 @@ pub async fn delete_device(
     .execute(&state.db)
     .await?;
 
-    Ok(YukinoResponse::success("".to_string()))
+    Ok(YukinoResponse::success("Deleted.".to_string()))
 }

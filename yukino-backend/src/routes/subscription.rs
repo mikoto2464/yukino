@@ -4,9 +4,9 @@ use axum::Router;
 use axum::routing::post;
 use std::sync::Arc;
 
-pub fn cdkey_routes() -> Router<Arc<YukinoState>> {
+pub fn subscription_routes() -> Router<Arc<YukinoState>> {
     Router::new().route(
         "/",
-        post(handlers::cdkey::activate_cdkey),
+        post(handlers::subscription::redemption),
     )
 }

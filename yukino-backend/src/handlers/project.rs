@@ -28,9 +28,9 @@ pub async fn create_project(
     let project = sqlx::query_as!(
         Project,
         r#"
-        insert into projects (name)
-        values (?)
-        returning id, name
+        INSERT INTO projects (name)
+        VALUES (?)
+        RETURNING id, name
         "#,
         payload.name
     )
@@ -52,11 +52,11 @@ pub async fn get_projects(
     let projects = sqlx::query_as!(
         Project,
         r#"
-        select id as 'id: i64', name
-        from projects p
-        inner join subscriptions s on s.project_id = p.id
-        where s.user_id = ?
-        limit ? offset ?
+        SELECT id AS 'id: i64', name
+        FROM projects p
+        INNER JOIN subscriptions s ON s.project_id = p.id
+        WHERE s.user_id = ?
+        LIMIT ? OFFSET ?
         "#,
         user.id,
         limit,

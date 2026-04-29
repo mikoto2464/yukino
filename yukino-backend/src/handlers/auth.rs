@@ -39,3 +39,8 @@ pub async fn telegram_callback(
 
     Ok(YukinoResponse::success(user))
 }
+
+pub async fn logout(mut auth_session: AuthSession) -> Result<YukinoJson<String>, YukinoError> {
+    auth_session.logout().await?;
+    Ok(YukinoResponse::success("Logged out.".to_string()))
+}

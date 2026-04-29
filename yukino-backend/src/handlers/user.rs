@@ -16,9 +16,9 @@ pub async fn me(
     let user = sqlx::query_as!(
         User,
         r#"
-        select id, nickname, avatar_url, role as 'role: Role', auth_stamp
-        from users
-        where id = ?
+        SELECT id, nickname, avatar_url, role AS 'role: Role', auth_stamp
+        FROM users
+        WHERE id = ?
         "#,
         user.id
     )
@@ -26,9 +26,4 @@ pub async fn me(
     .await?;
 
     Ok(YukinoResponse::success(user))
-}
-
-pub async fn logout(mut auth_session: AuthSession) -> Result<YukinoJson<String>, YukinoError> {
-    auth_session.logout().await?;
-    Ok(YukinoResponse::success("".to_string()))
 }

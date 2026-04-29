@@ -21,10 +21,10 @@ impl AuthnBackend for Backend {
         let user = sqlx::query_as!(
             User,
             r#"
-            select u.id, u.nickname, u.avatar_url, u.role as 'role: Role', u.auth_stamp
-            from users u
-            inner join credentials c on c.user_id = u.id
-            where c.id = ? and c.provider = ?
+            SELECT u.id, u.nickname, u.avatar_url, u.role AS 'role: Role', u.auth_stamp
+            FROM users u
+            INNER JOIN credentials c ON c.user_id = u.id
+            WHERE c.id = ? AND c.provider = ?
             "#,
             credential.id,
             credential.provider
@@ -36,9 +36,9 @@ impl AuthnBackend for Backend {
             let user = sqlx::query_as!(
                 User,
                 r#"
-                insert into users (nickname, avatar_url)
-                values (?, ?)
-                RETURNING id, nickname, avatar_url, role as 'role: Role', auth_stamp
+                INSERT INTO users (nickname, avatar_url)
+                VALUES (?, ?)
+                RETURNING id, nickname, avatar_url, role AS 'role: Role', auth_stamp
                 "#,
                 credential.nickname,
                 credential.avatar_url
@@ -48,8 +48,8 @@ impl AuthnBackend for Backend {
 
             sqlx::query!(
                 r#"
-                insert into credentials (id, provider, user_id)
-                values (?, ?, ?)
+                INSERT INTO credentials (id, provider, user_id)
+                VALUES (?, ?, ?)
                 "#,
                 credential.id,
                 credential.provider,
@@ -67,9 +67,9 @@ impl AuthnBackend for Backend {
         let user = sqlx::query_as!(
             User,
             r#"
-            select id, nickname, avatar_url, role as 'role: Role', auth_stamp
-            from users
-            where id = ?
+            SELECT id, nickname, avatar_url, role AS 'role: Role', auth_stamp
+            FROM users
+            WHERE id = ?
             "#,
             user_id
         )
