@@ -18,6 +18,8 @@ impl AuthnBackend for Backend {
         &self,
         credential: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
+        let mut tx = self.db.begin().await?;
+
         let user = sqlx::query_as!(
             User,
             r#"
@@ -29,7 +31,7 @@ impl AuthnBackend for Backend {
             credential.id,
             credential.provider
         )
-        .fetch_optional(&self.db)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if user.is_none() {
@@ -43,7 +45,7 @@ impl AuthnBackend for Backend {
                 credential.nickname,
                 credential.avatar_url
             )
-            .fetch_one(&self.db)
+            .fetch_one(&mut *tx)
             .await?;
 
             sqlx::query!(
@@ -55,10 +57,12 @@ impl AuthnBackend for Backend {
                 credential.provider,
                 user.id
             )
-            .execute(&self.db)
+            .execute(&mut *tx)
             .await?;
             return Ok(Some(user));
         }
+
+        tx.commit().await?;
 
         Ok(user)
     }

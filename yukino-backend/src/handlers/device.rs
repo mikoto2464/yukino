@@ -42,6 +42,8 @@ pub async fn create_device(
     Json(payload): Json<CreateDeviceParams>,
 ) -> Result<YukinoJson<Device>, YukinoError> {
     let user = auth_session.user.unwrap();
+    
+    let mut tx = state.db.begin().await?;
 
     let max_devices = sqlx::query_scalar!(
         r#"
@@ -51,7 +53,7 @@ pub async fn create_device(
         "#,
         user.id
     )
-    .fetch_one(&state.db)
+    .fetch_one(&mut *tx)
     .await?;
 
     let devices_count = sqlx::query_scalar!(
@@ -62,7 +64,7 @@ pub async fn create_device(
         "#,
         user.id
     )
-    .fetch_one(&state.db)
+    .fetch_one(&mut *tx)
     .await?;
 
     if devices_count >= max_devices {
@@ -82,8 +84,10 @@ pub async fn create_device(
         user.id,
         payload.name
     )
-    .fetch_one(&state.db)
+    .fetch_one(&mut *tx)
     .await?;
+
+    tx.commit().await?;
 
     Ok(YukinoResponse::success(device))
 }
