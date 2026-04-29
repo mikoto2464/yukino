@@ -1,3 +1,4 @@
+use chrono::{Duration, Months, TimeZone, Utc};
 use serde::Serialize;
 use sqlx::Type;
 
@@ -9,6 +10,21 @@ pub enum Period {
     Month,
     Season,
     Year,
+}
+
+impl Period {
+    pub fn calculate_from(&self, base_timestamp: i64) -> i64 {
+        let base_time = Utc.timestamp_opt(base_timestamp, 0).unwrap();
+
+        let expire_time = match self {
+            Period::Hour => base_time + Duration::hours(1),
+            Period::Day => base_time + Duration::days(1),
+            Period::Month => base_time.checked_add_months(Months::new(1)).expect("overflow"),
+            Period::Season => base_time.checked_add_months(Months::new(3)).expect("overflow"),
+            Period::Year => base_time.checked_add_months(Months::new(12)).expect("overflow"),
+        };
+        expire_time.timestamp()
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

@@ -11,6 +11,7 @@ mod auth;
 pub mod device;
 pub mod project;
 pub mod user;
+pub mod cdkey;
 
 async fn handler_404() -> impl IntoResponse {
     YukinoError::NotFound("This path does not exist.".to_string())
@@ -48,6 +49,10 @@ async fn handler_404() -> impl IntoResponse {
 /// name: String,
 ///
 /// GET /api/project/all (LOGIN_REQUIRED)获取用户已订阅的所有项目
+///
+/// POST /api/cdkey/activate 激活CDKey
+/// Payload
+/// cdkey: String
 pub fn app_routers(
     state: Arc<YukinoState>,
     auth_layer: AuthManagerLayer<Backend, SqliteStore>,
