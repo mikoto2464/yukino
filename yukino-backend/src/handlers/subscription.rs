@@ -27,12 +27,13 @@ pub async fn redemption(
 
     let user_id = auth_session.user.unwrap().id;
     let mut tx = state.db.begin().await?;
-    let cdkeys = sqlx::query_as!(
-        Cdkey,
+
+    let cdkeys = sqlx::query!(
         r#"
-        SELECT cdkey, project_id, period AS 'period: Period'
+        DELETE
         FROM cdkeys
         WHERE cdkey = ?
+        RETURNING cdkey, project_id, period AS 'period: Period'
         "#,
         payload.cdkey
     )
@@ -42,17 +43,6 @@ pub async fn redemption(
     if cdkeys.is_empty() {
         return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
     }
-
-    sqlx::query!(
-        r#"
-        DELETE
-        FROM cdkeys
-        WHERE cdkey = ?
-        "#,
-        payload.cdkey
-    )
-    .execute(&mut *tx)
-    .await?;
 
     let mut subscriptions = Vec::with_capacity(cdkeys.len());
     let now_ts = Utc::now().timestamp();
