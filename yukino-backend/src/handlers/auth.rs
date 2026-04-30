@@ -31,11 +31,9 @@ pub async fn telegram_callback(
 
     let user = auth_session.authenticate(auth_credential).await?.unwrap();
 
-    if auth_session.login(&user).await.is_err() {
-        return Err(YukinoError::AuthenticationError(
-            "Login failed with unknown error.".to_string(),
-        ));
-    }
+    auth_session.login(&user).await.map_err(|e| {
+        YukinoError::AuthenticationError(format!("Login failed: {}", e))
+    })?;
 
     Ok(YukinoResponse::success(user))
 }
