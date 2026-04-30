@@ -59,6 +59,7 @@ impl AuthnBackend for Backend {
             )
             .execute(&mut *tx)
             .await?;
+            tx.commit().await?;
             return Ok(Some(user));
         }
 
