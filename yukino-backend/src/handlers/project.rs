@@ -48,7 +48,7 @@ pub async fn get_projects(
     let user = auth_session.user.unwrap();
 
     let limit = params.page_size as i64;
-    let offset = (params.page_size - 1) as i64;
+    let offset = ((params.page - 1) * params.page_size) as i64;
     let projects = sqlx::query_as!(
         Project,
         r#"
