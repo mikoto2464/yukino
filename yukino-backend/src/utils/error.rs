@@ -17,7 +17,7 @@ pub enum YukinoError {
     AuthenticationError(String),
 
     #[error("Invalid parameters: {0}")]
-    InvalidParamentsError(String),
+    InvalidParametersError(String),
 
     #[error("Configuration error occurred")]
     ConfigError(String),
@@ -34,7 +34,7 @@ impl YukinoError {
             YukinoError::DatabaseError(_) | YukinoError::ConfigError(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
-            YukinoError::InvalidParamentsError(_) => StatusCode::BAD_REQUEST,
+            YukinoError::InvalidParametersError(_) => StatusCode::BAD_REQUEST,
         }
     }
 }

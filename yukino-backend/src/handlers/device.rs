@@ -68,7 +68,7 @@ pub async fn create_device(
     .await?;
 
     if devices_count >= max_devices {
-        return Err(YukinoError::InvalidParamentsError(
+        return Err(YukinoError::InvalidParametersError(
             "The number of available devices has reached its limit.".to_string(),
         ));
     }

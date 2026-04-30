@@ -2,7 +2,7 @@ use crate::handlers::auth::AuthSession;
 use crate::models::subscription::{Cdkey, Period, Subscription};
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;
-use crate::utils::error::YukinoError::InvalidParamentsError;
+use crate::utils::error::YukinoError::InvalidParametersError;
 use crate::utils::response::{YukinoJson, YukinoResponse};
 use axum::Json;
 use axum::extract::State;
@@ -22,7 +22,7 @@ pub async fn redemption(
     Json(payload): Json<RedemptionParams>,
 ) -> Result<YukinoJson<Vec<Subscription>>, YukinoError> {
     if payload.cdkey.is_empty() {
-        return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
+        return Err(InvalidParametersError("The CD key is invalid.".to_string()));
     }
 
     let user_id = auth_session.user.unwrap().id;
@@ -41,7 +41,7 @@ pub async fn redemption(
     .await?;
 
     if cdkeys.is_empty() {
-        return Err(InvalidParamentsError("The CD key is invalid.".to_string()));
+        return Err(InvalidParametersError("The CD key is invalid.".to_string()));
     }
 
     let mut subscriptions = Vec::with_capacity(cdkeys.len());

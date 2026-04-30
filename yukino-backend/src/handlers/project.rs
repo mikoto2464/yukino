@@ -20,7 +20,7 @@ pub async fn create_project(
     Json(payload): Json<CreateProjectParams>,
 ) -> Result<YukinoJson<Project>, YukinoError> {
     if payload.create_project_key != state.create_project_key {
-        return Err(YukinoError::InvalidParamentsError(
+        return Err(YukinoError::InvalidParametersError(
             "Create project key is not correct".to_string(),
         ));
     }
