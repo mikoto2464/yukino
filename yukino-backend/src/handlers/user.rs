@@ -1,5 +1,4 @@
 use crate::handlers::auth::AuthSession;
-use crate::models::user::Role;
 use crate::models::user::User;
 use crate::state::YukinoState;
 use crate::utils::error::YukinoError;

@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Months, TimeZone, Utc};
+use chrono::{DateTime, Duration, Months};
 use serde::Serialize;
 use sqlx::Type;
 
