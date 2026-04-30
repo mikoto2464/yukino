@@ -8,9 +8,9 @@ use std::sync::Arc;
 use tower_sessions_sqlx_store::SqliteStore;
 
 mod auth;
-pub mod device;
-pub mod project;
-pub mod subscription;
+pub mod devices;
+pub mod projects;
+pub mod subscriptions;
 pub mod user;
 
 async fn handler_404() -> impl IntoResponse {
@@ -54,16 +54,16 @@ pub fn api_routes() -> Router<Arc<YukinoState>> {
         // name: String,
         //
         // DELETE /api/devices/{hardware_id} (LOGIN_REQUIRED)删除用户绑定的设备
-        .nest("/devices", device::device_routes())
+        .nest("/devices", devices::device_routes())
         // POST /api/projects 创建项目(前端无需调用)
         // Payload
         // create_project_key: String,
         // name: String,
         //
         // GET /api/projects (LOGIN_REQUIRED)获取用户已订阅的所有项目
-        .nest("/projects", project::project_routes())
+        .nest("/projects", projects::project_routes())
         // POST /api/subscription/redemption 激活订阅
         // Payload
         // cdkey: String
-        .nest("/subscriptions", subscription::subscription_routes())
+        .nest("/subscriptions", subscriptions::subscription_routes())
 }
