@@ -1,4 +1,4 @@
-use chrono::{Duration, Months, TimeZone, Utc};
+use chrono::{DateTime, Duration, Months, TimeZone, Utc};
 use serde::Serialize;
 use sqlx::Type;
 
@@ -21,7 +21,7 @@ pub enum Period {
 
 impl Period {
     pub fn calculate_from(&self, base_timestamp: i64) -> i64 {
-        let base_time = Utc.timestamp_opt(base_timestamp, 0).unwrap();
+        let base_time = DateTime::from_timestamp(base_timestamp, 0).unwrap();
 
         let expire_time = match self {
             Period::Hour => base_time + Duration::hours(1),
