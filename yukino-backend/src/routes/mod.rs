@@ -62,7 +62,7 @@ pub fn api_routes() -> Router<Arc<YukinoState>> {
         //
         // GET /api/projects (LOGIN_REQUIRED)获取用户已订阅的所有项目
         .nest("/projects", projects::project_routes())
-        // POST /api/subscription/redemption 激活订阅
+        // POST /api/subscriptions/redemption 激活订阅
         // Payload
         // cdkey: String
         .nest("/subscriptions", subscriptions::subscription_routes())
