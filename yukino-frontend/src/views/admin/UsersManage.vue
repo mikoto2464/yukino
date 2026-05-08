@@ -1,382 +1,543 @@
-﻿<template>
-  <v-row>
-    <v-col cols="12">
-      <section class="panel-surface">
-        <div class="d-flex flex-column flex-sm-row align-sm-center justify-space-between mb-4 ga-3">
-          <h1 class="text-h6 font-weight-bold text-primary">用户管理</h1>
-          <v-text-field
-              v-model="search"
-              class="w-100 search-field"
-              clearable
-              density="compact"
-              hide-details
-              placeholder="搜索用户 / 设备"
-              prepend-inner-icon="mdi-magnify"
-              style="max-width: 360px"
-              variant="solo-filled"
-          />
-        </div>
-
-        <v-skeleton-loader v-if="tableLoading" type="table-thead, table-row@6"/>
-
-        <template v-else>
-          <v-data-table :headers="headers" :items="filteredUsers" :items-per-page="10" class="elevation-0" hover
-                        item-value="id">
-            <template v-slot:[`item.status`]="{ item }">
-              <v-chip :color="item.banned ? 'error' : 'success'" size="small" variant="tonal">
-                {{ item.banned ? '已封禁' : '正常' }}
-              </v-chip>
-            </template>
-
-            <template v-slot:[`item.devices`]="{ item }">
-              <v-chip color="primary" size="small" variant="tonal">{{ item.onlineDevices }} 台在线</v-chip>
-            </template>
-
-            <template v-slot:[`item.maxDevices`]="{ item }">
-              <span class="text-medium-emphasis">{{ item.maxDevices }} 台</span>
-            </template>
-
-            <template v-slot:[`item.actions`]="{ item }">
-              <v-menu location="bottom end">
-                <template #activator="{ props }">
-                  <v-btn icon="mdi-dots-vertical" v-bind="props" variant="text"/>
-                </template>
-
-                <v-card border min-width="190" rounded="lg" variant="flat">
-                  <v-list class="py-1" density="compact">
-                    <v-list-item prepend-icon="mdi-devices" title="查看在线设备" @click="openDevicesDialog(item.id)"/>
-                    <v-list-item prepend-icon="mdi-harddisk-plus" title="调整设备上限"
-                                 @click="openDeviceLimitDialog(item.id)"/>
-                    <v-list-item prepend-icon="mdi-account-cancel-outline" title="封禁用户"
-                                 @click="openBanDialog(item.id)"/>
-                  </v-list>
-                </v-card>
-              </v-menu>
-            </template>
-          </v-data-table>
-        </template>
-      </section>
-    </v-col>
-  </v-row>
-
-  <v-dialog v-model="devicesDialog" max-width="600">
-    <v-card class="pa-4 pa-md-5" rounded="xl">
-      <div class="d-flex justify-space-between align-center mb-4">
-        <h2 class="text-h6 font-weight-bold text-primary">在线设备详情</h2>
-        <v-btn icon="mdi-close" variant="text" @click="devicesDialog = false"/>
-      </div>
-
-      <v-list v-if="selectedUserDevices.length > 0" class="pa-0 bg-transparent" lines="two">
-        <v-list-item
-            v-for="device in selectedUserDevices"
-            :key="device.id"
-            :subtitle="`ID: ${device.id} · 最后活跃: ${device.lastSeen}`"
-            :title="device.name"
-            class="px-0"
-        >
-          <template #prepend>
-            <v-avatar color="secondary" size="36" variant="tonal">
-              <v-icon :icon="device.icon"/>
-            </v-avatar>
-          </template>
-          <template #append>
-            <v-btn :loading="kickingDeviceId === device.id" color="error" size="small" variant="text"
-                   @click="kickDevice(device.id)">
-              下线设备
-            </v-btn>
-          </template>
-        </v-list-item>
-      </v-list>
-
-      <v-empty-state v-else icon="mdi-check-circle-outline" text="该用户当前没有在线终端。" title="暂无在线设备"/>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="banDialog" max-width="600">
-    <v-card class="pa-4 pa-md-5" rounded="xl">
-      <div class="d-flex justify-space-between align-center mb-2">
-        <h2 class="text-h6 font-weight-bold text-primary">封禁用户</h2>
-        <v-btn icon="mdi-close" variant="text" @click="banDialog = false"/>
-      </div>
-
-      <p class="text-body-2 text-medium-emphasis mb-4">请选择封禁时长并确认操作。</p>
-
-      <v-radio-group v-model="banDuration" class="mb-2" color="primary">
-        <v-radio v-for="option in banOptions" :key="option.value" :label="option.label" :value="option.value"/>
-      </v-radio-group>
-
-      <div class="d-flex justify-end ga-2 mt-2">
-        <v-btn variant="text" @click="banDialog = false">取消</v-btn>
-        <v-btn :loading="banLoading" color="error" @click="submitBan">确认封禁</v-btn>
-      </div>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="deviceLimitDialog" max-width="600">
-    <v-card class="pa-4 pa-md-5" rounded="xl">
-      <div class="d-flex justify-space-between align-center mb-2">
-        <h2 class="text-h6 font-weight-bold text-primary">调整设备绑定上限</h2>
-        <v-btn icon="mdi-close" variant="text" @click="deviceLimitDialog = false"/>
-      </div>
-
-      <v-text-field
-          v-model.number="editingMaxDevices"
-          class="mb-3"
-          color="primary"
-          density="comfortable"
-          label="最大绑定设备数"
-          min="1"
-          rounded="lg"
-          type="number"
-          variant="outlined"
+<template>
+  <!-- 用户管理 -->
+  <section class="card-surface">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      "
+    >
+      <h1 class="page-title">用户管理</h1>
+      <input
+        v-model="search"
+        class="input-field"
+        placeholder="搜索用户 / 设备"
+        style="max-width: 320px"
       />
+    </div>
 
-      <div class="d-flex justify-end ga-2 mt-2">
-        <v-btn variant="text" @click="deviceLimitDialog = false">取消</v-btn>
-        <v-btn :loading="limitLoading" color="primary" @click="submitDeviceLimit">保存</v-btn>
+    <!-- 骨架屏 -->
+    <div v-if="tableLoading" style="margin-top: 16px">
+      <div
+        v-for="i in 5"
+        :key="i"
+        class="skeleton"
+        style="height: 48px; margin-bottom: 8px"
+      />
+    </div>
+
+    <!-- 表格 -->
+    <template v-else>
+      <table class="data-table" style="margin-top: 12px">
+        <thead>
+          <tr>
+            <th>用户名</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>在线设备</th>
+            <th>设备上限</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="u in filteredUsers" :key="u.id">
+            <td>{{ u.name }}</td>
+            <td>{{ u.role }}</td>
+            <td>
+              <span :class="u.banned ? 'chip chip-error' : 'chip chip-success'">
+                {{ u.banned ? "已封禁" : "正常" }}
+              </span>
+            </td>
+            <td>
+              <span class="chip chip-info">{{ u.onlineDevices }} 台在线</span>
+            </td>
+            <td>{{ u.maxDevices }} 台</td>
+            <td>
+              <!-- 操作菜单按钮 -->
+              <div class="action-menu-wrapper">
+                <button class="btn btn-text action-trigger">
+                  <md-icon>more_vert</md-icon>
+                </button>
+                <div class="action-menu">
+                  <button class="action-menu-item" @click="openDevices(u.id)">
+                    查看在线设备
+                  </button>
+                  <button
+                    class="action-menu-item"
+                    @click="openDeviceLimit(u.id)"
+                  >
+                    调整设备上限
+                  </button>
+                  <button
+                    class="action-menu-item"
+                    style="color: var(--md-sys-color-error)"
+                    @click="openBan(u.id)"
+                  >
+                    封禁用户
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+  </section>
+
+  <!-- ========= 弹窗：在线设备详情 ========= -->
+  <Teleport to="body">
+    <div
+      v-if="devicesDialog"
+      class="dialog-overlay"
+      @click.self="devicesDialog = false"
+    >
+      <div class="dialog-card">
+        <div class="dialog-header">
+          <h2 class="page-title" style="font-size: 1.125rem">在线设备详情</h2>
+          <button class="btn btn-text" @click="devicesDialog = false">
+            关闭
+          </button>
+        </div>
+        <div v-if="selectedUserDevices.length > 0">
+          <div
+            v-for="d in selectedUserDevices"
+            :key="d.id"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 10px 0;
+              border-bottom: 1px solid var(--md-sys-color-outline-variant);
+            "
+          >
+            <md-icon style="--md-icon-size: 20px">devices</md-icon>
+            <div style="flex: 1">
+              <div style="font-weight: 500">{{ d.name }}</div>
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: var(--md-sys-color-on-surface-variant);
+                "
+              >
+                最后活跃: {{ d.lastSeen }}
+              </div>
+            </div>
+            <button
+              class="btn btn-text"
+              style="color: var(--md-sys-color-error)"
+              :disabled="kickingDeviceId === d.id"
+              @click="handleKick(d.id)"
+            >
+              下线设备
+            </button>
+          </div>
+        </div>
+        <p
+          v-else
+          class="section-subtitle"
+          style="text-align: center; padding: 24px 0"
+        >
+          该用户当前没有在线终端。
+        </p>
       </div>
-    </v-card>
-  </v-dialog>
+    </div>
+  </Teleport>
+
+  <!-- ========= 弹窗：封禁用户 ========= -->
+  <Teleport to="body">
+    <div
+      v-if="banDialog"
+      class="dialog-overlay"
+      @click.self="banDialog = false"
+    >
+      <div class="dialog-card">
+        <div class="dialog-header">
+          <h2 class="page-title" style="font-size: 1.125rem">封禁用户</h2>
+          <button class="btn btn-text" @click="banDialog = false">关闭</button>
+        </div>
+        <p class="section-subtitle" style="margin-bottom: 16px">
+          请选择封禁时长并确认操作。
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label
+            v-for="opt in banOptions"
+            :key="opt.value"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 8px 0;
+              cursor: pointer;
+            "
+          >
+            <input
+              v-model="banDuration"
+              type="radio"
+              :value="opt.value"
+              style="accent-color: var(--md-sys-color-primary)"
+            />
+            {{ opt.label }}
+          </label>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+          "
+        >
+          <button class="btn btn-text" @click="banDialog = false">取消</button>
+          <button
+            class="btn btn-error"
+            :disabled="banLoading"
+            @click="submitBan"
+          >
+            确认封禁
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- ========= 弹窗：调整设备上限 ========= -->
+  <Teleport to="body">
+    <div
+      v-if="deviceLimitDialog"
+      class="dialog-overlay"
+      @click.self="deviceLimitDialog = false"
+    >
+      <div class="dialog-card">
+        <div class="dialog-header">
+          <h2 class="page-title" style="font-size: 1.125rem">
+            调整设备绑定上限
+          </h2>
+          <button class="btn btn-text" @click="deviceLimitDialog = false">
+            关闭
+          </button>
+        </div>
+        <input
+          v-model.number="editingMaxDevices"
+          class="input-field"
+          type="number"
+          min="1"
+          placeholder="最大绑定设备数"
+        />
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+          "
+        >
+          <button class="btn btn-text" @click="deviceLimitDialog = false">
+            取消
+          </button>
+          <button
+            class="btn btn-primary"
+            :disabled="limitLoading"
+            @click="submitDeviceLimit"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from 'vue'
-import http from '../../api/axios'
-import {useFeedbackStore} from '../../stores/feedback'
+// @material/web icon
+import "@material/web/icon/icon.js";
+import { computed, ref } from "vue";
+import { useFeedbackStore } from "@/stores/feedback";
+import { banUser, kickDevice, updateUserMaxDevices } from "@/api/services";
 
-interface Device {
-  id: string
-  name: string
-  lastSeen: string
-  icon: string
-  online: boolean
+// ---------- 类型 ----------
+interface DeviceInfo {
+  id: string;
+  name: string;
+  lastSeen: string;
+  icon: string;
+  online: boolean;
 }
 
 interface UserRecord {
-  id: string
-  name: string
-  role: string
-  banned: boolean
-  maxDevices: number
-  devices: Device[]
+  id: string;
+  name: string;
+  role: string;
+  banned: boolean;
+  maxDevices: number;
+  devices: DeviceInfo[];
 }
 
 interface UserRow {
-  id: string
-  name: string
-  role: string
-  banned: boolean
-  onlineDevices: number
-  maxDevices: number
-  searchableText: string
+  id: string;
+  name: string;
+  role: string;
+  banned: boolean;
+  onlineDevices: number;
+  maxDevices: number;
+  searchableText: string;
 }
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false'
+const feedback = useFeedbackStore();
 
-const feedback = useFeedbackStore()
-const tableLoading = ref(true)
-const search = ref('')
+// ---------- 列表数据 ----------
+const tableLoading = ref(true);
+const search = ref("");
 
-const devicesDialog = ref(false)
-const banDialog = ref(false)
-const deviceLimitDialog = ref(false)
-const banLoading = ref(false)
-const limitLoading = ref(false)
-const kickingDeviceId = ref('')
-
-const selectedUserId = ref<string>('')
-const banDuration = ref<number>(24)
-const editingMaxDevices = ref(3)
-
-const banOptions = [
-  {label: '24 小时', value: 24},
-  {label: '3 天', value: 72},
-  {label: '7 天', value: 168},
-  {label: '永久封禁', value: -1}
-]
-
-const headers = [
-  {title: '用户名', key: 'name', sortable: false},
-  {title: '角色', key: 'role', sortable: false},
-  {title: '状态', key: 'status', sortable: false},
-  {title: '在线设备', key: 'devices', sortable: false},
-  {title: '设备上限', key: 'maxDevices', sortable: false},
-  {title: '操作', key: 'actions', sortable: false, align: 'end' as const}
-]
 const users = ref<UserRecord[]>([
   {
-    id: 'u-101',
-    name: 'Akari',
-    role: 'user',
+    id: "u-101",
+    name: "Akari",
+    role: "user",
     banned: false,
     maxDevices: 3,
     devices: [
-      {id: 'd-1', name: 'Windows Desktop', lastSeen: '刚刚', icon: 'mdi-monitor', online: true},
-      {id: 'd-2', name: 'Android Phone', lastSeen: '1 分钟前', icon: 'mdi-cellphone', online: true}
-    ]
+      {
+        id: "d-1",
+        name: "Windows Desktop",
+        lastSeen: "刚刚",
+        icon: "monitor",
+        online: true,
+      },
+      {
+        id: "d-2",
+        name: "Android Phone",
+        lastSeen: "1 分钟前",
+        icon: "phone_android",
+        online: true,
+      },
+    ],
   },
   {
-    id: 'u-102',
-    name: 'Mio',
-    role: 'user',
+    id: "u-102",
+    name: "Mio",
+    role: "user",
     banned: false,
     maxDevices: 2,
-    devices: [{id: 'd-3', name: 'MacBook Pro', lastSeen: '4 分钟前', icon: 'mdi-laptop', online: true}]
+    devices: [
+      {
+        id: "d-3",
+        name: "MacBook Pro",
+        lastSeen: "4 分钟前",
+        icon: "laptop",
+        online: true,
+      },
+    ],
   },
   {
-    id: 'u-103',
-    name: 'Sora',
-    role: 'user',
+    id: "u-103",
+    name: "Sora",
+    role: "user",
     banned: true,
     maxDevices: 1,
-    devices: [{id: 'd-4', name: 'Linux Workstation', lastSeen: '12 分钟前', icon: 'mdi-desktop-classic', online: true}]
-  }
-])
+    devices: [
+      {
+        id: "d-4",
+        name: "Linux Workstation",
+        lastSeen: "12 分钟前",
+        icon: "desktop_windows",
+        online: true,
+      },
+    ],
+  },
+]);
 
 setTimeout(() => {
-  tableLoading.value = false
-}, 450)
+  tableLoading.value = false;
+}, 450);
 
-const flattenedUsers = computed<UserRow[]>(() => {
-  return users.value.map((user) => {
-    const onlineDevices = user.devices.filter((device) => device.online).length
-    const deviceNames = user.devices.map((device) => device.name).join(' ')
-
-    return {
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      banned: user.banned,
-      onlineDevices,
-      maxDevices: user.maxDevices,
-      searchableText: `${user.name} ${user.role} ${deviceNames}`.toLowerCase()
-    }
-  })
-})
+const flattenedUsers = computed<UserRow[]>(() =>
+  users.value.map((u) => ({
+    id: u.id,
+    name: u.name,
+    role: u.role,
+    banned: u.banned,
+    onlineDevices: u.devices.filter((d) => d.online).length,
+    maxDevices: u.maxDevices,
+    searchableText:
+      `${u.name} ${u.role} ${u.devices.map((d) => d.name).join(" ")}`.toLowerCase(),
+  })),
+);
 
 const filteredUsers = computed(() => {
-  const keyword = search.value.trim().toLowerCase()
-  if (!keyword) {
-    return flattenedUsers.value
-  }
+  const kw = search.value.trim().toLowerCase();
+  return kw
+    ? flattenedUsers.value.filter((u) => u.searchableText.includes(kw))
+    : flattenedUsers.value;
+});
 
-  return flattenedUsers.value.filter((user) => user.searchableText.includes(keyword))
-})
+// ---------- 弹窗状态 ----------
+const devicesDialog = ref(false);
+const banDialog = ref(false);
+const deviceLimitDialog = ref(false);
+const banLoading = ref(false);
+const limitLoading = ref(false);
+const kickingDeviceId = ref("");
+const selectedUserId = ref("");
+const banDuration = ref(24);
+const editingMaxDevices = ref(3);
 
-const selectedUser = computed(() => users.value.find((user) => user.id === selectedUserId.value) ?? null)
+const banOptions = [
+  { label: "24 小时", value: 24 },
+  { label: "3 天", value: 72 },
+  { label: "7 天", value: 168 },
+  { label: "永久封禁", value: -1 },
+];
 
-const selectedUserDevices = computed(() => selectedUser.value?.devices.filter((device) => device.online) ?? [])
+const selectedUser = computed<UserRecord | undefined>(() =>
+  users.value.find((u) => u.id === selectedUserId.value),
+);
 
-function openDevicesDialog(userId: string) {
-  selectedUserId.value = userId
-  devicesDialog.value = true
+const selectedUserDevices = computed<DeviceInfo[]>(
+  () => selectedUser.value?.devices.filter((d) => d.online) ?? [],
+);
+
+// ---------- 打开弹窗 ----------
+function openDevices(userId: string) {
+  selectedUserId.value = userId;
+  devicesDialog.value = true;
 }
 
-function openBanDialog(userId: string) {
-  selectedUserId.value = userId
-  banDuration.value = 24
-  banDialog.value = true
+function openBan(userId: string) {
+  selectedUserId.value = userId;
+  banDuration.value = 24;
+  banDialog.value = true;
 }
 
-function openDeviceLimitDialog(userId: string) {
-  selectedUserId.value = userId
-  editingMaxDevices.value = selectedUser.value?.maxDevices ?? 1
-  deviceLimitDialog.value = true
+function openDeviceLimit(userId: string) {
+  selectedUserId.value = userId;
+  editingMaxDevices.value = selectedUser.value?.maxDevices ?? 1;
+  deviceLimitDialog.value = true;
 }
 
-async function requestBanUser(userId: string, durationHours: number) {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 600))
-    return
-  }
-
-  await http.post(`/admin/users/${userId}/ban`, {durationHours})
-}
-
-async function requestKickDevice(deviceId: string) {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 400))
-    return
-  }
-
-  await http.post(`/admin/devices/${deviceId}/kick`)
-}
-
-async function requestUpdateMaxDevices(userId: string, maxDevices: number) {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 450))
-    return
-  }
-
-  await http.post(`/admin/users/${userId}/max-devices`, {maxDevices})
-}
-
+// ---------- 操作 ----------
 async function submitBan() {
-  const user = selectedUser.value
-  if (!user) {
-    return
-  }
-
-  banLoading.value = true
-
+  const u = selectedUser.value;
+  if (!u) return;
+  banLoading.value = true;
   try {
-    await requestBanUser(user.id, banDuration.value)
-
-    users.value = users.value.map((record) => (record.id === user.id ? {...record, banned: true} : record))
-
-    feedback.open({type: 'success', message: `${user.name} 已封禁`})
-    banDialog.value = false
+    await banUser(u.id, banDuration.value);
+    users.value = users.value.map((r) =>
+      r.id === u.id ? { ...r, banned: true } : r,
+    );
+    feedback.open({ type: "success", message: `${u.name} 已封禁` });
+    banDialog.value = false;
   } finally {
-    banLoading.value = false
+    banLoading.value = false;
   }
 }
 
 async function submitDeviceLimit() {
-  const user = selectedUser.value
-  if (!user) {
-    return
-  }
-
-  const next = Math.max(1, Math.floor(Number(editingMaxDevices.value) || 1))
-  limitLoading.value = true
-
+  const u = selectedUser.value;
+  if (!u) return;
+  const next = Math.max(1, Math.floor(Number(editingMaxDevices.value) || 1));
+  limitLoading.value = true;
   try {
-    await requestUpdateMaxDevices(user.id, next)
-
-    users.value = users.value.map((record) => (record.id === user.id ? {...record, maxDevices: next} : record))
-
-    feedback.open({type: 'success', message: `${user.name} 设备上限已更新`})
-    deviceLimitDialog.value = false
+    await updateUserMaxDevices(u.id, next);
+    users.value = users.value.map((r) =>
+      r.id === u.id ? { ...r, maxDevices: next } : r,
+    );
+    feedback.open({ type: "success", message: `${u.name} 设备上限已更新` });
+    deviceLimitDialog.value = false;
   } finally {
-    limitLoading.value = false
+    limitLoading.value = false;
   }
 }
 
-async function kickDevice(deviceId: string) {
-  const user = selectedUser.value
-  if (!user) {
-    return
-  }
-
-  kickingDeviceId.value = deviceId
-
+async function handleKick(deviceId: string) {
+  const u = selectedUser.value;
+  if (!u) return;
+  kickingDeviceId.value = deviceId;
   try {
-    await requestKickDevice(deviceId)
-
-    users.value = users.value.map((record) => {
-      if (record.id !== user.id) {
-        return record
-      }
-
-      return {
-        ...record,
-        devices: record.devices.map((device) => (device.id === deviceId ? {...device, online: false} : device))
-      }
-    })
-
-    feedback.open({type: 'success', message: '设备已强制下线'})
+    await kickDevice(deviceId);
+    users.value = users.value.map((r) =>
+      r.id === u.id
+        ? {
+            ...r,
+            devices: r.devices.map((d) =>
+              d.id === deviceId ? { ...d, online: false } : d,
+            ),
+          }
+        : r,
+    );
+    feedback.open({ type: "success", message: "设备已强制下线" });
   } finally {
-    kickingDeviceId.value = ''
+    kickingDeviceId.value = "";
   }
 }
 </script>
+
+<style scoped>
+/* 操作菜单 */
+.action-menu-wrapper {
+  position: relative;
+}
+.action-trigger {
+  padding: 4px;
+}
+.action-menu-wrapper:hover .action-menu,
+.action-menu-wrapper:focus-within .action-menu {
+  display: flex;
+}
+.action-menu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 160px;
+  padding: 4px 0;
+  border-radius: 12px;
+  background: var(--md-sys-color-surface-container, #f3edf7);
+  box-shadow: var(--md-sys-elevation-level3, 0 4px 8px 3px rgba(0, 0, 0, 0.15));
+  z-index: 100;
+}
+.action-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  cursor: pointer;
+}
+.action-menu-item:hover {
+  background: var(--md-sys-color-surface-container-high, #ece6f0);
+}
+
+/* 弹窗覆盖层 */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+.dialog-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--md-sys-color-surface-container-high, #ece6f0);
+  box-shadow: var(--md-sys-elevation-level5, 0 8px 16px rgba(0, 0, 0, 0.2));
+}
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+</style>

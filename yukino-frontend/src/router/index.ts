@@ -1,161 +1,139 @@
-﻿import {createRouter, createWebHistory} from 'vue-router'
-import NProgress from 'nprogress'
-import http from '../api/axios'
-import {useAuthStore} from '../stores/auth'
-import {useFeedbackStore} from '../stores/feedback'
+// ============================================================
+// 路由配置
+// 基于旧前端业务逻辑：public > auth > admin 三级权限
+// 对接 /api/user/me 实现 session 恢复与角色判定
+// ============================================================
+import {
+  createRouter,
+  createWebHistory,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
+} from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { useFeedbackStore } from "@/stores/feedback";
+import { fetchUserMe } from "@/api/services";
 
-import UserLayout from '../layouts/UserLayout.vue'
-import AdminLayout from '../layouts/AdminLayout.vue'
-import PublicView from '../views/PublicView.vue'
-import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/user/Dashboard.vue'
-import CDKeysView from '../views/admin/CDKeys.vue'
-import ProjectsManageView from '../views/admin/ProjectsManage.vue'
-import UsersManageView from '../views/admin/UsersManage.vue'
+/** 路由 meta 中的访问级别 */
+type AccessLevel = "public" | "auth" | "admin";
 
-NProgress.configure({
-    showSpinner: false,
-    trickleSpeed: 120
-})
+// 异步加载布局组件
+const UserLayout = () => import("@/layouts/UserLayout.vue");
+const AdminLayout = () => import("@/layouts/AdminLayout.vue");
 
-type AccessLevel = 'public' | 'auth' | 'admin'
-
-interface SessionUserResponse {
-    id: number
-    nickname: string
-    avatar_url: string
-    role: string
-    auth_stamp: string
-}
-
-let sessionRefreshed = false
-
-async function refreshSessionUser() {
-    if (sessionRefreshed) {
-        return
-    }
-    sessionRefreshed = true
-
-    const authStore = useAuthStore()
-    try {
-        const user = await http.get('/user/me', {silentError: true} as any) as SessionUserResponse
-        const role = user.role.toLowerCase() === 'admin' ? 'admin' : 'user'
-
-        authStore.setSessionUser({
-            id: String(user.id),
-            name: user.nickname,
-            roles: role === 'admin' ? ['user', 'admin'] : ['user'],
-            nickname: user.nickname,
-            avatarUrl: user.avatar_url,
-            authStamp: user.auth_stamp
-        })
-    } catch {
-        // ignore unauthenticated session
-    }
-}
+// 异步加载页面
+const PublicView = () => import("@/views/PublicView.vue");
+const LoginView = () => import("@/views/LoginView.vue");
+const Dashboard = () => import("@/views/user/Dashboard.vue");
+const CDKeys = () => import("@/views/admin/CDKeys.vue");
+const UsersManage = () => import("@/views/admin/UsersManage.vue");
+const ProjectsManage = () => import("@/views/admin/ProjectsManage.vue");
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes: [
+  history: createWebHistory(),
+  routes: [
+    {
+      path: "/",
+      component: UserLayout,
+      children: [
         {
-            path: '/',
-            component: UserLayout,
-            children: [
-                {
-                    path: '',
-                    name: 'home',
-                    component: PublicView,
-                    meta: {access: 'public' as AccessLevel}
-                },
-                {
-                    path: 'login',
-                    name: 'login',
-                    component: LoginView,
-                    meta: {access: 'public' as AccessLevel}
-                },
-                {
-                    path: 'dashboard',
-                    name: 'dashboard',
-                    component: DashboardView,
-                    meta: {access: 'auth' as AccessLevel}
-                }
-            ]
+          path: "",
+          name: "home",
+          component: PublicView,
+          meta: { access: "public" as AccessLevel },
         },
         {
-            path: '/admin',
-            component: AdminLayout,
-            children: [
-                {
-                    path: '',
-                    name: 'admin',
-                    component: CDKeysView,
-                    meta: {access: 'admin' as AccessLevel}
-                },
-                {
-                    path: 'users',
-                    name: 'admin-users',
-                    component: UsersManageView,
-                    meta: {access: 'admin' as AccessLevel}
-                },
-                {
-                    path: 'projects',
-                    name: 'admin-projects',
-                    component: ProjectsManageView,
-                    meta: {access: 'admin' as AccessLevel}
-                }
-            ]
-        }
-    ]
-})
+          path: "login",
+          name: "login",
+          component: LoginView,
+          meta: { access: "public" as AccessLevel },
+        },
+        {
+          path: "dashboard",
+          name: "dashboard",
+          component: Dashboard,
+          meta: { access: "auth" as AccessLevel },
+        },
+      ],
+    },
+    {
+      path: "/admin",
+      component: AdminLayout,
+      children: [
+        {
+          path: "",
+          name: "admin",
+          component: CDKeys,
+          meta: { access: "admin" as AccessLevel },
+        },
+        {
+          path: "users",
+          name: "admin-users",
+          component: UsersManage,
+          meta: { access: "admin" as AccessLevel },
+        },
+        {
+          path: "projects",
+          name: "admin-projects",
+          component: ProjectsManage,
+          meta: { access: "admin" as AccessLevel },
+        },
+      ],
+    },
+  ],
+});
+
+// ---------- 导航守卫 ----------
+
+let sessionRefreshed = false;
+
+async function refreshSession() {
+  if (sessionRefreshed) return;
+  sessionRefreshed = true;
+
+  const authStore = useAuthStore();
+  try {
+    const user = await fetchUserMe(true);
+    const role = String(user.role).toLowerCase() === "admin" ? "admin" : "user";
+    authStore.setSessionUser({
+      id: String(user.id),
+      name: user.nickname || "User",
+      roles: role === "admin" ? ["user", "admin"] : ["user"],
+      nickname: user.nickname,
+      avatarUrl: user.avatar_url,
+      authStamp: user.auth_stamp,
+    });
+  } catch {
+    // 未登录或接口失败时静默忽略
+  }
+}
 
 router.beforeEach(async (to) => {
-    NProgress.start()
+  const authStore = useAuthStore();
+  const feedbackStore = useFeedbackStore();
+  const access: AccessLevel = (to.meta.access as AccessLevel) ?? "public";
 
-    const authStore = useAuthStore()
-    const feedbackStore = useFeedbackStore()
-    const access = (to.meta.access as AccessLevel | undefined) ?? 'public'
+  if (access === "public") return true;
 
-    if (access === 'public') {
-        return true
-    }
+  // auth / admin 级页面需要先恢复 session
+  await refreshSession();
 
-    await refreshSessionUser()
+  if (!authStore.isAuthenticated) {
+    feedbackStore.open({
+      type: "info",
+      message: "请先登录后再访问该页面",
+    });
+    return { name: "login", query: { redirect: to.fullPath } };
+  }
 
-    if (!authStore.isAuthenticated) {
-        feedbackStore.open({
-            type: 'info',
-            message: '请先登录后再访问该页面'
-        })
+  if (access === "admin" && !authStore.isAdmin) {
+    feedbackStore.open({
+      type: "error",
+      message: "当前账号缺少管理员权限",
+    });
+    return { name: "dashboard" };
+  }
 
-        return {
-            name: 'login',
-            query: {
-                redirect: to.fullPath
-            }
-        }
-    }
+  return true;
+});
 
-    if (access === 'admin' && !authStore.isAdmin) {
-        feedbackStore.open({
-            type: 'error',
-            message: '当前账号缺少管理员权限'
-        })
-
-        return {
-            name: 'dashboard'
-        }
-    }
-
-    return true
-})
-
-router.afterEach(() => {
-    NProgress.done()
-})
-
-router.onError(() => {
-    NProgress.done()
-})
-
-export default router
-
+export default router;

@@ -1,72 +1,130 @@
-﻿<template>
-  <v-layout class="min-h-screen">
-    <v-app-bar color="primary" prominent>
-      <RouterLink :to="{ name: 'home' }" class="brand-link ms-4">Yukino</RouterLink>
-
-      <div v-if="authStore.isAdmin" class="d-flex align-center ga-2 ms-4">
-        <v-btn :to="{ name: 'admin' }" class="text-none" variant="text">前往管理员页面</v-btn>
+<template>
+  <!-- 用户端布局：顶部导航栏 + 内容区 -->
+  <div class="user-layout">
+    <!-- MD3 Top App Bar -->
+    <header class="top-bar">
+      <div class="top-bar-start">
+        <RouterLink to="/" class="brand-link">Yukino</RouterLink>
+        <nav class="top-bar-nav">
+          <RouterLink v-if="auth.isAdmin" to="/admin" class="nav-link">
+            管理后台
+          </RouterLink>
+        </nav>
       </div>
+      <div class="top-bar-end">
+        <ThemeControls />
+        <button
+          v-if="auth.isAuthenticated"
+          class="btn btn-text"
+          :disabled="logoutLoading"
+          @click="handleLogout"
+        >
+          退出登录
+        </button>
+      </div>
+    </header>
 
-      <template #append>
-        <div class="d-flex align-center ga-2">
-          <ThemeControls/>
-          <v-btn v-if="authStore.isAuthenticated" :loading="logoutLoading" class="text-none" variant="text"
-                 @click="logout">
-            退出登录
-          </v-btn>
-        </div>
-      </template>
-    </v-app-bar>
-
-    <v-main class="yukino-main">
-      <v-container class="pa-4 pa-md-6 yukino-content" fluid>
-        <RouterView/>
-      </v-container>
-    </v-main>
-  </v-layout>
+    <!-- 内容区 -->
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue'
-import {RouterLink, RouterView, useRouter} from 'vue-router'
-import http from '../api/axios'
-import ThemeControls from '../components/ThemeControls.vue'
-import {useAuthStore} from '../stores/auth'
-import {useFeedbackStore} from '../stores/feedback'
+import { ref } from "vue";
+import { RouterLink, RouterView, useRouter } from "vue-router";
+import ThemeControls from "@/components/ThemeControls.vue";
+import { useAuthStore } from "@/stores/auth";
+import { useFeedbackStore } from "@/stores/feedback";
+import { deleteAuthSession } from "@/api/services";
 
-const router = useRouter()
-const authStore = useAuthStore()
-const feedbackStore = useFeedbackStore()
-const logoutLoading = ref(false)
+const router = useRouter();
+const auth = useAuthStore();
+const feedback = useFeedbackStore();
+const logoutLoading = ref(false);
 
-async function logout() {
-  logoutLoading.value = true
-
+async function handleLogout() {
+  logoutLoading.value = true;
   try {
-    await http.delete('/user/session')
-    authStore.clearAuth()
-    feedbackStore.open({type: 'success', message: '已退出登录'})
-    await router.push({name: 'home'})
+    await deleteAuthSession();
+    auth.clearAuth();
+    feedback.open({ type: "success", message: "已退出登录" });
+    await router.push({ name: "home" });
   } finally {
-    logoutLoading.value = false
+    logoutLoading.value = false;
   }
 }
 </script>
 
 <style scoped>
-.brand-link {
-  color: inherit;
-  text-decoration: none;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+.user-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.brand-link:visited,
-.brand-link:active,
-.brand-link:hover,
-.brand-link:focus {
-  color: inherit;
+/* MD3 Top App Bar — 居中布局风格 */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 24px;
+  background: var(--md-sys-color-surface, #fef7ff);
+  /* MD3 elevation level1 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s;
+}
+
+.top-bar-start {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand-link {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  letter-spacing: 0.01em;
   text-decoration: none;
+}
+
+.top-bar-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.nav-link:hover,
+.nav-link.router-link-active {
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  color: var(--md-sys-color-on-secondary-container, #1d192b);
+}
+
+.top-bar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
 }
 </style>

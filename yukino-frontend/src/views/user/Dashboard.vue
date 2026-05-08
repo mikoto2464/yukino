@@ -1,281 +1,419 @@
-﻿<template>
-  <v-row class="ga-0">
-    <v-col class="mb-4" cols="12" md="6">
-      <section class="panel-surface h-100">
-        <h2 class="text-h6 font-weight-bold mb-4 text-primary">用户信息</h2>
+<template>
+  <!-- 用户控制台 -->
+  <div class="dashboard">
+    <!-- 第一行：用户信息 + 设备管理 -->
+    <div class="dash-grid-2col">
+      <!-- 用户信息卡片 -->
+      <section class="card-surface">
+        <h2 class="page-title" style="font-size: 1.25rem">用户信息</h2>
 
-        <div class="d-flex align-center mb-4">
-          <v-avatar class="me-4" color="primary" size="80" variant="tonal">
-            <v-img v-if="user.avatarUrl" :src="user.avatarUrl" alt="avatar" cover/>
-            <span v-else class="text-h6 font-weight-bold">{{ user.initials }}</span>
-          </v-avatar>
-
-          <div>
-            <div class="text-subtitle-1 font-weight-bold">{{ user.name }}</div>
-            <div class="text-body-2 text-medium-emphasis">用户编号: {{ user.userId }}</div>
-            <div class="text-body-2 text-medium-emphasis">绑定 Telegram: {{ user.telegram }}</div>
+        <div class="user-profile">
+          <div class="avatar">
+            <img
+              v-if="userInfo.avatarUrl"
+              :src="userInfo.avatarUrl"
+              alt="头像"
+            />
+            <span v-else class="avatar-fallback">{{ userInfo.initials }}</span>
+          </div>
+          <div class="user-meta">
+            <div class="user-name">{{ userInfo.name }}</div>
+            <div class="user-detail">用户编号: {{ userInfo.id }}</div>
+            <div class="user-detail">
+              绑定 Telegram: {{ userInfo.telegram }}
+            </div>
           </div>
         </div>
 
-        <div class="d-flex ga-2 flex-wrap">
-          <v-btn :loading="unbindLoading" color="error" variant="tonal" @click="handleUnbind">解绑</v-btn>
-          <v-btn :loading="rebindLoading" color="primary" variant="tonal" @click="handleRebind">换绑</v-btn>
-        </div>
-      </section>
-    </v-col>
-
-    <v-col class="mb-4" cols="12" md="6">
-      <section class="panel-surface h-100">
-        <h2 class="text-h6 font-weight-bold mb-4 text-primary">设备列表</h2>
-
-        <v-list
-            :class="{'device-list-scroll': devices.length > 3}"
-            class="pa-0 mb-3 bg-transparent"
-            lines="two"
-        >
-          <v-list-item
-              v-for="device in devices"
-              :key="device.id"
-              :subtitle="`最后心跳: ${device.lastSeen}`"
-              :title="device.name"
-              class="px-0"
+        <div class="user-actions">
+          <button
+            class="btn btn-error"
+            :disabled="unbindLoading"
+            @click="handleUnbind"
           >
-            <template #prepend>
-              <v-avatar color="secondary" size="36" variant="tonal">
-                <v-icon :icon="device.icon"/>
-              </v-avatar>
-            </template>
-            <template #append>
-              <v-btn
-                  :loading="kickLoadingId === device.id"
-                  color="error"
-                  size="small"
-                  variant="text"
-                  @click="deleteDevice(device.id)"
-              >
-                下线
-              </v-btn>
-            </template>
-          </v-list-item>
-        </v-list>
-
-        <v-row class="align-end">
-          <v-col cols="12" sm="8">
-            <v-text-field
-                v-model="bindCode"
-                color="primary"
-                density="comfortable"
-                hide-details
-                label="输入绑定代码"
-                rounded="lg"
-                variant="outlined"
-            />
-          </v-col>
-          <v-col cols="12" sm="4">
-            <v-btn :loading="bindLoading" block color="primary" rounded="lg" size="large" @click="createDevice">新增设备
-            </v-btn>
-          </v-col>
-        </v-row>
+            解绑
+          </button>
+          <button
+            class="btn btn-tonal"
+            :disabled="rebindLoading"
+            @click="handleRebind"
+          >
+            换绑
+          </button>
+        </div>
       </section>
-    </v-col>
 
-    <v-col cols="12">
-      <section class="panel-surface">
-        <div class="d-flex flex-column flex-md-row align-md-center justify-space-between mb-4 ga-3">
-          <h2 class="text-h6 font-weight-bold text-primary">可用项目</h2>
+      <!-- 设备管理卡片 -->
+      <section class="card-surface">
+        <h2 class="page-title" style="font-size: 1.25rem">设备列表</h2>
 
-          <div class="d-flex flex-column flex-sm-row ga-2" style="min-width: min(100%, 680px)">
-            <v-text-field
-                v-model="activationCode"
-                class="flex-grow-1"
-                color="primary"
-                density="comfortable"
-                hide-details
-                label="输入卡密"
-                rounded="lg"
-                variant="outlined"
-            />
-            <v-btn :loading="activationLoading" color="primary" rounded="lg" size="large" @click="submitActivation">
-              激活卡密
-            </v-btn>
+        <!-- 设备条目 -->
+        <div v-if="devices.length > 0" class="device-list">
+          <div v-for="d in devices" :key="d.hardware_id" class="device-item">
+            <div class="device-icon-wrapper">
+              <md-icon class="device-icon">devices</md-icon>
+            </div>
+            <div class="device-info">
+              <div class="device-name">{{ d.name }}</div>
+              <div class="device-sub">
+                最后心跳:
+                {{ formatTime(d.last_seen) }}
+              </div>
+            </div>
+            <button
+              class="btn btn-text"
+              style="color: var(--md-sys-color-error)"
+              :disabled="kickingId === d.hardware_id"
+              @click="handleDeleteDevice(d.hardware_id)"
+            >
+              下线
+            </button>
           </div>
         </div>
+        <p v-else class="section-subtitle">暂无绑定设备</p>
 
-        <div class="d-flex justify-end mb-3">
-          <v-text-field
-              v-model="projectSearch"
-              class="search-field"
-              clearable
-              density="compact"
-              hide-details
-              placeholder="搜索项目 / 状态"
-              prepend-inner-icon="mdi-magnify"
-              style="max-width: 340px"
-              variant="solo-filled"
+        <!-- 新增设备 -->
+        <div class="device-add">
+          <input
+            v-model="bindCode"
+            class="input-field"
+            placeholder="输入绑定代码"
+            style="flex: 1"
           />
+          <button
+            class="btn btn-primary"
+            :disabled="bindLoading"
+            @click="handleCreateDevice"
+          >
+            新增设备
+          </button>
         </div>
-
-        <v-data-table :headers="projectHeaders" :items="filteredProjects" :items-per-page="8" class="elevation-0">
-          <template v-slot:[`item.status`]="{ item }">
-            <v-chip color="primary" size="small" variant="tonal">{{ item.status }}</v-chip>
-          </template>
-        </v-data-table>
       </section>
-    </v-col>
-  </v-row>
+    </div>
+
+    <!-- 第二行：项目管理 + 卡密激活 -->
+    <section class="card-surface" style="margin-top: 16px">
+      <div class="projects-header">
+        <h2 class="page-title" style="font-size: 1.25rem">可用项目</h2>
+        <div class="activation-row">
+          <input
+            v-model="activationCode"
+            class="input-field"
+            placeholder="输入卡密"
+            style="max-width: 280px"
+          />
+          <button
+            class="btn btn-primary"
+            :disabled="activationLoading"
+            @click="handleActivation"
+          >
+            激活卡密
+          </button>
+        </div>
+      </div>
+
+      <table class="data-table" style="margin-top: 16px">
+        <thead>
+          <tr>
+            <th>项目名</th>
+            <th>状态</th>
+            <th>版本</th>
+            <th>到期时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="p in projects" :key="p.id">
+            <td>{{ p.name }}</td>
+            <td>
+              <span class="chip chip-success">{{ p.status }}</span>
+            </td>
+            <td>{{ p.version }}</td>
+            <td>{{ p.expiresAt }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from 'vue'
-import http from '../../api/axios'
-import {useAuthStore} from '../../stores/auth'
-import {useFeedbackStore} from '../../stores/feedback'
+// @material/web icon
+import "@material/web/icon/icon.js";
+import { computed, onMounted, ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import { useFeedbackStore } from "@/stores/feedback";
+import {
+  fetchDevices,
+  createDevice,
+  deleteDevice,
+  redeemCdkey,
+} from "@/api/services";
+import type { Device } from "@/types";
 
-interface DeviceItem {
-  id: string
-  name: string
-  lastSeen: string
-  icon: string
-}
+const auth = useAuthStore();
+const feedback = useFeedbackStore();
 
-interface ProjectRow {
-  id: string
-  name: string
-  status: string
-  version: string
-  expiresAt: string
-}
-
-interface Device {
-  hardware_id: string
-  user_id: number
-  name: string
-  last_seen: number
-}
-
-const authStore = useAuthStore()
-const feedback = useFeedbackStore()
-
-const user = computed(() => {
-  const current = authStore.user
-  const name = current?.nickname || current?.name || '未知用户'
-  const cleanName = name.trim()
-  const initials = cleanName
+// ---------- 用户信息（从 Auth Store 计算） ----------
+const userInfo = computed(() => {
+  const u = auth.user;
+  const name = u?.nickname || u?.name || "未知用户";
+  const initials =
+    name
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? '')
-      .join('') || 'U'
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("") || "U";
 
   return {
     initials,
     name,
-    userId: current?.id || '--',
-    telegram: cleanName ? `@${cleanName.replace(/^@/, '')}` : '--',
-    avatarUrl: current?.avatarUrl || ''
+    id: u?.id || "--",
+    telegram: name ? `@${name.replace(/^@/, "")}` : "--",
+    avatarUrl: u?.avatarUrl || "",
+  };
+});
+
+// ---------- 设备管理 ----------
+const devices = ref<Device[]>([]);
+const bindCode = ref("");
+const bindLoading = ref(false);
+const kickingId = ref("");
+const unbindLoading = ref(false);
+const rebindLoading = ref(false);
+
+async function loadDevices() {
+  try {
+    devices.value = await fetchDevices();
+  } catch {
+    // 静默失败
   }
-})
+}
 
-const devices = ref<DeviceItem[]>([
-])
+function formatTime(ts: number): string {
+  const d = new Date(ts * 1000);
+  return d.toLocaleString("zh-CN", { hour12: false });
+}
 
-const projects = ref<ProjectRow[]>([
-  {id: 'proj-1', name: 'Yukino Agent', status: '已授权', version: 'v2.3.1', expiresAt: '2026-11-12'},
-  {id: 'proj-2', name: 'Yukino Launcher', status: '可下载', version: 'v1.9.8', expiresAt: '2026-08-01'},
-  {id: 'proj-3', name: 'Yukino Monitor', status: '内测开放', version: 'v0.9.0-beta', expiresAt: '2026-05-30'}
-])
+async function handleCreateDevice() {
+  const raw = bindCode.value.trim();
+  if (!raw) {
+    feedback.open({ type: "error", message: "请输入有效的设备绑定代码" });
+    return;
+  }
+  bindLoading.value = true;
+  try {
+    const decoded = atob(raw).split(":");
+    const payload = {
+      hardware_id: decoded[0] ?? raw,
+      name: decoded[1] ?? "未命名设备",
+    };
+    const device = await createDevice(payload);
+    devices.value = [device, ...devices.value];
+    bindCode.value = "";
+    feedback.open({ type: "success", message: "设备绑定成功" });
+  } catch {
+    feedback.open({ type: "error", message: "绑定失败，请检查代码格式" });
+  } finally {
+    bindLoading.value = false;
+  }
+}
 
-const projectHeaders = [
-  {title: '项目名', key: 'name', sortable: false},
-  {title: '状态', key: 'status', sortable: false},
-  {title: '版本', key: 'version', sortable: false},
-  {title: '到期时间', key: 'expiresAt', sortable: false}
-]
-const unbindLoading = ref(false)
-const rebindLoading = ref(false)
-const kickLoadingId = ref('')
-const bindCode = ref('')
-const bindLoading = ref(false)
-const activationCode = ref('')
-const activationLoading = ref(false)
-const projectSearch = ref('')
-
-const filteredProjects = computed(() => {
-  const kw = projectSearch.value.trim().toLowerCase()
-  if (!kw) return projects.value
-  return projects.value.filter((item) => [item.name, item.status, item.version].join(' ').toLowerCase().includes(kw))
-})
+async function handleDeleteDevice(hardwareId: string) {
+  kickingId.value = hardwareId;
+  try {
+    await deleteDevice(hardwareId);
+    devices.value = devices.value.filter((d) => d.hardware_id !== hardwareId);
+    feedback.open({ type: "success", message: "设备已下线" });
+  } finally {
+    kickingId.value = "";
+  }
+}
 
 function handleUnbind() {
-  unbindLoading.value = true
-  setTimeout(() => {
-    unbindLoading.value = false
-    feedback.open({type: 'info', message: '解绑请求已提交'})
-  }, 600)
+  feedback.open({ type: "info", message: "解绑请求已提交" });
 }
 
 function handleRebind() {
-  rebindLoading.value = true
-  setTimeout(() => {
-    rebindLoading.value = false
-    feedback.open({type: 'success', message: '换绑验证流程已启动'})
-  }, 600)
+  feedback.open({ type: "success", message: "换绑验证流程已启动" });
 }
 
-function deleteDevice(deviceId: string) {
-  kickLoadingId.value = deviceId
-  setTimeout(async () => {
-    await http.delete('/device/' + deviceId)
-    kickLoadingId.value = ''
-    feedback.open({type: 'success', message: '设备已下线'})
-  }, 500)
+// ---------- 项目与卡密 ----------
+interface ProjectRow {
+  id: string;
+  name: string;
+  status: string;
+  version: string;
+  expiresAt: string;
 }
 
-async function createDevice() {
-  if (!bindCode.value.trim()) {
-    feedback.open({type: 'error', message: '请输入有效的设备绑定代码'})
-    return
+const projects = ref<ProjectRow[]>([
+  {
+    id: "1",
+    name: "Yukino Agent",
+    status: "已授权",
+    version: "v2.3.1",
+    expiresAt: "2026-11-12",
+  },
+  {
+    id: "2",
+    name: "Yukino Launcher",
+    status: "可下载",
+    version: "v1.9.8",
+    expiresAt: "2026-08-01",
+  },
+  {
+    id: "3",
+    name: "Yukino Monitor",
+    status: "内测开放",
+    version: "v0.9.0-beta",
+    expiresAt: "2026-05-30",
+  },
+]);
+
+const activationCode = ref("");
+const activationLoading = ref(false);
+
+async function handleActivation() {
+  const code = activationCode.value.trim();
+  if (!code) {
+    feedback.open({ type: "error", message: "请输入有效卡密" });
+    return;
   }
-
-  bindLoading.value = true
+  activationLoading.value = true;
   try {
-    let device_data = atob(bindCode.value.trim()).split(':')
-    let data = {
-      hardware_id: device_data[0],
-      name: device_data[1],
-    }
-    const device = await http.post('/device', data) as Device
-
-    devices.value = [
-      {id: device.hardware_id, name: device.name, lastSeen: '刚刚', icon: 'mdi-laptop'},
-      ...devices.value
-    ]
-
-    bindCode.value = ''
-    feedback.open({type: 'success', message: '设备绑定成功'})
+    await redeemCdkey({ cdkey: code });
+    activationCode.value = "";
+    feedback.open({ type: "success", message: "卡密激活成功" });
+  } catch {
+    // 错误由 http 层处理
   } finally {
-    bindLoading.value = false
+    activationLoading.value = false;
   }
 }
 
-function submitActivation() {
-  if (!activationCode.value.trim()) {
-    feedback.open({type: 'error', message: '请输入有效卡密'})
-    return
-  }
-
-  activationLoading.value = true
-  setTimeout(() => {
-    activationLoading.value = false
-    feedback.open({type: 'success', message: '卡密激活成功（Mock）'})
-    activationCode.value = ''
-  }, 900)
-}
+onMounted(() => {
+  loadDevices();
+});
 </script>
 
 <style scoped>
-.device-list-scroll {
-  max-height: 190px;
-  overflow-y: auto;
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dash-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .dash-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 用户头像区域 */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--md-sys-color-primary-container, #eaddff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-fallback {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--md-sys-color-on-primary-container, #21005d);
+}
+
+.user-meta {
+  flex: 1;
+}
+.user-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.user-detail {
+  font-size: 0.8125rem;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  margin-top: 2px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* 设备列表 */
+.device-list {
+  margin-top: 12px;
+}
+.device-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+}
+.device-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.device-icon {
+  --md-icon-size: 20px;
+}
+.device-info {
+  flex: 1;
+}
+.device-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.device-sub {
+  font-size: 0.75rem;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+}
+.device-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* 项目表头 */
+.projects-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.activation-row {
+  display: flex;
+  gap: 8px;
 }
 </style>

@@ -1,89 +1,132 @@
-﻿<template>
-  <div class="d-flex align-center ga-2">
-    <v-btn :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" variant="text" @click="toggleLightDarkFromTrigger"/>
+<template>
+  <!-- MD3 主题控制按钮组：深色切换 + 壁纸选择 -->
+  <div class="theme-ctrls">
+    <!-- 深色/浅色切换 -->
+    <md-icon-button
+      class="ctrl-btn"
+      :aria-label="isDark ? '切换浅色模式' : '切换深色模式'"
+      @click="theme.toggleDark()"
+    >
+      <md-icon>{{ isDark ? "light_mode" : "dark_mode" }}</md-icon>
+    </md-icon-button>
 
-    <v-menu location="bottom end">
-      <template #activator="{ props }">
-        <v-btn icon="mdi-theme-light-dark" v-bind="props" variant="text"/>
-      </template>
+    <!-- 随机背景 -->
+    <md-icon-button
+      class="ctrl-btn"
+      aria-label="随机背景图"
+      @click="theme.setRandomBackground()"
+    >
+      <md-icon>shuffle</md-icon>
+    </md-icon-button>
 
-      <v-card class="pa-2" min-width="240" rounded="lg">
-        <v-list class="py-0" density="comfortable">
-          <v-list-subheader>显示模式</v-list-subheader>
-          <v-list-item
-              v-for="item in modeOptions"
-              :key="item.value"
-              :prepend-icon="item.icon"
-              :title="item.label"
-              @click="setMode(item.value)"
-          >
-            <template #append>
-              <v-icon v-if="state.mode === item.value" color="primary" icon="mdi-check"/>
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-card>
-    </v-menu>
-
-    <v-menu location="bottom end" max-height="520">
-      <template #activator="{ props }">
-        <v-btn icon="mdi-palette" v-bind="props" variant="text"/>
-      </template>
-
-      <v-card class="pa-2" min-width="320" rounded="lg">
-        <v-list class="py-0" density="comfortable">
-          <v-list-subheader>背景图取色</v-list-subheader>
-
-          <v-list-item prepend-icon="mdi-shuffle-variant" title="随机背景图" @click="setRandomBackground"/>
-
-          <v-list-item
-              v-for="item in backgroundOptions"
-              :key="item.key"
-              :title="item.label"
-              @click="setBackground(item.key)"
-          >
-            <template #prepend>
-              <v-avatar class="me-1 bg-surface" rounded="lg" size="30">
-                <v-img :src="item.thumbUrl" cover/>
-              </v-avatar>
-            </template>
-            <template #append>
-              <v-icon v-if="state.background === item.key" color="primary" icon="mdi-check"/>
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-card>
-    </v-menu>
+    <!-- 壁纸选择下拉 -->
+    <div class="bg-menu-wrapper">
+      <md-icon-button
+        id="bg-menu-trigger"
+        class="ctrl-btn"
+        aria-label="选择背景图"
+      >
+        <md-icon>palette</md-icon>
+      </md-icon-button>
+      <div class="bg-menu" role="menu">
+        <div
+          v-for="bg in BACKGROUND_OPTIONS"
+          :key="bg.key"
+          class="bg-menu-item"
+          :class="{ active: theme.state.background === bg.key }"
+          role="menuitem"
+          @click="theme.setBackground(bg.key)"
+        >
+          <img
+            class="bg-thumb"
+            :src="bg.thumbUrl"
+            :alt="bg.label"
+            loading="lazy"
+          />
+          <span class="bg-label">{{ bg.label }}</span>
+          <md-icon v-if="theme.state.background === bg.key" class="bg-check">
+            check
+          </md-icon>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue'
-import {useThemePreferences} from '../theme/themeEngine'
+// @material/web custom element 注册
+import "@material/web/icon/icon.js";
+import "@material/web/iconbutton/icon-button.js";
+import { computed } from "vue";
+import { useTheme } from "@/composables/useTheme";
+import { BACKGROUND_OPTIONS } from "@/config";
 
-const {
-  state,
-  modeOptions,
-  backgroundOptions,
-  setMode,
-  setBackground,
-  setRandomBackground,
-  toggleLightDark,
-  isDark: getIsDark
-} = useThemePreferences()
-const isDark = computed(() => getIsDark())
-
-function toggleLightDarkFromTrigger(event: MouseEvent) {
-  const trigger = event.currentTarget as HTMLElement | null
-  if (!trigger) {
-    toggleLightDark()
-    return
-  }
-
-  const rect = trigger.getBoundingClientRect()
-  toggleLightDark({
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2
-  })
-}
+const theme = useTheme();
+const isDark = computed(() => theme.effectiveDark());
 </script>
+
+<style scoped>
+/* 主题控制区域 */
+.theme-ctrls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ctrl-btn {
+  --md-icon-button-icon-size: 24px;
+}
+
+/* 壁纸选择弹出菜单 */
+.bg-menu-wrapper {
+  position: relative;
+}
+.bg-menu-wrapper:hover .bg-menu,
+.bg-menu-wrapper:focus-within .bg-menu {
+  display: block;
+}
+.bg-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 220px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 8px 0;
+  border-radius: 16px;
+  background: var(--md-sys-color-surface-container, #f3edf7);
+  box-shadow: var(--md-sys-elevation-level3, 0 4px 8px 3px rgba(0, 0, 0, 0.15));
+  z-index: 1000;
+}
+.bg-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bg-menu-item:hover {
+  background: var(--md-sys-color-surface-container-high, #ece6f0);
+}
+.bg-menu-item.active {
+  background: var(--md-sys-color-secondary-container, #e8def8);
+}
+.bg-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.bg-label {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--md-sys-color-on-surface, #1d1b20);
+}
+.bg-check {
+  --md-icon-size: 20px;
+  color: var(--md-sys-color-primary);
+}
+</style>

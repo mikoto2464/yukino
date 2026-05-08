@@ -1,265 +1,268 @@
-﻿/*noinspection CssUnusedSymbol*/
-#nprogress .bar {
-  background: rgb(var(--v-theme-primary)) !important;
-  height: 3px !important;
+/*
+ * ============================================================
+ * MD3 全局样式
+ * 使用 CSS 变量响应动态主题，所有颜色由 @material/web Token 控制
+ * 修改主题色请编辑 src/theme/colorEngine.ts 或 src/config.ts
+ * ============================================================
+ */
+
+/* ---- 基础重置与排版 ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/*noinspection CssUnusedSymbol*/
-#nprogress .peg {
-  box-shadow: 0 0 10px rgb(var(--v-theme-primary)), 0 0 5px rgb(var(--v-theme-primary)) !important;
+html {
+  font-family: "Roboto", "Noto Sans SC", system-ui, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 背景色由 JS 注入的 CSS 变量覆盖 */
+  background-color: var(--md-sys-color-background, #fef7ff);
+  color: var(--md-sys-color-on-background, #1d1b20);
+  transition:
+    background-color 0.36s ease,
+    color 0.36s ease;
 }
 
-:root {
-  /* IDE fallback vars: Vuetify will override these at runtime */
-  --v-theme-primary: 123, 142, 161;
-  --v-theme-background: 238, 242, 247;
-  --v-theme-surface: 255, 255, 255;
-  --v-theme-on-surface: 69, 82, 96;
-  --yukino-bg-image: none;
-  --yukino-bg-opacity: 0.38;
-  --yukino-bg-mask-opacity: 0.52;
-}
-
-.yukino-bg-layer {
-  position: fixed;
-  inset: 0;
-  background-image: var(--yukino-bg-image);
+body {
+  min-height: 100vh;
+  /* 壁纸背景层：覆盖在背景色之上 */
+  background-image: var(--yukino-bg-image, none);
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  opacity: var(--yukino-bg-opacity);
+  background-attachment: fixed;
+}
+
+/* 壁纸遮罩层 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
   z-index: 0;
+  opacity: var(--yukino-bg-mask-opacity, 0.52);
+  background: var(--md-sys-color-background, #fef7ff);
   pointer-events: none;
-  transform: scale(1.02);
 }
 
-.yukino-bg-mask {
-  position: fixed;
-  inset: 0;
-  background: rgba(var(--v-theme-background), var(--yukino-bg-mask-opacity));
+#app {
+  position: relative;
   z-index: 1;
-  pointer-events: none;
 }
 
-.yukino-main {
-  position: relative;
-  z-index: 2;
+a {
+  color: var(--md-sys-color-primary, #6750a4);
+  text-decoration: none;
 }
 
-.yukino-content {
-  position: relative;
-  z-index: 2;
+/* ---- 通用工具类 ---- */
+.card-surface {
+  background: var(--md-sys-color-surface-container-low, #f7f2fa);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--md-sys-elevation-level1, 0 1px 2px rgba(0, 0, 0, 0.08));
+  transition: background 0.3s ease;
 }
 
-.panel-surface {
-  background: rgba(var(--v-theme-surface), 0.28);
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  border-radius: 0;
-  box-shadow: none;
-  padding: 16px;
-  animation: yukino-panel-in 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.v-row > .v-col:nth-child(1) .panel-surface {
-  animation-delay: 40ms;
-}
-
-.v-row > .v-col:nth-child(2) .panel-surface {
-  animation-delay: 90ms;
-}
-
-.v-row > .v-col:nth-child(3) .panel-surface {
-  animation-delay: 130ms;
-}
-
-/*noinspection CssUnusedSymbol*/
-.search-field .v-field__input {
-  align-items: center;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.v-btn {
-  transition: transform 180ms ease, box-shadow 220ms ease;
-}
-
-.v-btn:hover {
-  transform: translateY(-1px);
-}
-
-/*noinspection CssUnusedSymbol*/
-.v-card {
-  box-shadow: none !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.1) !important;
-}
-
-/*noinspection CssUnusedSymbol*/
-.route-fade-enter-active,
-.route-fade-leave-active {
-  transition: opacity 260ms ease, transform 260ms ease;
-}
-
-/*noinspection CssUnusedSymbol*/
-.route-fade-enter-from,
-.route-fade-leave-to {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-#boot-loading {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(var(--boot-overlay), var(--boot-overlay)),
-    var(--boot-bg-image),
-    var(--boot-base);
-  background-size: cover;
-  background-position: center;
-  color: var(--boot-text);
-  z-index: 9999;
-  transition: opacity 420ms ease;
-}
-
-#boot-loading::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--boot-primary) 30%, transparent), transparent 48%);
-  animation: yukino-glow 2.8s ease-in-out infinite;
-}
-
-/*noinspection CssUnusedSymbol*/
-#boot-loading.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-#boot-loading .boot-card {
-  width: min(90vw, 360px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 26px 20px 20px;
-  border-radius: 18px;
-  background: var(--boot-surface);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(8px);
-  position: relative;
-}
-
-#boot-loading .ring {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 3px solid color-mix(in srgb, var(--boot-primary) 26%, transparent);
-  border-top-color: var(--boot-primary);
-  animation: yukino-spin 0.85s linear infinite;
-}
-
-#boot-loading .boot-title {
-  font-size: 1.1rem;
+.page-title {
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  line-height: 1.25;
+  color: var(--md-sys-color-on-surface, #1d1b20);
 }
 
-#boot-loading .boot-subtitle {
-  font-size: 0.86rem;
-  opacity: 0.78;
+.section-subtitle {
+  font-size: 0.875rem;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
-#boot-loading .boot-track {
+/* ---- 按钮基础样式 ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.btn-primary {
+  background: var(--md-sys-color-primary, #6750a4);
+  color: var(--md-sys-color-on-primary, #fff);
+}
+.btn-primary:hover {
+  box-shadow: var(--md-sys-elevation-level2, 0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.btn-tonal {
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  color: var(--md-sys-color-on-secondary-container, #1d192b);
+}
+.btn-tonal:hover {
+  background: var(--md-sys-color-secondary-container, #ddd5f0);
+}
+
+.btn-error {
+  background: var(--md-sys-color-error, #b3261e);
+  color: var(--md-sys-color-on-error, #fff);
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--md-sys-color-primary, #6750a4);
+}
+.btn-text:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
+
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ---- 输入框基础样式 ---- */
+.input-field {
   width: 100%;
-  height: 4px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--boot-primary) 16%, transparent);
+  padding: 10px 16px;
+  border: 1px solid var(--md-sys-color-outline, #79747e);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+  color: var(--md-sys-color-on-surface, #1d1b20);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.input-field:focus {
+  border-color: var(--md-sys-color-primary, #6750a4);
+  box-shadow: 0 0 0 2px rgba(103, 80, 164, 0.2);
+}
+.input-field::placeholder {
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  opacity: 0.6;
 }
 
-#boot-loading .boot-bar {
-  display: block;
-  width: 38%;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--boot-primary);
-  animation: yukino-slide 1.2s ease-in-out infinite;
+/* ---- 表格基础样式 ---- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+}
+.data-table th {
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  text-transform: uppercase;
+}
+.data-table td {
+  font-size: 0.875rem;
 }
 
-.yukino-snackbar .v-snackbar__wrapper {
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(8px);
-  opacity: 0.98;
+/* ---- 加载骨架屏 ---- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--md-sys-color-surface-container-highest, #e6e0e9) 0%,
+    var(--md-sys-color-surface-container-high, #ece6f0) 50%,
+    var(--md-sys-color-surface-container-highest, #e6e0e9) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 8px;
 }
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-@keyframes yukino-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes yukino-slide {
+@keyframes skeleton-shimmer {
   0% {
-    transform: translateX(-120%);
+    background-position: 200% 0;
   }
-
-  50% {
-    transform: translateX(90%);
-  }
-
   100% {
-    transform: translateX(260%);
+    background-position: -200% 0;
   }
 }
 
-@keyframes yukino-glow {
-  0%,
-  100% {
-    opacity: 0.52;
-  }
-
-  50% {
-    opacity: 0.9;
-  }
+/* ---- 芯片 ---- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--md-sys-color-secondary-container, #e8def8);
+  color: var(--md-sys-color-on-secondary-container, #1d192b);
+}
+.chip-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+.chip-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.chip-info {
+  background: var(--md-sys-color-tertiary-container, #ffd8e4);
+  color: var(--md-sys-color-on-tertiary-container, #31111d);
 }
 
-@keyframes yukino-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ---- Noto Sans SC 字体回退 ---- */
+@font-face {
+  font-family: "Noto Sans SC";
+  font-display: swap;
+  src: local("Noto Sans SC"), local("NotoSansSC-Regular");
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .panel-surface,
-  .route-fade-enter-active,
-  .route-fade-leave-active,
-  #boot-loading .ring,
-  #boot-loading .boot-bar,
-  #boot-loading::before {
-    animation: none;
-    transition: none;
-  }
+/* ---- 分页器 ---- */
+.paginator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 16px;
+}
+.paginator button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.paginator button:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
+.paginator button.active {
+  background: var(--md-sys-color-primary-container, #eaddff);
+  color: var(--md-sys-color-on-primary-container, #21005d);
+}
 
-  .v-btn:hover {
-    transform: none;
-  }
+/* ---- 加载进度条 (NProgress 替代) ---- */
+#route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: var(--md-sys-color-primary, #6750a4);
+  z-index: 10000;
+  transition: width 0.15s ease;
 }

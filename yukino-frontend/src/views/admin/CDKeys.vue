@@ -1,309 +1,387 @@
-﻿<template>
-  <v-row>
-    <v-col cols="12">
-      <section class="panel-surface mb-6">
-        <div class="d-flex align-center justify-space-between mb-4">
-          <h1 class="text-h6 font-weight-bold text-primary">卡密生成</h1>
-          <v-btn color="primary" variant="tonal" @click="addConfigRow">新增项目配置</v-btn>
-        </div>
+<template>
+  <!-- 卡密管理：生成 + 列表查询 -->
+  <div class="cdkeys">
+    <!-- 卡密生成区 -->
+    <section class="card-surface" style="margin-bottom: 16px">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <h1 class="page-title">卡密生成</h1>
+        <button class="btn btn-tonal" @click="addConfigRow">
+          新增项目配置
+        </button>
+      </div>
 
-        <v-row v-for="row in formRows" :key="row.id" class="mb-1">
-          <v-col cols="12" lg="6" md="7">
-            <v-autocomplete
-                v-model="row.projectId"
-                :items="projectOptions"
-                clearable
-                color="primary"
-                density="comfortable"
-                hide-details="auto"
-                item-title="name"
-                item-value="id"
-                label="选择项目"
-                rounded="lg"
-                variant="outlined"
-            />
-          </v-col>
+      <div v-for="row in formRows" :key="row.id" class="gen-row">
+        <!-- 项目选择 -->
+        <select
+          v-model="row.projectId"
+          class="input-field"
+          style="max-width: 300px"
+        >
+          <option :value="null" disabled>选择项目</option>
+          <option v-for="opt in projectOptions" :key="opt.id" :value="opt.id">
+            {{ opt.name }}
+          </option>
+        </select>
 
-          <v-col cols="10" lg="5" md="4">
-            <v-select
-                v-model="row.period"
-                :items="periodOptions"
-                color="primary"
-                density="comfortable"
-                hide-details="auto"
-                label="授权周期"
-                rounded="lg"
-                variant="outlined"
-            />
-          </v-col>
+        <!-- 周期选择 -->
+        <select
+          v-model="row.period"
+          class="input-field"
+          style="max-width: 160px"
+        >
+          <option v-for="p in periodOptions" :key="p" :value="p">
+            {{ p }}
+          </option>
+        </select>
 
-          <v-col class="d-flex align-center justify-end" cols="2" lg="1" md="1">
-            <v-btn
-                :disabled="formRows.length === 1"
-                color="error"
-                icon="mdi-delete-outline"
-                variant="text"
-                @click="removeConfigRow(row.id)"
-            />
-          </v-col>
-        </v-row>
+        <!-- 删除该行 -->
+        <button
+          class="btn btn-text"
+          :disabled="formRows.length === 1"
+          style="color: var(--md-sys-color-error)"
+          @click="removeConfigRow(row.id)"
+        >
+          删除
+        </button>
+      </div>
 
-        <v-btn :loading="generateLoading" class="mt-4" color="primary" size="large" @click="generateKeys">生成卡密
-        </v-btn>
-      </section>
-    </v-col>
+      <button
+        class="btn btn-primary"
+        :disabled="generateLoading"
+        style="margin-top: 16px"
+        @click="generateKeys"
+      >
+        {{ generateLoading ? "生成中…" : "生成卡密" }}
+      </button>
+    </section>
 
-    <v-col cols="12">
-      <section class="panel-surface">
-        <div class="d-flex flex-column flex-sm-row align-sm-center justify-space-between mb-4 ga-3">
-          <h2 class="text-h6 font-weight-bold text-primary">卡密管理</h2>
-          <v-text-field
-              v-model="search"
-              class="w-100 search-field"
-              clearable
-              density="compact"
-              hide-details
-              placeholder="搜索卡密 / 项目 / 操作人"
-              prepend-inner-icon="mdi-magnify"
-              style="max-width: 360px"
-              variant="solo-filled"
-          />
-        </div>
+    <!-- 卡密管理列表 -->
+    <section class="card-surface">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+        "
+      >
+        <h2 class="page-title" style="font-size: 1.25rem">卡密管理</h2>
+        <input
+          v-model="search"
+          class="input-field"
+          placeholder="搜索卡密 / 项目 / 操作人"
+          style="max-width: 320px"
+        />
+      </div>
 
-        <v-skeleton-loader v-if="tableLoading" type="table-thead, table-row@6"/>
+      <!-- 骨架屏 -->
+      <div v-if="tableLoading" style="margin-top: 16px">
+        <div
+          v-for="i in 6"
+          :key="i"
+          class="skeleton"
+          style="height: 48px; margin-bottom: 8px"
+        />
+      </div>
 
-        <template v-else>
-          <v-data-table :headers="headers" :items="pagedItems" :items-per-page="itemsPerPage" class="elevation-0"
-                        hide-default-footer>
-            <template v-slot:[`item.bindings`]="{ item }">
-              <div>
-                <v-chip
-                    v-for="binding in item.bindings"
-                    :key="`${item.id}-${binding.projectId}-${binding.period}`"
-                    class="mr-1 mb-1"
-                    color="primary"
-                    size="small"
-                    variant="tonal"
+      <!-- 表格 -->
+      <template v-else>
+        <table class="data-table" style="margin-top: 12px">
+          <thead>
+            <tr>
+              <th>卡密</th>
+              <th>项目周期</th>
+              <th>状态</th>
+              <th>创建人</th>
+              <th>创建时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in pagedItems" :key="item.id">
+              <td style="font-family: monospace; font-size: 0.8125rem">
+                {{ item.key }}
+              </td>
+              <td>
+                <span
+                  v-for="b in item.bindings"
+                  :key="`${item.id}-${b.projectId}`"
+                  class="chip"
+                  style="margin-right: 4px"
                 >
-                  {{ binding.projectName }} · {{ binding.period }}
-                </v-chip>
-              </div>
-            </template>
+                  {{ b.projectName }} · {{ b.period }}
+                </span>
+              </td>
+              <td>
+                <span :class="statusClass(item.status)">{{
+                  statusLabel(item.status)
+                }}</span>
+              </td>
+              <td>{{ item.operator }}</td>
+              <td>{{ item.createdAt }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-            <template v-slot:[`item.status`]="{ item }">
-              <v-chip :color="statusMeta[item.status].color" size="small" variant="tonal">
-                {{ statusMeta[item.status].label }}
-              </v-chip>
-            </template>
-
-            <template v-slot:[`item.createdAt`]="{ item }">
-              <span class="text-medium-emphasis">{{ item.createdAt }}</span>
-            </template>
-          </v-data-table>
-
-          <div class="d-flex justify-space-between align-center mt-4 flex-wrap ga-3">
-            <div class="text-body-2 text-medium-emphasis">共 {{ filteredItems.length }} 条</div>
-            <v-pagination v-model="page" :length="pageCount" density="comfortable" rounded="circle"/>
+        <!-- 分页 -->
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+          "
+        >
+          <span class="section-subtitle">共 {{ filteredItems.length }} 条</span>
+          <div class="paginator">
+            <button
+              v-for="n in pageCount"
+              :key="n"
+              :class="{ active: page === n }"
+              @click="page = n"
+            >
+              {{ n }}
+            </button>
           </div>
-        </template>
-      </section>
-    </v-col>
-  </v-row>
+        </div>
+      </template>
+    </section>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref, watch} from 'vue'
-import {useFeedbackStore} from '../../stores/feedback'
+import { computed, ref, watch } from "vue";
+import { useFeedbackStore } from "@/stores/feedback";
 
+// ---------- 选项与数据 ----------
 interface ProjectOption {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
-type PeriodOption = '7天' | '30天' | '90天' | '180天' | '365天'
-type KeyStatus = 'active' | 'used' | 'expired'
+type PeriodOption = "7天" | "30天" | "90天" | "180天" | "365天";
+type KeyStatus = "active" | "used" | "expired";
 
 interface ConfigRow {
-  id: string
-  projectId: string | null
-  period: PeriodOption
+  id: string;
+  projectId: string | null;
+  period: PeriodOption;
 }
 
 interface CDKeyBinding {
-  projectId: string
-  projectName: string
-  period: PeriodOption
+  projectId: string;
+  projectName: string;
+  period: PeriodOption;
 }
 
 interface CDKeyItem {
-  id: string
-  key: string
-  bindings: CDKeyBinding[]
-  status: KeyStatus
-  operator: string
-  createdAt: string
+  id: string;
+  key: string;
+  bindings: CDKeyBinding[];
+  status: KeyStatus;
+  operator: string;
+  createdAt: string;
 }
 
-const feedback = useFeedbackStore()
+const feedback = useFeedbackStore();
 
 const projectOptions: ProjectOption[] = [
-  {id: 'p-agent', name: 'Yukino Agent'},
-  {id: 'p-launcher', name: 'Yukino Launcher'},
-  {id: 'p-monitor', name: 'Yukino Monitor'},
-  {id: 'p-console', name: 'Yukino Console'},
-  {id: 'p-mobile', name: 'Yukino Mobile Bridge'}
-]
+  { id: "p-agent", name: "Yukino Agent" },
+  { id: "p-launcher", name: "Yukino Launcher" },
+  { id: "p-monitor", name: "Yukino Monitor" },
+  { id: "p-console", name: "Yukino Console" },
+  { id: "p-mobile", name: "Yukino Mobile Bridge" },
+];
 
-const projectNameMap = projectOptions.reduce<Record<string, string>>((acc, item) => {
-  acc[item.id] = item.name
-  return acc
-}, {})
+const projectNameMap = projectOptions.reduce<Record<string, string>>(
+  (acc, p) => ({ ...acc, [p.id]: p.name }),
+  {},
+);
 
-const periodOptions: PeriodOption[] = ['7天', '30天', '90天', '180天', '365天']
+const periodOptions: PeriodOption[] = ["7天", "30天", "90天", "180天", "365天"];
 
-const statusMeta: Record<KeyStatus, { label: string; color: string }> = {
-  active: {label: '可用', color: 'success'},
-  used: {label: '已使用', color: 'info'},
-  expired: {label: '已过期', color: 'error'}
+const statusMeta: Record<KeyStatus, { label: string; cls: string }> = {
+  active: { label: "可用", cls: "chip-success" },
+  used: { label: "已使用", cls: "chip-info" },
+  expired: { label: "已过期", cls: "chip-error" },
+};
+
+function statusClass(s: KeyStatus) {
+  return `chip ${statusMeta[s]?.cls ?? ""}`;
+}
+function statusLabel(s: KeyStatus) {
+  return statusMeta[s]?.label ?? s;
 }
 
+// ---------- 表单 ----------
 const formRows = ref<ConfigRow[]>([
   {
     id: crypto.randomUUID(),
-    projectId: projectOptions[0].id,
-    period: '30天'
-  }
-])
-
-const generateLoading = ref(false)
-const search = ref('')
-const tableLoading = ref(true)
-const page = ref(1)
-const itemsPerPage = 8
-
-const headers = [
-  {title: '卡密', key: 'key', sortable: false},
-  {title: '项目周期', key: 'bindings', sortable: false},
-  {title: '状态', key: 'status', sortable: false},
-  {title: '创建人', key: 'operator', sortable: false},
-  {title: '创建时间', key: 'createdAt', sortable: false}
-]
-const keyItems = ref<CDKeyItem[]>([
-  {
-    id: 'k-1',
-    key: 'YKN-7A3B-91KC-5PQM',
-    bindings: [{projectId: 'p-agent', projectName: 'Yukino Agent', period: '30天'}],
-    status: 'active',
-    operator: 'admin_01',
-    createdAt: '2026-04-15 09:12'
+    projectId: projectOptions[0]?.id ?? null,
+    period: "30天",
   },
-  {
-    id: 'k-2',
-    key: 'YKN-3MX9-8QQE-1NTR',
-    bindings: [{projectId: 'p-launcher', projectName: 'Yukino Launcher', period: '90天'}],
-    status: 'used',
-    operator: 'admin_01',
-    createdAt: '2026-04-15 09:35'
-  },
-  {
-    id: 'k-3',
-    key: 'YKN-Z11P-6HRT-2BVA',
-    bindings: [
-      {projectId: 'p-monitor', projectName: 'Yukino Monitor', period: '30天'},
-      {projectId: 'p-console', projectName: 'Yukino Console', period: '30天'}
-    ],
-    status: 'active',
-    operator: 'ops_02',
-    createdAt: '2026-04-15 10:20'
-  }
-])
+]);
 
-setTimeout(() => {
-  tableLoading.value = false
-}, 500)
-
-const filteredItems = computed(() => {
-  const kw = search.value.trim().toLowerCase()
-
-  if (!kw) {
-    return keyItems.value
-  }
-
-  return keyItems.value.filter((item) => {
-    const bindingText = item.bindings.map((binding) => `${binding.projectName} ${binding.period}`).join(' ')
-    return [item.key, item.operator, item.createdAt, bindingText].join(' ').toLowerCase().includes(kw)
-  })
-})
-
-const pageCount = computed(() => Math.max(1, Math.ceil(filteredItems.value.length / itemsPerPage)))
-
-const pagedItems = computed(() => {
-  const start = (page.value - 1) * itemsPerPage
-  return filteredItems.value.slice(start, start + itemsPerPage)
-})
-
-watch(filteredItems, () => {
-  if (page.value > pageCount.value) {
-    page.value = 1
-  }
-})
+const generateLoading = ref(false);
 
 function addConfigRow() {
   formRows.value.push({
     id: crypto.randomUUID(),
     projectId: null,
-    period: '30天'
-  })
+    period: "30天",
+  });
 }
 
 function removeConfigRow(id: string) {
-  if (formRows.value.length === 1) {
-    return
-  }
-
-  formRows.value = formRows.value.filter((row) => row.id !== id)
+  if (formRows.value.length === 1) return;
+  formRows.value = formRows.value.filter((r) => r.id !== id);
 }
 
-function randomToken() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const segment = () => Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-  return `YKN-${segment()}-${segment()}-${segment()}`
+function randomToken(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const seg = () =>
+    Array.from(
+      { length: 4 },
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join("");
+  return `YKN-${seg()}-${seg()}-${seg()}`;
 }
 
 function generateKeys() {
-  const validRows = formRows.value.filter((row) => row.projectId)
-
-  if (validRows.length === 0) {
-    feedback.open({type: 'error', message: '请至少配置一个有效项目'})
-    return
+  const valid = formRows.value.filter((r) => r.projectId);
+  if (valid.length === 0) {
+    feedback.open({ type: "error", message: "请至少配置一个有效项目" });
+    return;
   }
 
-  generateLoading.value = true
-
+  generateLoading.value = true;
   setTimeout(() => {
-    const newRows: CDKeyItem[] = validRows.map((row) => {
-      const projectId = row.projectId as string
+    const now = new Date().toLocaleString("zh-CN", { hour12: false });
+    const newRows: CDKeyItem[] = valid.map((row) => {
+      const pid = row.projectId!;
       return {
         id: crypto.randomUUID(),
         key: randomToken(),
         bindings: [
           {
-            projectId,
-            projectName: projectNameMap[projectId],
-            period: row.period
-          }
+            projectId: pid,
+            projectName: projectNameMap[pid] ?? pid,
+            period: row.period,
+          },
         ],
-        status: 'active',
-        operator: 'admin_01',
-        createdAt: new Date().toLocaleString('zh-CN', {hour12: false})
-      }
-    })
-
-    keyItems.value = [...newRows, ...keyItems.value]
-    generateLoading.value = false
-    page.value = 1
-
-    feedback.open({type: 'success', message: `已生成 ${newRows.length} 条卡密（Mock）`})
-  }, 800)
+        status: "active",
+        operator: "admin_01",
+        createdAt: now,
+      };
+    });
+    keyItems.value = [...newRows, ...keyItems.value];
+    generateLoading.value = false;
+    page.value = 1;
+    feedback.open({
+      type: "success",
+      message: `已生成 ${newRows.length} 条卡密`,
+    });
+  }, 800);
 }
+
+// ---------- 列表 ----------
+const search = ref("");
+const tableLoading = ref(true);
+const page = ref(1);
+const itemsPerPage = 8;
+
+const keyItems = ref<CDKeyItem[]>([
+  {
+    id: "k-1",
+    key: "YKN-7A3B-91KC-5PQM",
+    bindings: [
+      { projectId: "p-agent", projectName: "Yukino Agent", period: "30天" },
+    ],
+    status: "active",
+    operator: "admin_01",
+    createdAt: "2026-04-15 09:12",
+  },
+  {
+    id: "k-2",
+    key: "YKN-3MX9-8QQE-1NTR",
+    bindings: [
+      {
+        projectId: "p-launcher",
+        projectName: "Yukino Launcher",
+        period: "90天",
+      },
+    ],
+    status: "used",
+    operator: "admin_01",
+    createdAt: "2026-04-15 09:35",
+  },
+  {
+    id: "k-3",
+    key: "YKN-Z11P-6HRT-2BVA",
+    bindings: [
+      {
+        projectId: "p-monitor",
+        projectName: "Yukino Monitor",
+        period: "30天",
+      },
+      {
+        projectId: "p-console",
+        projectName: "Yukino Console",
+        period: "30天",
+      },
+    ],
+    status: "active",
+    operator: "ops_02",
+    createdAt: "2026-04-15 10:20",
+  },
+]);
+
+setTimeout(() => {
+  tableLoading.value = false;
+}, 500);
+
+const filteredItems = computed(() => {
+  const kw = search.value.trim().toLowerCase();
+  if (!kw) return keyItems.value;
+  return keyItems.value.filter((item) => {
+    const bindingText = item.bindings
+      .map((b) => `${b.projectName} ${b.period}`)
+      .join(" ");
+    return [item.key, item.operator, item.createdAt, bindingText]
+      .join(" ")
+      .toLowerCase()
+      .includes(kw);
+  });
+});
+
+const pageCount = computed(() =>
+  Math.max(1, Math.ceil(filteredItems.value.length / itemsPerPage)),
+);
+
+const pagedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage;
+  return filteredItems.value.slice(start, start + itemsPerPage);
+});
+
+watch(filteredItems, () => {
+  if (page.value > pageCount.value) page.value = 1;
+});
 </script>
+
+<style scoped>
+.gen-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+</style>
