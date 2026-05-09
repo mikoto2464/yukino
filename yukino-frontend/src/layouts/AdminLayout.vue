@@ -1,5 +1,4 @@
 <template>
-  <!-- 管理端布局：顶部导航栏 + 子导航标签 + 内容区 -->
   <div class="admin-layout">
     <!-- MD3 Top App Bar -->
     <header class="top-bar">
@@ -26,7 +25,6 @@
       </div>
     </header>
 
-    <!-- 内容区 -->
     <main class="main-content">
       <RouterView />
     </main>
@@ -93,7 +91,6 @@ async function handleLogout() {
   text-decoration: none;
 }
 
-/* "管理"标签 */
 .admin-badge {
   padding: 2px 10px;
   border-radius: 100px;

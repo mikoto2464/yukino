@@ -1,5 +1,4 @@
 <template>
-  <!-- MD3 主题控制按钮组：深色切换 + 壁纸选择 -->
   <div class="theme-ctrls">
     <!-- 深色/浅色切换 -->
     <md-icon-button
@@ -54,7 +53,6 @@
 </template>
 
 <script lang="ts" setup>
-// @material/web custom element 注册
 import "@material/web/icon/icon.js";
 import "@material/web/iconbutton/icon-button.js";
 import { computed } from "vue";
@@ -66,7 +64,6 @@ const isDark = computed(() => theme.effectiveDark());
 </script>
 
 <style scoped>
-/* 主题控制区域 */
 .theme-ctrls {
   display: flex;
   align-items: center;

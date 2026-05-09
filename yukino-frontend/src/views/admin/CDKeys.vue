@@ -1,5 +1,4 @@
 <template>
-  <!-- 卡密管理：生成 + 列表查询 -->
   <div class="cdkeys">
     <!-- 卡密生成区 -->
     <section class="card-surface" style="margin-bottom: 16px">
@@ -17,7 +16,6 @@
       </div>
 
       <div v-for="row in formRows" :key="row.id" class="gen-row">
-        <!-- 项目选择 -->
         <select
           v-model="row.projectId"
           class="input-field"
@@ -29,7 +27,6 @@
           </option>
         </select>
 
-        <!-- 周期选择 -->
         <select
           v-model="row.period"
           class="input-field"
@@ -40,7 +37,6 @@
           </option>
         </select>
 
-        <!-- 删除该行 -->
         <button
           class="btn btn-text"
           :disabled="formRows.length === 1"

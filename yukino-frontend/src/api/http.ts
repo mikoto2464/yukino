@@ -7,11 +7,10 @@ import type { YukinoResponse } from "@/types";
 
 /** 扩展请求配置，允许调用方静默失败不弹 snackbar */
 interface RequestConfig extends RequestInit {
-  /** 为 true 时请求失败不触发全局 snackbar 通知 */
   silentError?: boolean;
 }
 
-// ---------- 运行时依赖（store 在调用时延迟注入） ----------
+// ---------- 运行时依赖注入（store 在调用时延迟注入，避免循环依赖） ----------
 let _getToken: (() => string) | null = null;
 let _clearAuth: (() => void) | null = null;
 let _notifyError: ((msg: string) => void) | null = null;
@@ -29,6 +28,7 @@ export function installErrorNotifier(fn: (msg: string) => void) {
 }
 
 // ---------- 核心请求方法 ----------
+
 async function request<T>(
   method: string,
   url: string,
@@ -66,7 +66,7 @@ async function request<T>(
 
     const payload: YukinoResponse<T> = await resp.json();
 
-    // 按 YukinoResponse 拆包：data 为 null 即业务失败
+    // 按 YukinoResponse 拆包
     if (!payload || typeof payload !== "object" || !("data" in payload)) {
       const msg = "响应格式异常";
       if (!config?.silentError) _notifyError?.(msg);
@@ -95,6 +95,7 @@ async function request<T>(
 }
 
 // ---------- 公开方法 ----------
+
 export function get<T>(url: string, config?: RequestConfig) {
   return request<T>("GET", url, undefined, config);
 }

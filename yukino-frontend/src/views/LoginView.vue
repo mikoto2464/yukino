@@ -1,5 +1,4 @@
 <template>
-  <!-- 登录页：Telegram Widget 登录 + QQ Mock 登录 -->
   <div class="login-page">
     <div class="login-card card-surface">
       <h1 class="page-title">登录</h1>
@@ -70,7 +69,7 @@ onMounted(() => {
   }
 });
 
-/** 登录成功后跳转到目标页面（redirect 参数或默认 dashboard） */
+/** 登录成功后跳转到目标页面 */
 function doneRedirect() {
   const redirect = route.query.redirect;
   if (typeof redirect === "string" && redirect.length > 0) {
@@ -130,7 +129,6 @@ function loginByTelegram() {
 function loginByQQ() {
   loadingQQ.value = true;
   setTimeout(() => {
-    // 模拟普通用户登录
     authStore.setSessionUser({
       id: "2",
       name: "Yukino User",

@@ -3,7 +3,7 @@
 // 控制深浅模式、壁纸选择、色彩引擎调度
 // 对外暴露所有主题相关操作
 // ============================================================
-import { reactive, readonly, shallowRef } from "vue";
+import { reactive, readonly } from "vue";
 import {
   extractThemeFromImage,
   applyColorScheme,
@@ -121,9 +121,8 @@ async function applyTheme(recompute = false) {
   const bg = currentBg();
   if (!bg) return;
 
-  // 从缓存中获取（内存 > localStorage）
   let colors = colorSchemeCache.get(bg.key) ?? readCachedColors(bg.key);
-  let needExtract = recompute || !colors;
+  const needExtract = recompute || !colors;
 
   if (needExtract) {
     try {
@@ -135,15 +134,12 @@ async function applyTheme(recompute = false) {
     }
   }
 
-  // 令牌过期则丢弃本次结果
   if (token !== initToken || !colors) return;
 
-  // 应用浅色/深色方案到 :root
   const dark = effectiveDark();
   applyColorScheme(dark ? colors.dark : colors.light);
   applyBackgroundStyle(dark);
 
-  // body class 切换
   document.documentElement.classList.toggle("dark", dark);
   document.documentElement.classList.toggle("light", !dark);
 }
@@ -177,7 +173,7 @@ export function useTheme() {
     if (!BACKGROUND_OPTIONS.some((b) => b.key === bgKey)) return;
     state.background = bgKey;
     writeStorage();
-    applyTheme(true); // 换壁纸强制重算
+    applyTheme(true);
   }
 
   function setRandomBackground() {

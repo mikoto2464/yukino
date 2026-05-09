@@ -20,7 +20,6 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 背景色由 JS 注入的 CSS 变量覆盖 */
   background-color: var(--md-sys-color-background, #fef7ff);
   color: var(--md-sys-color-on-background, #1d1b20);
   transition:
@@ -221,13 +220,6 @@ a {
   color: var(--md-sys-color-on-tertiary-container, #31111d);
 }
 
-/* ---- Noto Sans SC 字体回退 ---- */
-@font-face {
-  font-family: "Noto Sans SC";
-  font-display: swap;
-  src: local("Noto Sans SC"), local("NotoSansSC-Regular");
-}
-
 /* ---- 分页器 ---- */
 .paginator {
   display: flex;
@@ -255,14 +247,9 @@ a {
   color: var(--md-sys-color-on-primary-container, #21005d);
 }
 
-/* ---- 加载进度条 (NProgress 替代) ---- */
-#route-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 3px;
-  background: var(--md-sys-color-primary, #6750a4);
-  z-index: 10000;
-  transition: width 0.15s ease;
+/* ---- Noto Sans SC 字体回退 ---- */
+@font-face {
+  font-family: "Noto Sans SC";
+  font-display: swap;
+  src: local("Noto Sans SC"), local("NotoSansSC-Regular");
 }

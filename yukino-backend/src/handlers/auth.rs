@@ -6,8 +6,9 @@ use crate::utils::error::YukinoError;
 use crate::utils::response::{YukinoJson, YukinoResponse};
 use crate::utils::telegram_hash::{TelegramCallbackParams, verify_telegram_hash};
 use axum::Json;
-use axum::extract::State;
+use axum::extract::{Request, State};
 use std::sync::Arc;
+use axum::middleware::Next;
 
 pub type AuthSession = axum_login::AuthSession<Backend>;
 

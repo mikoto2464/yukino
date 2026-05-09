@@ -2,6 +2,7 @@
 // MD3 色彩引擎核心
 // 利用 @material/material-color-utilities 从壁纸提取 Monet 色彩
 // 生成 Tonal Palette → CSS 变量，覆盖 @material/web 默认色
+// 修改色板映射或 Token 定义请修改 TOKEN_DEFS 数组
 // ============================================================
 import {
   Hct,
@@ -26,6 +27,7 @@ function toneHex(palette: TonalPalette, tone: number): string {
 }
 
 // ---------- 色彩 Token 定义 ----------
+
 interface TokenDef {
   cssVar: string;
   palette: PaletteKey;
@@ -33,7 +35,6 @@ interface TokenDef {
   darkTone: number;
 }
 
-/** SchemeTonalSpot 实例提供的色板属性名映射 */
 const PALETTE_KEYS = [
   "primaryPalette",
   "secondaryPalette",
@@ -47,6 +48,7 @@ type PaletteKey = (typeof PALETTE_KEYS)[number];
 
 /** MD3 全部 CSS Token 定义 — 浅色/深色分别取不同 tone */
 const TOKEN_DEFS: TokenDef[] = [
+  // Primary
   {
     cssVar: "--md-sys-color-primary",
     palette: "primaryPalette",
@@ -71,6 +73,7 @@ const TOKEN_DEFS: TokenDef[] = [
     lightTone: 10,
     darkTone: 90,
   },
+  // Secondary
   {
     cssVar: "--md-sys-color-secondary",
     palette: "secondaryPalette",
@@ -95,6 +98,7 @@ const TOKEN_DEFS: TokenDef[] = [
     lightTone: 10,
     darkTone: 90,
   },
+  // Tertiary
   {
     cssVar: "--md-sys-color-tertiary",
     palette: "tertiaryPalette",
@@ -119,6 +123,7 @@ const TOKEN_DEFS: TokenDef[] = [
     lightTone: 10,
     darkTone: 90,
   },
+  // Error
   {
     cssVar: "--md-sys-color-error",
     palette: "errorPalette",
@@ -143,6 +148,7 @@ const TOKEN_DEFS: TokenDef[] = [
     lightTone: 10,
     darkTone: 90,
   },
+  // Surface / Background
   {
     cssVar: "--md-sys-color-background",
     palette: "neutralPalette",
@@ -227,6 +233,7 @@ const TOKEN_DEFS: TokenDef[] = [
     lightTone: 80,
     darkTone: 40,
   },
+  // Surface containers (MD3 elevation 层级)
   {
     cssVar: "--md-sys-color-surface-container-lowest",
     palette: "neutralPalette",
@@ -329,9 +336,7 @@ export async function extractThemeFromImage(
   const seedArgb = extractSeedFromPixels(pixels);
   const seedHct = Hct.fromInt(seedArgb);
 
-  // 浅色方案 (isDark=false, contrast=0)
   const lightScheme = new SchemeTonalSpot(seedHct, false, 0);
-  // 深色方案 (isDark=true, contrast=0)
   const darkScheme = new SchemeTonalSpot(seedHct, true, 0);
 
   const result: ThemeSchemeResult = {

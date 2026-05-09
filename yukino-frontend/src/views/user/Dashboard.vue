@@ -1,5 +1,4 @@
 <template>
-  <!-- 用户控制台 -->
   <div class="dashboard">
     <!-- 第一行：用户信息 + 设备管理 -->
     <div class="dash-grid-2col">
@@ -47,7 +46,6 @@
       <section class="card-surface">
         <h2 class="page-title" style="font-size: 1.25rem">设备列表</h2>
 
-        <!-- 设备条目 -->
         <div v-if="devices.length > 0" class="device-list">
           <div v-for="d in devices" :key="d.hardware_id" class="device-item">
             <div class="device-icon-wrapper">
@@ -56,8 +54,7 @@
             <div class="device-info">
               <div class="device-name">{{ d.name }}</div>
               <div class="device-sub">
-                最后心跳:
-                {{ formatTime(d.last_seen) }}
+                最后心跳: {{ formatTime(d.last_seen) }}
               </div>
             </div>
             <button
@@ -72,7 +69,6 @@
         </div>
         <p v-else class="section-subtitle">暂无绑定设备</p>
 
-        <!-- 新增设备 -->
         <div class="device-add">
           <input
             v-model="bindCode"
@@ -137,7 +133,6 @@
 </template>
 
 <script lang="ts" setup>
-// @material/web icon
 import "@material/web/icon/icon.js";
 import { computed, onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
@@ -153,7 +148,7 @@ import type { Device } from "@/types";
 const auth = useAuthStore();
 const feedback = useFeedbackStore();
 
-// ---------- 用户信息（从 Auth Store 计算） ----------
+// ---------- 用户信息 ----------
 const userInfo = computed(() => {
   const u = auth.user;
   const name = u?.nickname || u?.name || "未知用户";
@@ -316,7 +311,6 @@ onMounted(() => {
   }
 }
 
-/* 用户头像区域 */
 .user-profile {
   display: flex;
   align-items: center;
@@ -364,7 +358,6 @@ onMounted(() => {
   margin-top: 16px;
 }
 
-/* 设备列表 */
 .device-list {
   margin-top: 12px;
 }
@@ -404,7 +397,6 @@ onMounted(() => {
   margin-top: 12px;
 }
 
-/* 项目表头 */
 .projects-header {
   display: flex;
   align-items: center;

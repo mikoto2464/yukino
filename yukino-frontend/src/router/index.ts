@@ -1,12 +1,11 @@
 // ============================================================
 // 路由配置
-// 基于旧前端业务逻辑：public > auth > admin 三级权限
+// 基于业务逻辑：public > auth > admin 三级权限
 // 对接 /api/user/me 实现 session 恢复与角色判定
 // ============================================================
 import {
   createRouter,
   createWebHistory,
-  type NavigationGuardNext,
   type RouteLocationNormalized,
 } from "vue-router";
 import { useAuthStore } from "@/stores/auth";

@@ -1,5 +1,4 @@
 <template>
-  <!-- 用户管理 -->
   <section class="card-surface">
     <div
       style="
@@ -56,7 +55,6 @@
             </td>
             <td>{{ u.maxDevices }} 台</td>
             <td>
-              <!-- 操作菜单按钮 -->
               <div class="action-menu-wrapper">
                 <button class="btn btn-text action-trigger">
                   <md-icon>more_vert</md-icon>
@@ -87,7 +85,7 @@
     </template>
   </section>
 
-  <!-- ========= 弹窗：在线设备详情 ========= -->
+  <!-- 弹窗：在线设备详情 -->
   <Teleport to="body">
     <div
       v-if="devicesDialog"
@@ -146,7 +144,7 @@
     </div>
   </Teleport>
 
-  <!-- ========= 弹窗：封禁用户 ========= -->
+  <!-- 弹窗：封禁用户 -->
   <Teleport to="body">
     <div
       v-if="banDialog"
@@ -203,7 +201,7 @@
     </div>
   </Teleport>
 
-  <!-- ========= 弹窗：调整设备上限 ========= -->
+  <!-- 弹窗：调整设备上限 -->
   <Teleport to="body">
     <div
       v-if="deviceLimitDialog"
@@ -251,7 +249,6 @@
 </template>
 
 <script lang="ts" setup>
-// @material/web icon
 import "@material/web/icon/icon.js";
 import { computed, ref } from "vue";
 import { useFeedbackStore } from "@/stores/feedback";
@@ -475,7 +472,6 @@ async function handleKick(deviceId: string) {
 </script>
 
 <style scoped>
-/* 操作菜单 */
 .action-menu-wrapper {
   position: relative;
 }
@@ -514,7 +510,6 @@ async function handleKick(deviceId: string) {
   background: var(--md-sys-color-surface-container-high, #ece6f0);
 }
 
-/* 弹窗覆盖层 */
 .dialog-overlay {
   position: fixed;
   inset: 0;

@@ -4,17 +4,11 @@
 // 修改尺寸/颜色/间距等均在此文件中调整
 // ============================================================
 
-/** 浅色模式下内容容器的最大宽度（px） */
+/** 内容容器的最大宽度（px） */
 export const CONTENT_MAX_WIDTH = 1400;
 
-/** 浅色模式下侧边栏宽度（px） */
-export const DRAWER_WIDTH = 260;
-
-/** 全局过渡动画时长（ms） — 控制主题切换、菜单展开等 */
+/** MD3 全局过渡动画时长（ms） — 控制主题切换、菜单展开等 */
 export const TRANSITION_DURATION = 360;
-
-/** MD3 默认种子色（HSL 色相），取色引擎失败时使用 */
-export const FALLBACK_SEED_HUE = 210;
 
 /** 壁纸透明度：深色 / 浅色模式 */
 export const BG_OPACITY = { dark: 0.24, light: 0.38 };
@@ -22,10 +16,15 @@ export const BG_OPACITY = { dark: 0.24, light: 0.38 };
 /** 深色/浅色壁纸覆盖层的遮罩透明度 */
 export const BG_MASK_OPACITY = { dark: 0.62, light: 0.52 };
 
+/** localStorage 缓存色彩的前缀 */
+export const THEME_CACHE_PREFIX = "yukino.theme.cached";
+
 // ============================================================
 // 背景壁纸注册表
 // 文件名对应 public/background/ 目录中的图片
+// 新增壁纸：在 BG_NAMES 中添加文件名即可自动注册
 // ============================================================
+
 export interface BackgroundOption {
   key: string;
   label: string;
@@ -61,6 +60,3 @@ export const BACKGROUND_OPTIONS: BackgroundOption[] = BG_NAMES.map(
     };
   },
 );
-
-/** 取 localStorage 中缓存的色彩 key 前缀 */
-export const THEME_CACHE_PREFIX = "yukino.theme.cached";

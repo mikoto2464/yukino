@@ -1,5 +1,4 @@
 <template>
-  <!-- MD3 Snackbar：全局反馈提示，自右上角出现 -->
   <Teleport to="body">
     <Transition name="snackbar">
       <div
@@ -19,7 +18,6 @@
 </template>
 
 <script lang="ts" setup>
-// @material/web 必须导入才能注册 custom element
 import "@material/web/icon/icon.js";
 import "@material/web/iconbutton/icon-button.js";
 import { useFeedbackStore } from "@/stores/feedback";
@@ -34,7 +32,6 @@ const iconMap: Record<string, string> = {
 </script>
 
 <style scoped>
-/* MD3 Snackbar 样式，位置固定在右上角，使用 CSS 变量响应主题 */
 .snackbar-surface {
   position: fixed;
   top: 16px;
@@ -46,7 +43,7 @@ const iconMap: Record<string, string> = {
   min-width: 200px;
   max-width: 400px;
   padding: 8px 12px 8px 16px;
-  border-radius: 12px; /* MD3 shape extra-small */
+  border-radius: 12px;
   background: var(--md-sys-color-inverse-surface, #303033);
   color: var(--md-sys-color-inverse-on-surface, #f3f0f4);
   box-shadow: var(--md-sys-elevation-level3, 0 4px 8px 3px rgba(0, 0, 0, 0.15));
@@ -72,7 +69,6 @@ const iconMap: Record<string, string> = {
   --md-icon-button-icon-size: 20px;
 }
 
-/* 进出动画 */
 .snackbar-enter-active {
   animation: snackbar-in 300ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }

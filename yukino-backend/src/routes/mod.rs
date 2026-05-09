@@ -12,6 +12,7 @@ pub mod devices;
 pub mod projects;
 pub mod subscriptions;
 pub mod user;
+pub mod admin;
 
 async fn handler_404() -> impl IntoResponse {
     YukinoError::NotFound("This path does not exist.".to_string())

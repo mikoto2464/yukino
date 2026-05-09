@@ -1,5 +1,4 @@
 <template>
-  <!-- 首页：Yukino 产品介绍，引导登录或进入控制台 -->
   <section class="public-hero">
     <div class="hero-content">
       <h1 class="hero-title">Yukino</h1>

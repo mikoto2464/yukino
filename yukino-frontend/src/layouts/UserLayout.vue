@@ -1,5 +1,4 @@
 <template>
-  <!-- 用户端布局：顶部导航栏 + 内容区 -->
   <div class="user-layout">
     <!-- MD3 Top App Bar -->
     <header class="top-bar">
@@ -24,7 +23,6 @@
       </div>
     </header>
 
-    <!-- 内容区 -->
     <main class="main-content">
       <RouterView />
     </main>
@@ -64,7 +62,6 @@ async function handleLogout() {
   min-height: 100vh;
 }
 
-/* MD3 Top App Bar — 居中布局风格 */
 .top-bar {
   position: sticky;
   top: 0;
@@ -75,7 +72,6 @@ async function handleLogout() {
   height: 64px;
   padding: 0 24px;
   background: var(--md-sys-color-surface, #fef7ff);
-  /* MD3 elevation level1 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: background 0.3s;
 }
