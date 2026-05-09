@@ -3,8 +3,8 @@
     <!-- 第一行：用户信息 + 设备管理 -->
     <div class="dash-grid-2col">
       <!-- 用户信息卡片 -->
-      <section class="card-surface">
-        <h2 class="page-title" style="font-size: 1.25rem">用户信息</h2>
+      <MdCard>
+        <h2 style="font: var(--md-sys-typescale-title-medium)">用户信息</h2>
 
         <div class="user-profile">
           <div class="avatar">
@@ -25,31 +25,23 @@
         </div>
 
         <div class="user-actions">
-          <button
-            class="btn btn-error"
-            :disabled="unbindLoading"
-            @click="handleUnbind"
-          >
+          <MdButton variant="filled" style="background: var(--md-sys-color-error); color: var(--md-sys-color-on-error)" :disabled="unbindLoading" @click="handleUnbind">
             解绑
-          </button>
-          <button
-            class="btn btn-tonal"
-            :disabled="rebindLoading"
-            @click="handleRebind"
-          >
+          </MdButton>
+          <MdButton variant="filled-tonal" :disabled="rebindLoading" @click="handleRebind">
             换绑
-          </button>
+          </MdButton>
         </div>
-      </section>
+      </MdCard>
 
       <!-- 设备管理卡片 -->
-      <section class="card-surface">
-        <h2 class="page-title" style="font-size: 1.25rem">设备列表</h2>
+      <MdCard>
+        <h2 style="font: var(--md-sys-typescale-title-medium)">设备列表</h2>
 
         <div v-if="devices.length > 0" class="device-list">
           <div v-for="d in devices" :key="d.hardware_id" class="device-item">
             <div class="device-icon-wrapper">
-              <md-icon class="device-icon">devices</md-icon>
+              <MdIcon icon="devices" :size="20" />
             </div>
             <div class="device-info">
               <div class="device-name">{{ d.name }}</div>
@@ -57,54 +49,44 @@
                 最后心跳: {{ formatTime(d.last_seen) }}
               </div>
             </div>
-            <button
-              class="btn btn-text"
-              style="color: var(--md-sys-color-error)"
+            <MdButton
+              variant="text"
+              style="color: var(--md-sys-color-error, #b3261e)"
               :disabled="kickingId === d.hardware_id"
               @click="handleDeleteDevice(d.hardware_id)"
             >
               下线
-            </button>
+            </MdButton>
           </div>
         </div>
-        <p v-else class="section-subtitle">暂无绑定设备</p>
+        <p v-else style="font: var(--md-sys-typescale-body-small); color: var(--md-sys-color-on-surface-variant)">暂无绑定设备</p>
 
         <div class="device-add">
-          <input
+          <MdTextField
             v-model="bindCode"
-            class="input-field"
             placeholder="输入绑定代码"
             style="flex: 1"
           />
-          <button
-            class="btn btn-primary"
-            :disabled="bindLoading"
-            @click="handleCreateDevice"
-          >
+          <MdButton variant="filled" :disabled="bindLoading" @click="handleCreateDevice">
             新增设备
-          </button>
+          </MdButton>
         </div>
-      </section>
+      </MdCard>
     </div>
 
     <!-- 第二行：项目管理 + 卡密激活 -->
-    <section class="card-surface" style="margin-top: 16px">
+    <MdCard style="margin-top: 16px">
       <div class="projects-header">
-        <h2 class="page-title" style="font-size: 1.25rem">可用项目</h2>
+        <h2 style="font: var(--md-sys-typescale-title-medium)">可用项目</h2>
         <div class="activation-row">
-          <input
+          <MdTextField
             v-model="activationCode"
-            class="input-field"
             placeholder="输入卡密"
             style="max-width: 280px"
           />
-          <button
-            class="btn btn-primary"
-            :disabled="activationLoading"
-            @click="handleActivation"
-          >
+          <MdButton variant="filled" :disabled="activationLoading" @click="handleActivation">
             激活卡密
-          </button>
+          </MdButton>
         </div>
       </div>
 
@@ -121,20 +103,24 @@
           <tr v-for="p in projects" :key="p.id">
             <td>{{ p.name }}</td>
             <td>
-              <span class="chip chip-success">{{ p.status }}</span>
+              <MdChip variant="assist">{{ p.status }}</MdChip>
             </td>
             <td>{{ p.version }}</td>
             <td>{{ p.expiresAt }}</td>
           </tr>
         </tbody>
       </table>
-    </section>
+    </MdCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import "@material/web/icon/icon.js";
 import { computed, onMounted, ref } from "vue";
+import MdCard from "@/components/md/MdCard.vue";
+import MdButton from "@/components/md/MdButton.vue";
+import MdTextField from "@/components/md/MdTextField.vue";
+import MdChip from "@/components/md/MdChip.vue";
+import MdIcon from "@/components/md/MdIcon.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useFeedbackStore } from "@/stores/feedback";
 import {
@@ -377,9 +363,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
 }
-.device-icon {
-  --md-icon-size: 20px;
-}
 .device-info {
   flex: 1;
 }
@@ -395,6 +378,7 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   margin-top: 12px;
+  align-items: flex-end;
 }
 
 .projects-header {
@@ -407,5 +391,26 @@ onMounted(() => {
 .activation-row {
   display: flex;
   gap: 8px;
+  align-items: flex-end;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+}
+.data-table th {
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+}
+.data-table td {
+  font-size: 0.875rem;
 }
 </style>

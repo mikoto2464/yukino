@@ -1,18 +1,11 @@
 <template>
-  <section class="card-surface">
+  <MdCard>
     <div
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-      "
+      style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"
     >
-      <h1 class="page-title">用户管理</h1>
-      <input
+      <h1 style="font: var(--md-sys-typescale-headline-small)">用户管理</h1>
+      <MdTextField
         v-model="search"
-        class="input-field"
         placeholder="搜索用户 / 设备"
         style="max-width: 320px"
       />
@@ -23,7 +16,7 @@
       <div
         v-for="i in 5"
         :key="i"
-        class="skeleton"
+        class="md-skeleton"
         style="height: 48px; margin-bottom: 8px"
       />
     </div>
@@ -46,27 +39,22 @@
             <td>{{ u.name }}</td>
             <td>{{ u.role }}</td>
             <td>
-              <span :class="u.banned ? 'chip chip-error' : 'chip chip-success'">
+              <MdChip :variant="u.banned ? 'filter' : 'assist'">
                 {{ u.banned ? "已封禁" : "正常" }}
-              </span>
+              </MdChip>
             </td>
             <td>
-              <span class="chip chip-info">{{ u.onlineDevices }} 台在线</span>
+              <MdChip variant="assist">{{ u.onlineDevices }} 台在线</MdChip>
             </td>
             <td>{{ u.maxDevices }} 台</td>
             <td>
               <div class="action-menu-wrapper">
-                <button class="btn btn-text action-trigger">
-                  <md-icon>more_vert</md-icon>
-                </button>
+                <MdIconButton icon="more_vert" :icon-size="20" />
                 <div class="action-menu">
                   <button class="action-menu-item" @click="openDevices(u.id)">
                     查看在线设备
                   </button>
-                  <button
-                    class="action-menu-item"
-                    @click="openDeviceLimit(u.id)"
-                  >
+                  <button class="action-menu-item" @click="openDeviceLimit(u.id)">
                     调整设备上限
                   </button>
                   <button
@@ -83,174 +71,99 @@
         </tbody>
       </table>
     </template>
-  </section>
+  </MdCard>
 
   <!-- 弹窗：在线设备详情 -->
-  <Teleport to="body">
-    <div
-      v-if="devicesDialog"
-      class="dialog-overlay"
-      @click.self="devicesDialog = false"
-    >
-      <div class="dialog-card">
-        <div class="dialog-header">
-          <h2 class="page-title" style="font-size: 1.125rem">在线设备详情</h2>
-          <button class="btn btn-text" @click="devicesDialog = false">
-            关闭
-          </button>
-        </div>
-        <div v-if="selectedUserDevices.length > 0">
-          <div
-            v-for="d in selectedUserDevices"
-            :key="d.id"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              padding: 10px 0;
-              border-bottom: 1px solid var(--md-sys-color-outline-variant);
-            "
-          >
-            <md-icon style="--md-icon-size: 20px">devices</md-icon>
-            <div style="flex: 1">
-              <div style="font-weight: 500">{{ d.name }}</div>
-              <div
-                style="
-                  font-size: 0.75rem;
-                  color: var(--md-sys-color-on-surface-variant);
-                "
-              >
-                最后活跃: {{ d.lastSeen }}
-              </div>
-            </div>
-            <button
-              class="btn btn-text"
-              style="color: var(--md-sys-color-error)"
-              :disabled="kickingDeviceId === d.id"
-              @click="handleKick(d.id)"
-            >
-              下线设备
-            </button>
+  <MdDialog :open="devicesDialog" :headline="'在线设备详情'" @update:open="devicesDialog = $event">
+    <div v-if="selectedUserDevices.length > 0">
+      <div
+        v-for="d in selectedUserDevices"
+        :key="d.id"
+        style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--md-sys-color-outline-variant)"
+      >
+        <MdIcon icon="devices" :size="20" />
+        <div style="flex: 1">
+          <div style="font-weight: 500">{{ d.name }}</div>
+          <div style="font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant)">
+            最后活跃: {{ d.lastSeen }}
           </div>
         </div>
-        <p
-          v-else
-          class="section-subtitle"
-          style="text-align: center; padding: 24px 0"
+        <MdButton
+          variant="text"
+          style="color: var(--md-sys-color-error, #b3261e)"
+          :disabled="kickingDeviceId === d.id"
+          @click="handleKick(d.id)"
         >
-          该用户当前没有在线终端。
-        </p>
+          下线设备
+        </MdButton>
       </div>
     </div>
-  </Teleport>
+    <p v-else style="text-align:center;padding:24px 0;color:var(--md-sys-color-on-surface-variant)">
+      该用户当前没有在线终端。
+    </p>
+    <template #actions>
+      <MdButton variant="text" @click="devicesDialog = false">关闭</MdButton>
+    </template>
+  </MdDialog>
 
   <!-- 弹窗：封禁用户 -->
-  <Teleport to="body">
-    <div
-      v-if="banDialog"
-      class="dialog-overlay"
-      @click.self="banDialog = false"
-    >
-      <div class="dialog-card">
-        <div class="dialog-header">
-          <h2 class="page-title" style="font-size: 1.125rem">封禁用户</h2>
-          <button class="btn btn-text" @click="banDialog = false">关闭</button>
-        </div>
-        <p class="section-subtitle" style="margin-bottom: 16px">
-          请选择封禁时长并确认操作。
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 8px">
-          <label
-            v-for="opt in banOptions"
-            :key="opt.value"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              padding: 8px 0;
-              cursor: pointer;
-            "
-          >
-            <input
-              v-model="banDuration"
-              type="radio"
-              :value="opt.value"
-              style="accent-color: var(--md-sys-color-primary)"
-            />
-            {{ opt.label }}
-          </label>
-        </div>
-        <div
-          style="
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 16px;
-          "
-        >
-          <button class="btn btn-text" @click="banDialog = false">取消</button>
-          <button
-            class="btn btn-error"
-            :disabled="banLoading"
-            @click="submitBan"
-          >
-            确认封禁
-          </button>
-        </div>
-      </div>
+  <MdDialog :open="banDialog" :headline="'封禁用户'" @update:open="banDialog = $event">
+    <p style="font: var(--md-sys-typescale-body-medium); color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px">
+      请选择封禁时长并确认操作。
+    </p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label
+        v-for="opt in banOptions"
+        :key="opt.value"
+        style="display:flex;align-items:center;gap:12px;padding:8px 0;cursor:pointer"
+      >
+        <input
+          v-model="banDuration"
+          type="radio"
+          :value="opt.value"
+          class="md-radio"
+        />
+        {{ opt.label }}
+      </label>
     </div>
-  </Teleport>
+    <template #actions>
+      <MdButton variant="text" @click="banDialog = false">取消</MdButton>
+      <MdButton
+        variant="filled"
+        style="background: var(--md-sys-color-error, #b3261e); color: var(--md-sys-color-on-error, #fff)"
+        :disabled="banLoading"
+        @click="submitBan"
+      >
+        确认封禁
+      </MdButton>
+    </template>
+  </MdDialog>
 
   <!-- 弹窗：调整设备上限 -->
-  <Teleport to="body">
-    <div
-      v-if="deviceLimitDialog"
-      class="dialog-overlay"
-      @click.self="deviceLimitDialog = false"
-    >
-      <div class="dialog-card">
-        <div class="dialog-header">
-          <h2 class="page-title" style="font-size: 1.125rem">
-            调整设备绑定上限
-          </h2>
-          <button class="btn btn-text" @click="deviceLimitDialog = false">
-            关闭
-          </button>
-        </div>
-        <input
-          v-model.number="editingMaxDevices"
-          class="input-field"
-          type="number"
-          min="1"
-          placeholder="最大绑定设备数"
-        />
-        <div
-          style="
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 16px;
-          "
-        >
-          <button class="btn btn-text" @click="deviceLimitDialog = false">
-            取消
-          </button>
-          <button
-            class="btn btn-primary"
-            :disabled="limitLoading"
-            @click="submitDeviceLimit"
-          >
-            保存
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+  <MdDialog :open="deviceLimitDialog" :headline="'调整设备绑定上限'" @update:open="deviceLimitDialog = $event">
+    <MdTextField
+      v-model="editingMaxDevicesStr"
+      type="number"
+      placeholder="最大绑定设备数"
+    />
+    <template #actions>
+      <MdButton variant="text" @click="deviceLimitDialog = false">取消</MdButton>
+      <MdButton variant="filled" :disabled="limitLoading" @click="submitDeviceLimit">
+        保存
+      </MdButton>
+    </template>
+  </MdDialog>
 </template>
 
 <script lang="ts" setup>
-import "@material/web/icon/icon.js";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import MdCard from "@/components/md/MdCard.vue";
+import MdButton from "@/components/md/MdButton.vue";
+import MdTextField from "@/components/md/MdTextField.vue";
+import MdChip from "@/components/md/MdChip.vue";
+import MdIcon from "@/components/md/MdIcon.vue";
+import MdIconButton from "@/components/md/MdIconButton.vue";
+import MdDialog from "@/components/md/MdDialog.vue";
 import { useFeedbackStore } from "@/stores/feedback";
 import { banUser, kickDevice, updateUserMaxDevices } from "@/api/services";
 
@@ -296,20 +209,8 @@ const users = ref<UserRecord[]>([
     banned: false,
     maxDevices: 3,
     devices: [
-      {
-        id: "d-1",
-        name: "Windows Desktop",
-        lastSeen: "刚刚",
-        icon: "monitor",
-        online: true,
-      },
-      {
-        id: "d-2",
-        name: "Android Phone",
-        lastSeen: "1 分钟前",
-        icon: "phone_android",
-        online: true,
-      },
+      { id: "d-1", name: "Windows Desktop", lastSeen: "刚刚", icon: "monitor", online: true },
+      { id: "d-2", name: "Android Phone", lastSeen: "1 分钟前", icon: "phone_android", online: true },
     ],
   },
   {
@@ -319,13 +220,7 @@ const users = ref<UserRecord[]>([
     banned: false,
     maxDevices: 2,
     devices: [
-      {
-        id: "d-3",
-        name: "MacBook Pro",
-        lastSeen: "4 分钟前",
-        icon: "laptop",
-        online: true,
-      },
+      { id: "d-3", name: "MacBook Pro", lastSeen: "4 分钟前", icon: "laptop", online: true },
     ],
   },
   {
@@ -335,13 +230,7 @@ const users = ref<UserRecord[]>([
     banned: true,
     maxDevices: 1,
     devices: [
-      {
-        id: "d-4",
-        name: "Linux Workstation",
-        lastSeen: "12 分钟前",
-        icon: "desktop_windows",
-        online: true,
-      },
+      { id: "d-4", name: "Linux Workstation", lastSeen: "12 分钟前", icon: "desktop_windows", online: true },
     ],
   },
 ]);
@@ -380,6 +269,7 @@ const kickingDeviceId = ref("");
 const selectedUserId = ref("");
 const banDuration = ref(24);
 const editingMaxDevices = ref(3);
+const editingMaxDevicesStr = ref("3");
 
 const banOptions = [
   { label: "24 小时", value: 24 },
@@ -411,6 +301,7 @@ function openBan(userId: string) {
 function openDeviceLimit(userId: string) {
   selectedUserId.value = userId;
   editingMaxDevices.value = selectedUser.value?.maxDevices ?? 1;
+  editingMaxDevicesStr.value = String(editingMaxDevices.value);
   deviceLimitDialog.value = true;
 }
 
@@ -434,7 +325,7 @@ async function submitBan() {
 async function submitDeviceLimit() {
   const u = selectedUser.value;
   if (!u) return;
-  const next = Math.max(1, Math.floor(Number(editingMaxDevices.value) || 1));
+  const next = Math.max(1, Math.floor(Number(editingMaxDevicesStr.value) || 1));
   limitLoading.value = true;
   try {
     await updateUserMaxDevices(u.id, next);
@@ -469,14 +360,37 @@ async function handleKick(deviceId: string) {
     kickingDeviceId.value = "";
   }
 }
+
+// ---- Watch for editingMaxDevices sync ----
+watch(editingMaxDevicesStr, (val) => {
+  const n = Number(val);
+  if (!isNaN(n) && n > 0) editingMaxDevices.value = n;
+});
 </script>
 
 <style scoped>
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+}
+.data-table th {
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+}
+.data-table td {
+  font-size: 0.875rem;
+}
+
 .action-menu-wrapper {
   position: relative;
-}
-.action-trigger {
-  padding: 4px;
 }
 .action-menu-wrapper:hover .action-menu,
 .action-menu-wrapper:focus-within .action-menu {
@@ -492,7 +406,7 @@ async function handleKick(deviceId: string) {
   padding: 4px 0;
   border-radius: 12px;
   background: var(--md-sys-color-surface-container, #f3edf7);
-  box-shadow: var(--md-sys-elevation-level3, 0 4px 8px 3px rgba(0, 0, 0, 0.15));
+  box-shadow: var(--md-sys-elevation-level3);
   z-index: 100;
 }
 .action-menu-item {
@@ -510,29 +424,9 @@ async function handleKick(deviceId: string) {
   background: var(--md-sys-color-surface-container-high, #ece6f0);
 }
 
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-}
-.dialog-card {
-  width: 100%;
-  max-width: 520px;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 24px;
-  border-radius: 24px;
-  background: var(--md-sys-color-surface-container-high, #ece6f0);
-  box-shadow: var(--md-sys-elevation-level5, 0 8px 16px rgba(0, 0, 0, 0.2));
-}
-.dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+.md-radio {
+  accent-color: var(--md-sys-color-primary, #6750a4);
+  width: 18px;
+  height: 18px;
 }
 </style>

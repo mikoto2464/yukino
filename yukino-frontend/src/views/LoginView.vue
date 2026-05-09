@@ -1,16 +1,16 @@
 <template>
   <div class="login-page">
-    <div class="login-card card-surface">
-      <h1 class="page-title">登录</h1>
-      <p class="section-subtitle" style="margin-top: 4px">
+    <MdCard class="login-card">
+      <h1 style="font: var(--md-sys-typescale-headline-small)">登录</h1>
+      <p style="font: var(--md-sys-typescale-body-medium); color: var(--md-sys-color-on-surface-variant); margin-top: 4px">
         选择一种方式登录 Yukino
       </p>
 
       <div class="login-methods">
-        <!-- Telegram 登录 -->
-        <button
-          class="btn btn-primary login-btn"
-          :disabled="loadingTelegram"
+        <MdButton
+          variant="filled"
+          class="login-btn"
+          :loading="loadingTelegram"
           @click="loginByTelegram"
         >
           <svg
@@ -26,24 +26,26 @@
             />
           </svg>
           {{ loadingTelegram ? "登录中…" : "使用 Telegram 登录" }}
-        </button>
+        </MdButton>
 
-        <!-- QQ 登录 (Mock) -->
-        <button
-          class="btn btn-tonal login-btn"
-          :disabled="loadingQQ"
+        <MdButton
+          variant="filled-tonal"
+          class="login-btn"
+          :loading="loadingQQ"
           @click="loginByQQ"
         >
           {{ loadingQQ ? "登录中…" : "使用 QQ 登录" }}
-        </button>
+        </MdButton>
       </div>
-    </div>
+    </MdCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import MdCard from "@/components/md/MdCard.vue";
+import MdButton from "@/components/md/MdButton.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useFeedbackStore } from "@/stores/feedback";
 import { authSessionTelegram } from "@/api/services";
@@ -58,7 +60,6 @@ const loadingTelegram = ref(false);
 const loadingQQ = ref(false);
 const botId = "8691993144";
 
-// 加载 Telegram 登录 Widget 脚本
 onMounted(() => {
   if (!document.getElementById("telegram-widget-script")) {
     const script = document.createElement("script");
@@ -69,7 +70,6 @@ onMounted(() => {
   }
 });
 
-/** 登录成功后跳转到目标页面 */
 function doneRedirect() {
   const redirect = route.query.redirect;
   if (typeof redirect === "string" && redirect.length > 0) {
@@ -79,7 +79,6 @@ function doneRedirect() {
   router.push({ name: "dashboard" });
 }
 
-/** Telegram 登录流程 */
 function loginByTelegram() {
   const tg = (window as unknown as Record<string, unknown>).Telegram as
     | { Login?: { auth: (opts: object, cb: (data: unknown) => void) => void } }
@@ -125,7 +124,6 @@ function loginByTelegram() {
   });
 }
 
-/** QQ Mock 登录 — 开发状态下使用 */
 function loginByQQ() {
   loadingQQ.value = true;
   setTimeout(() => {
@@ -168,7 +166,5 @@ function loginByQQ() {
 
 .login-btn {
   width: 100%;
-  padding: 14px 24px;
-  font-size: 0.9375rem;
 }
 </style>

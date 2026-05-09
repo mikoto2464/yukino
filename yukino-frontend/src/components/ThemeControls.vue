@@ -1,32 +1,25 @@
 <template>
   <div class="theme-ctrls">
     <!-- 深色/浅色切换 -->
-    <md-icon-button
-      class="ctrl-btn"
+    <MdIconButton
+      :icon="isDark ? 'light_mode' : 'dark_mode'"
       :aria-label="isDark ? '切换浅色模式' : '切换深色模式'"
       @click="theme.toggleDark()"
-    >
-      <md-icon>{{ isDark ? "light_mode" : "dark_mode" }}</md-icon>
-    </md-icon-button>
+    />
 
     <!-- 随机背景 -->
-    <md-icon-button
-      class="ctrl-btn"
+    <MdIconButton
+      icon="shuffle"
       aria-label="随机背景图"
       @click="theme.setRandomBackground()"
-    >
-      <md-icon>shuffle</md-icon>
-    </md-icon-button>
+    />
 
     <!-- 壁纸选择下拉 -->
     <div class="bg-menu-wrapper">
-      <md-icon-button
-        id="bg-menu-trigger"
-        class="ctrl-btn"
+      <MdIconButton
+        icon="palette"
         aria-label="选择背景图"
-      >
-        <md-icon>palette</md-icon>
-      </md-icon-button>
+      />
       <div class="bg-menu" role="menu">
         <div
           v-for="bg in BACKGROUND_OPTIONS"
@@ -43,9 +36,7 @@
             loading="lazy"
           />
           <span class="bg-label">{{ bg.label }}</span>
-          <md-icon v-if="theme.state.background === bg.key" class="bg-check">
-            check
-          </md-icon>
+          <MdIcon v-if="theme.state.background === bg.key" icon="check" :size="20" class="bg-check" />
         </div>
       </div>
     </div>
@@ -53,9 +44,9 @@
 </template>
 
 <script lang="ts" setup>
-import "@material/web/icon/icon.js";
-import "@material/web/iconbutton/icon-button.js";
 import { computed } from "vue";
+import MdIconButton from "@/components/md/MdIconButton.vue";
+import MdIcon from "@/components/md/MdIcon.vue";
 import { useTheme } from "@/composables/useTheme";
 import { BACKGROUND_OPTIONS } from "@/config";
 
@@ -70,11 +61,6 @@ const isDark = computed(() => theme.effectiveDark());
   gap: 4px;
 }
 
-.ctrl-btn {
-  --md-icon-button-icon-size: 24px;
-}
-
-/* 壁纸选择弹出菜单 */
 .bg-menu-wrapper {
   position: relative;
 }
@@ -94,7 +80,7 @@ const isDark = computed(() => theme.effectiveDark());
   padding: 8px 0;
   border-radius: 16px;
   background: var(--md-sys-color-surface-container, #f3edf7);
-  box-shadow: var(--md-sys-elevation-level3, 0 4px 8px 3px rgba(0, 0, 0, 0.15));
+  box-shadow: var(--md-sys-elevation-level3);
   z-index: 1000;
 }
 .bg-menu-item {
@@ -123,7 +109,6 @@ const isDark = computed(() => theme.effectiveDark());
   color: var(--md-sys-color-on-surface, #1d1b20);
 }
 .bg-check {
-  --md-icon-size: 20px;
-  color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-primary, #6750a4);
 }
 </style>

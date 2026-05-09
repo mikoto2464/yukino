@@ -1,8 +1,7 @@
 <template>
   <div class="admin-layout">
-    <!-- MD3 Top App Bar -->
-    <header class="top-bar">
-      <div class="top-bar-start">
+    <MdTopAppBar>
+      <template #start>
         <RouterLink to="/" class="brand-link">Yukino</RouterLink>
         <span class="admin-badge">管理</span>
         <nav class="top-bar-nav">
@@ -12,18 +11,18 @@
           </RouterLink>
           <RouterLink to="/admin/users" class="nav-link">用户管理</RouterLink>
         </nav>
-      </div>
-      <div class="top-bar-end">
+      </template>
+      <template #end>
         <ThemeControls />
-        <button
-          class="btn btn-text"
+        <MdButton
+          variant="text"
           :disabled="logoutLoading"
           @click="handleLogout"
         >
           退出登录
-        </button>
-      </div>
-    </header>
+        </MdButton>
+      </template>
+    </MdTopAppBar>
 
     <main class="main-content">
       <RouterView />
@@ -34,6 +33,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { RouterLink, RouterView, useRouter } from "vue-router";
+import MdTopAppBar from "@/components/md/MdTopAppBar.vue";
+import MdButton from "@/components/md/MdButton.vue";
 import ThemeControls from "@/components/ThemeControls.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useFeedbackStore } from "@/stores/feedback";
@@ -64,26 +65,6 @@ async function handleLogout() {
   min-height: 100vh;
 }
 
-.top-bar {
-  position: sticky;
-  top: 0;
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  padding: 0 24px;
-  background: var(--md-sys-color-surface-container, #f3edf7);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: background 0.3s;
-}
-
-.top-bar-start {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .brand-link {
   font-size: 1.25rem;
   font-weight: 700;
@@ -104,6 +85,7 @@ async function handleLogout() {
 .top-bar-nav {
   display: flex;
   gap: 4px;
+  margin-left: 8px;
 }
 
 .nav-link {
@@ -120,12 +102,6 @@ async function handleLogout() {
 .nav-link.router-link-active {
   background: var(--md-sys-color-secondary-container, #e8def8);
   color: var(--md-sys-color-on-secondary-container, #1d192b);
-}
-
-.top-bar-end {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .main-content {

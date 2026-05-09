@@ -15,7 +15,9 @@ import {
 } from "@/api/http";
 import { useAuthStore } from "@/stores/auth";
 import { useFeedbackStore } from "@/stores/feedback";
-import "@/styles/main.css";
+import "@/styles/tokens.css";
+import "@/styles/base.css";
+import "@/styles/ripple.css";
 
 // ---- 启动计时：保证 loading 动画至少展示 950ms ----
 const bootStart = performance.now();

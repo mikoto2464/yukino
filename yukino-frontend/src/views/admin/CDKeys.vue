@@ -1,77 +1,55 @@
 <template>
   <div class="cdkeys">
     <!-- 卡密生成区 -->
-    <section class="card-surface" style="margin-bottom: 16px">
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
-        <h1 class="page-title">卡密生成</h1>
-        <button class="btn btn-tonal" @click="addConfigRow">
+    <MdCard style="margin-bottom: 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h1 style="font: var(--md-sys-typescale-headline-small)">卡密生成</h1>
+        <MdButton variant="filled-tonal" @click="addConfigRow">
           新增项目配置
-        </button>
+        </MdButton>
       </div>
 
       <div v-for="row in formRows" :key="row.id" class="gen-row">
-        <select
+        <MdSelect
           v-model="row.projectId"
-          class="input-field"
+          :options="selectOptions"
+          placeholder="选择项目"
           style="max-width: 300px"
-        >
-          <option :value="null" disabled>选择项目</option>
-          <option v-for="opt in projectOptions" :key="opt.id" :value="opt.id">
-            {{ opt.name }}
-          </option>
-        </select>
-
-        <select
+        />
+        <MdSelect
           v-model="row.period"
-          class="input-field"
+          :options="periodSelectOptions"
           style="max-width: 160px"
-        >
-          <option v-for="p in periodOptions" :key="p" :value="p">
-            {{ p }}
-          </option>
-        </select>
-
-        <button
-          class="btn btn-text"
+        />
+        <MdButton
+          variant="text"
+          style="color: var(--md-sys-color-error, #b3261e)"
           :disabled="formRows.length === 1"
-          style="color: var(--md-sys-color-error)"
           @click="removeConfigRow(row.id)"
         >
           删除
-        </button>
+        </MdButton>
       </div>
 
-      <button
-        class="btn btn-primary"
+      <MdButton
+        variant="filled"
         :disabled="generateLoading"
+        :loading="generateLoading"
         style="margin-top: 16px"
         @click="generateKeys"
       >
-        {{ generateLoading ? "生成中…" : "生成卡密" }}
-      </button>
-    </section>
+        生成卡密
+      </MdButton>
+    </MdCard>
 
     <!-- 卡密管理列表 -->
-    <section class="card-surface">
+    <MdCard>
       <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 12px;
-        "
+        style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"
       >
-        <h2 class="page-title" style="font-size: 1.25rem">卡密管理</h2>
-        <input
+        <h2 style="font: var(--md-sys-typescale-title-medium)">卡密管理</h2>
+        <MdTextField
           v-model="search"
-          class="input-field"
           placeholder="搜索卡密 / 项目 / 操作人"
           style="max-width: 320px"
         />
@@ -82,7 +60,7 @@
         <div
           v-for="i in 6"
           :key="i"
-          class="skeleton"
+          class="md-skeleton"
           style="height: 48px; margin-bottom: 8px"
         />
       </div>
@@ -105,19 +83,19 @@
                 {{ item.key }}
               </td>
               <td>
-                <span
+                <MdChip
                   v-for="b in item.bindings"
                   :key="`${item.id}-${b.projectId}`"
-                  class="chip"
+                  variant="assist"
                   style="margin-right: 4px"
                 >
                   {{ b.projectName }} · {{ b.period }}
-                </span>
+                </MdChip>
               </td>
               <td>
-                <span :class="statusClass(item.status)">{{
-                  statusLabel(item.status)
-                }}</span>
+                <MdChip :variant="chipVariantForStatus(item.status)">
+                  {{ statusLabel(item.status) }}
+                </MdChip>
               </td>
               <td>{{ item.operator }}</td>
               <td>{{ item.createdAt }}</td>
@@ -127,16 +105,11 @@
 
         <!-- 分页 -->
         <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-          "
+          style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:8px"
         >
-          <span class="section-subtitle">共 {{ filteredItems.length }} 条</span>
+          <span style="font: var(--md-sys-typescale-body-small); color: var(--md-sys-color-on-surface-variant)">
+            共 {{ filteredItems.length }} 条
+          </span>
           <div class="paginator">
             <button
               v-for="n in pageCount"
@@ -149,12 +122,18 @@
           </div>
         </div>
       </template>
-    </section>
+    </MdCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
+import MdCard from "@/components/md/MdCard.vue";
+import MdButton from "@/components/md/MdButton.vue";
+import MdTextField from "@/components/md/MdTextField.vue";
+import MdSelect from "@/components/md/MdSelect.vue";
+import MdChip from "@/components/md/MdChip.vue";
+import type { SelectOption } from "@/components/md/MdSelect.vue";
 import { useFeedbackStore } from "@/stores/feedback";
 
 // ---------- 选项与数据 ----------
@@ -204,14 +183,24 @@ const projectNameMap = projectOptions.reduce<Record<string, string>>(
 
 const periodOptions: PeriodOption[] = ["7天", "30天", "90天", "180天", "365天"];
 
-const statusMeta: Record<KeyStatus, { label: string; cls: string }> = {
-  active: { label: "可用", cls: "chip-success" },
-  used: { label: "已使用", cls: "chip-info" },
-  expired: { label: "已过期", cls: "chip-error" },
+const selectOptions: SelectOption[] = [
+  { label: "选择项目", value: "", disabled: true },
+  ...projectOptions.map((p) => ({ label: p.name, value: p.id })),
+];
+
+const periodSelectOptions: SelectOption[] = periodOptions.map((p) => ({
+  label: p,
+  value: p,
+}));
+
+const statusMeta: Record<KeyStatus, { label: string; variant: "assist" | "filter" }> = {
+  active: { label: "可用", variant: "assist" },
+  used: { label: "已使用", variant: "filter" },
+  expired: { label: "已过期", variant: "filter" },
 };
 
-function statusClass(s: KeyStatus) {
-  return `chip ${statusMeta[s]?.cls ?? ""}`;
+function chipVariantForStatus(s: KeyStatus) {
+  return statusMeta[s]?.variant ?? "assist";
 }
 function statusLabel(s: KeyStatus) {
   return statusMeta[s]?.label ?? s;
@@ -379,5 +368,50 @@ watch(filteredItems, () => {
   gap: 12px;
   margin-top: 12px;
   flex-wrap: wrap;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+}
+.data-table th {
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+}
+.data-table td {
+  font-size: 0.875rem;
+}
+
+.paginator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.paginator button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant, #49454f);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.paginator button:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
+.paginator button.active {
+  background: var(--md-sys-color-primary-container, #eaddff);
+  color: var(--md-sys-color-on-primary-container, #21005d);
 }
 </style>

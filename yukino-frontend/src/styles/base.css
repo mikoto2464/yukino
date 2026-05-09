@@ -1,0 +1,133 @@
+/*
+ * ============================================================
+ * MD3 全局基础样式
+ * 字形、背景、滚动条、通用布局均由此文件控制
+ * 色彩由 colorEngine.ts 动态注入 CSS 变量，本文件不硬编码颜色
+ * ============================================================
+ */
+
+@import "./tokens.css";
+
+/* ---- Box-sizing 重置 ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- 根元素 ---- */
+html {
+  font-family: var(--md-ref-typeface-plain);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--md-sys-color-background, #fef7ff);
+  color: var(--md-sys-color-on-background, #1d1b20);
+  /* 主题色与背景色过渡 — 使用 MD3 medium2 duration + standard easing */
+  transition:
+    background-color var(--md-sys-motion-duration-medium2, 300ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
+    color var(--md-sys-motion-duration-medium2, 300ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+/* ---- 壁纸背景层 ---- */
+body {
+  min-height: 100vh;
+  background-image: var(--yukino-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: var(--yukino-bg-mask-opacity, 0.52);
+  background: var(--md-sys-color-background, #fef7ff);
+  pointer-events: none;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- 链接 —— 使用 primary 色，无下划线 ---- */
+a {
+  color: var(--md-sys-color-primary, #6750a4);
+  text-decoration: none;
+}
+
+/* ---- 滚动条 — MD3 风格细滚动条 ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--md-sys-color-outline-variant, #cac4d0);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline, #79747e);
+}
+
+/* ---- 选中高亮 ---- */
+::selection {
+  background: var(--md-sys-color-primary-container, #eaddff);
+  color: var(--md-sys-color-on-primary-container, #21005d);
+}
+
+/* ---- 聚焦环 (Focus Ring) ---- */
+:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary, #6750a4);
+  outline-offset: 2px;
+}
+
+/* ---- 骨架屏 (Skeleton) — MD3 shimmer 动画 ---- */
+.md-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--md-sys-color-surface-container-highest, #e6e0e9) 0%,
+    var(--md-sys-color-surface-container-high, #ece6f0) 50%,
+    var(--md-sys-color-surface-container-highest, #e6e0e9) 100%
+  );
+  background-size: 200% 100%;
+  animation: md-skeleton-shimmer 1.5s var(--md-sys-motion-easing-standard) infinite;
+  border-radius: var(--md-sys-shape-corner-small, 8px);
+}
+
+@keyframes md-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- ARIA 辅助 —— 仅屏幕阅读器可见 ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- 中文字体回退声明 ---- */
+@font-face {
+  font-family: "Noto Sans SC";
+  font-display: swap;
+  src: local("Noto Sans SC"), local("NotoSansSC-Regular");
+}

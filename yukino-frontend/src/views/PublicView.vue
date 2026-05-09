@@ -4,15 +4,11 @@
       <h1 class="hero-title">Yukino</h1>
       <p class="hero-desc">Mikoto 的个人软件分发中心。</p>
       <div class="hero-actions">
-        <RouterLink
-          v-if="auth.isAuthenticated"
-          to="/dashboard"
-          class="btn btn-primary"
-        >
-          前往控制台
+        <RouterLink to="/dashboard" v-if="auth.isAuthenticated" class="hero-btn-link">
+          <MdButton variant="filled">前往控制台</MdButton>
         </RouterLink>
-        <RouterLink v-else to="/login" class="btn btn-primary">
-          登录
+        <RouterLink to="/login" v-else class="hero-btn-link">
+          <MdButton variant="filled">登录</MdButton>
         </RouterLink>
       </div>
     </div>
@@ -21,6 +17,7 @@
 
 <script lang="ts" setup>
 import { RouterLink } from "vue-router";
+import MdButton from "@/components/md/MdButton.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore();
@@ -41,16 +38,13 @@ const auth = useAuthStore();
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
-  line-height: 1.15;
+  font: var(--md-sys-typescale-display-large);
   color: var(--md-sys-color-primary, #6750a4);
-  letter-spacing: -0.02em;
 }
 
 .hero-desc {
   margin-top: 12px;
-  font-size: 1.125rem;
+  font: var(--md-sys-typescale-body-large);
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 
@@ -59,5 +53,9 @@ const auth = useAuthStore();
   display: flex;
   gap: 12px;
   justify-content: center;
+}
+
+.hero-btn-link {
+  text-decoration: none;
 }
 </style>

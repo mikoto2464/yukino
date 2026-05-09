@@ -1,0 +1,184 @@
+/*
+ * ============================================================
+ * MD3 设计令牌系统 (Design Token System)
+ * 严格遵循 Android Material Design 3 规范，对接 AndroidX 库规格
+ * 参考: com.google.android.material.R.attr 与 M3 官方 Token
+ * ============================================================
+ * 所有视觉属性由 CSS 自定义属性控制，由 colorEngine.ts 动态注入色彩
+ * 修改间距/字号/Elevation 等请直接修改此文件中的 Token 值
+ * ============================================================
+ */
+
+:root {
+  /* ============================================================
+   * TYPOGRAPHY — Android TypeScale 精确映射
+   * 字重/字号/行高/字间距 均对应 Android MD3 TypeScale.kt
+   * ============================================================ */
+  --md-sys-typescale-display-large: 400 57px/64px "Roboto", sans-serif;
+  --md-sys-typescale-display-medium: 400 45px/52px "Roboto", sans-serif;
+  --md-sys-typescale-display-small: 400 36px/44px "Roboto", sans-serif;
+  --md-sys-typescale-headline-large: 400 32px/40px "Roboto", sans-serif;
+  --md-sys-typescale-headline-medium: 400 28px/36px "Roboto", sans-serif;
+  --md-sys-typescale-headline-small: 400 24px/32px "Roboto", sans-serif;
+  --md-sys-typescale-title-large: 400 22px/28px "Roboto", sans-serif;
+  --md-sys-typescale-title-medium: 500 16px/24px "Roboto", sans-serif;
+  --md-sys-typescale-title-small: 500 14px/20px "Roboto", sans-serif;
+  --md-sys-typescale-label-large: 500 14px/20px "Roboto", sans-serif;
+  --md-sys-typescale-label-medium: 500 12px/16px "Roboto", sans-serif;
+  --md-sys-typescale-label-small: 500 11px/16px "Roboto", sans-serif;
+  --md-sys-typescale-body-large: 400 16px/24px "Roboto", sans-serif;
+  --md-sys-typescale-body-medium: 400 14px/20px "Roboto", sans-serif;
+  --md-sys-typescale-body-small: 400 12px/16px "Roboto", sans-serif;
+
+  /* 中文字体栈 — 确保 CJK 字形使用系统自带中文字体 */
+  --md-ref-typeface-brand: "Roboto", "Noto Sans SC", system-ui, sans-serif;
+  --md-ref-typeface-plain: "Roboto", "Noto Sans SC", system-ui, sans-serif;
+
+  /* ============================================================
+   * SHAPE — Android ShapeAppearanceModel 角半径映射
+   * 6 个 Token，控制全部组件的圆角形态
+   * ============================================================ */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ============================================================
+   * ELEVATION — Android ElevationOverlayProvider 阴影映射
+   * 每个 Level 包含 ambient(环境)+key(关键) 双层阴影模拟
+   * Level0=无阴影, Level5=最大深度(NavDrawer)
+   * ============================================================ */
+  /* Level 0 — 无阴影（平面） */
+  --md-sys-elevation-level0:
+    0px 0px 0px 0px rgba(0, 0, 0, 0);
+  /* Level 1 — 低凸起（Card, Elevated Button resting） */
+  --md-sys-elevation-level1:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  /* Level 2 — 中等凸起（FAB resting, Menu） */
+  --md-sys-elevation-level2:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  /* Level 3 — 高凸起（Dialog, FAB pressed） */
+  --md-sys-elevation-level3:
+    0px 1px 3px 0px rgba(0, 0, 0, 0.3),
+    0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+  /* Level 4 — 很高凸起（Side sheet） */
+  --md-sys-elevation-level4:
+    0px 2px 3px 0px rgba(0, 0, 0, 0.3),
+    0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+  /* Level 5 — 最高（Navigation Drawer） */
+  --md-sys-elevation-level5:
+    0px 4px 4px 0px rgba(0, 0, 0, 0.3),
+    0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+
+  /* ============================================================
+   * STATE LAYER — Android R.attr.stateListAnimator 状态叠加层
+   * 使用 on-surface 颜色叠加，透明度遵循 Android MD3 标准
+   * ============================================================ */
+  --md-sys-state-hover-state-layer-opacity: 0.08;
+  --md-sys-state-focus-state-layer-opacity: 0.12;
+  --md-sys-state-press-state-layer-opacity: 0.12;
+  --md-sys-state-drag-state-layer-opacity: 0.16;
+
+  /* ============================================================
+   * MOTION — Android MotionSpec 动画曲线与时长
+   * 4 条缓动曲线 + 5 档时长，覆盖全部组件动画
+   * ============================================================ */
+  /* Easing curves — 严格对应 Android MotionEasing.kt */
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1.0);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --md-sys-motion-easing-decelerate: cubic-bezier(0.0, 0, 0, 1.0);
+  --md-sys-motion-easing-accelerate: cubic-bezier(0.3, 0, 1.0, 1.0);
+
+  /* Duration tokens — 对应 Android MotionDurationToken.kt */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long3: 550ms;
+  --md-sys-motion-duration-long4: 600ms;
+  --md-sys-motion-duration-extra-long1: 700ms;
+  --md-sys-motion-duration-extra-long2: 800ms;
+  --md-sys-motion-duration-extra-long3: 900ms;
+  --md-sys-motion-duration-extra-long4: 1000ms;
+
+  /* ============================================================
+   * 组件维度 Token — Android 标准 dp → px (1dp=1px at mdpi)
+   * 所有按钮高度/图标尺寸/内边距统一控制
+   * ============================================================ */
+  /* Button 维度 */
+  --md-comp-button-height: 40px;
+  --md-comp-button-min-width: 48px;
+  --md-comp-button-padding-horizontal: 24px;
+  --md-comp-button-icon-size: 18px;
+  --md-comp-button-gap: 8px;
+
+  /* FAB 维度 */
+  --md-comp-fab-small-container-size: 40px;
+  --md-comp-fab-normal-container-size: 56px;
+  --md-comp-fab-large-container-size: 96px;
+
+  /* IconButton 维度 */
+  --md-comp-icon-button-size: 40px;
+  --md-comp-icon-button-icon-size: 24px;
+
+  /* Card 维度 */
+  --md-comp-card-padding: 16px;
+
+  /* Chip 维度 */
+  --md-comp-chip-height: 32px;
+  --md-comp-chip-padding-horizontal: 12px;
+  --md-comp-chip-icon-size: 18px;
+
+  /* TextField 维度 */
+  --md-comp-text-field-height: 56px;
+  --md-comp-text-field-padding-horizontal: 16px;
+  --md-comp-text-field-label-top: 8px; /* label in resting position */
+
+  /* TopAppBar 维度 */
+  --md-comp-top-app-bar-height: 64px;
+  --md-comp-top-app-bar-padding: 16px;
+
+  /* Navigation 维度 */
+  --md-comp-navigation-bar-height: 80px;
+  --md-comp-navigation-rail-width: 80px;
+
+  /* Dialog 维度 */
+  --md-comp-dialog-max-width: 560px;
+  --md-comp-dialog-padding: 24px;
+  --md-comp-dialog-title-bottom: 16px;
+
+  /* Snackbar */
+  --md-comp-snackbar-max-width: 360px;
+
+  /* Menu */
+  --md-comp-menu-item-height: 48px;
+
+  /* Divider */
+  --md-comp-divider-thickness: 1px;
+
+  /* Progress */
+  --md-comp-circular-progress-size: 48px;
+  --md-comp-circular-progress-stroke: 4px;
+  --md-comp-linear-progress-height: 4px;
+
+  /* ============================================================
+   * 通用间距 — 用于布局与卡片间距
+   * ============================================================ */
+  --md-spacing-xs: 4px;
+  --md-spacing-sm: 8px;
+  --md-spacing-md: 16px;
+  --md-spacing-lg: 24px;
+  --md-spacing-xl: 32px;
+  --md-spacing-2xl: 48px;
+}
