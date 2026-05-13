@@ -19,15 +19,23 @@
       <MdIconButton
         icon="palette"
         aria-label="选择背景图"
+        @click="toggleMenu"
+        @blur="onTriggerBlur"
       />
-      <div class="bg-menu" role="menu">
+      <div
+        v-show="showMenu"
+        class="bg-menu"
+        role="menu"
+        @mouseenter="hovering = true"
+        @mouseleave="hovering = false"
+      >
         <div
           v-for="bg in BACKGROUND_OPTIONS"
           :key="bg.key"
           class="bg-menu-item"
           :class="{ active: theme.state.background === bg.key }"
           role="menuitem"
-          @click="theme.setBackground(bg.key)"
+          @click="selectBg(bg.key)"
         >
           <img
             class="bg-thumb"
@@ -44,7 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import MdIconButton from "@/components/md/MdIconButton.vue";
 import MdIcon from "@/components/md/MdIcon.vue";
 import { useTheme } from "@/composables/useTheme";
@@ -52,6 +60,41 @@ import { BACKGROUND_OPTIONS } from "@/config";
 
 const theme = useTheme();
 const isDark = computed(() => theme.effectiveDark());
+
+const showMenu = ref(false);
+const hovering = ref(false);
+
+function toggleMenu() {
+  showMenu.value = !showMenu.value;
+}
+
+function selectBg(key: string) {
+  theme.setBackground(key);
+  showMenu.value = false;
+}
+
+function onTriggerBlur(e: FocusEvent) {
+  // 如果焦点移到了菜单内部，不关闭
+  const related = e.relatedTarget as HTMLElement | null;
+  if (related && related.closest(".bg-menu")) return;
+  showMenu.value = false;
+}
+
+// 点击外部关闭
+function onClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  if (!target.closest(".bg-menu-wrapper")) {
+    showMenu.value = false;
+  }
+}
+
+watch(showMenu, (val) => {
+  if (val) {
+    document.addEventListener("click", onClickOutside);
+  } else {
+    document.removeEventListener("click", onClickOutside);
+  }
+});
 </script>
 
 <style scoped>
@@ -64,12 +107,11 @@ const isDark = computed(() => theme.effectiveDark());
 .bg-menu-wrapper {
   position: relative;
 }
-.bg-menu-wrapper:hover .bg-menu,
-.bg-menu-wrapper:focus-within .bg-menu {
+.bg-menu-wrapper:hover .bg-menu {
   display: block;
 }
 .bg-menu {
-  display: none;
+  display: block;
   position: absolute;
   top: 100%;
   right: 0;
