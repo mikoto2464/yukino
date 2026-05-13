@@ -19,23 +19,15 @@
       <MdIconButton
         icon="palette"
         aria-label="选择背景图"
-        @click="toggleMenu"
-        @blur="onTriggerBlur"
       />
-      <div
-        v-show="showMenu"
-        class="bg-menu"
-        role="menu"
-        @mouseenter="hovering = true"
-        @mouseleave="hovering = false"
-      >
+      <div class="bg-menu" role="menu">
         <div
           v-for="bg in BACKGROUND_OPTIONS"
           :key="bg.key"
           class="bg-menu-item"
           :class="{ active: theme.state.background === bg.key }"
           role="menuitem"
-          @click="selectBg(bg.key)"
+          @click="theme.setBackground(bg.key)"
         >
           <img
             class="bg-thumb"
@@ -52,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import MdIconButton from "@/components/md/MdIconButton.vue";
 import MdIcon from "@/components/md/MdIcon.vue";
 import { useTheme } from "@/composables/useTheme";
@@ -60,41 +52,6 @@ import { BACKGROUND_OPTIONS } from "@/config";
 
 const theme = useTheme();
 const isDark = computed(() => theme.effectiveDark());
-
-const showMenu = ref(false);
-const hovering = ref(false);
-
-function toggleMenu() {
-  showMenu.value = !showMenu.value;
-}
-
-function selectBg(key: string) {
-  theme.setBackground(key);
-  showMenu.value = false;
-}
-
-function onTriggerBlur(e: FocusEvent) {
-  // 如果焦点移到了菜单内部，不关闭
-  const related = e.relatedTarget as HTMLElement | null;
-  if (related && related.closest(".bg-menu")) return;
-  showMenu.value = false;
-}
-
-// 点击外部关闭
-function onClickOutside(e: MouseEvent) {
-  const target = e.target as HTMLElement;
-  if (!target.closest(".bg-menu-wrapper")) {
-    showMenu.value = false;
-  }
-}
-
-watch(showMenu, (val) => {
-  if (val) {
-    document.addEventListener("click", onClickOutside);
-  } else {
-    document.removeEventListener("click", onClickOutside);
-  }
-});
 </script>
 
 <style scoped>
@@ -107,15 +64,23 @@ watch(showMenu, (val) => {
 .bg-menu-wrapper {
   position: relative;
 }
+/* 桥接元素：消除按钮与菜单之间的 8px 间隙，hover 不断 */
+.bg-menu-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  top: 100%;
+  height: 8px;
+  pointer-events: auto;
+}
 .bg-menu-wrapper:hover .bg-menu {
   display: block;
 }
 .bg-menu {
-  display: block;
+  display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
-  margin-top: 8px;
   min-width: 220px;
   max-height: 340px;
   overflow-y: auto;
