@@ -2,16 +2,18 @@
   <div class="theme-ctrls">
     <!-- 深色/浅色切换 -->
     <MdIconButton
+      ref="darkBtnRef"
       :icon="isDark ? 'light_mode' : 'dark_mode'"
       :aria-label="isDark ? '切换浅色模式' : '切换深色模式'"
-      @click="theme.toggleDark()"
+      @click="onToggleDark"
     />
 
     <!-- 随机背景 -->
     <MdIconButton
+      ref="shuffleBtnRef"
       icon="shuffle"
       aria-label="随机背景图"
-      @click="theme.setRandomBackground()"
+      @click="onShuffleBg"
     />
 
     <!-- 壁纸选择下拉 -->
@@ -27,7 +29,7 @@
           class="bg-menu-item"
           :class="{ active: theme.state.background === bg.key }"
           role="menuitem"
-          @click="theme.setBackground(bg.key)"
+          @click="onSelectBg(bg.key, $event)"
         >
           <img
             class="bg-thumb"
@@ -44,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import MdIconButton from "@/components/md/MdIconButton.vue";
 import MdIcon from "@/components/md/MdIcon.vue";
 import { useTheme } from "@/composables/useTheme";
@@ -52,6 +54,29 @@ import { BACKGROUND_OPTIONS } from "@/config";
 
 const theme = useTheme();
 const isDark = computed(() => theme.effectiveDark());
+
+const darkBtnRef = ref<InstanceType<typeof MdIconButton> | null>(null);
+const shuffleBtnRef = ref<InstanceType<typeof MdIconButton> | null>(null);
+
+function getEl(
+  comp: InstanceType<typeof MdIconButton> | null,
+): HTMLElement | undefined {
+  return (comp as { el?: HTMLElement } | null)?.el ?? undefined;
+}
+
+async function onToggleDark() {
+  await theme.toggleDark(getEl(darkBtnRef.value));
+}
+
+async function onShuffleBg() {
+  await theme.setRandomBackground(getEl(shuffleBtnRef.value));
+}
+
+async function onSelectBg(key: string, e: MouseEvent) {
+  // 取下拉菜单菜单项的点击坐标作为扩散原点
+  const target = e.currentTarget as HTMLElement;
+  await theme.setBackground(key, target);
+}
 </script>
 
 <style scoped>
@@ -64,7 +89,6 @@ const isDark = computed(() => theme.effectiveDark());
 .bg-menu-wrapper {
   position: relative;
 }
-/* 桥接元素：消除按钮与菜单之间的 8px 间隙，hover 不断 */
 .bg-menu-wrapper::before {
   content: "";
   position: absolute;

@@ -57,6 +57,8 @@ onMounted(() => {
 onUnmounted(() => {
   removeRipple(hostRef.value);
 });
+
+defineExpose({ el: hostRef });
 </script>
 
 <style scoped>

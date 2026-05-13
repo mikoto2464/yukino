@@ -2,6 +2,7 @@
 // 主题状态管理 Composable
 // 控制深浅模式、壁纸选择、色彩引擎调度
 // 对外暴露所有主题相关操作
+// 支持 MD3 圆形扩散切换动画
 // ============================================================
 import { reactive, readonly } from "vue";
 import {
@@ -9,6 +10,7 @@ import {
   applyColorScheme,
   type ThemeSchemeResult,
 } from "@/theme/colorEngine";
+import { animateThemeTransition } from "@/composables/useThemeTransition";
 import {
   BACKGROUND_OPTIONS,
   BG_OPACITY,
@@ -39,17 +41,14 @@ let initToken = 0;
 
 // ---------- 工具函数 ----------
 
-/** 获取系统实际偏好 */
 function systemDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-/** 解析当前生效的模式名 */
 export function effectiveDark(): boolean {
   return state.mode === "system" ? systemDark() : state.mode === "dark";
 }
 
-/** 获取当前壁纸配置 */
 function currentBg(): BackgroundOption | undefined {
   return BACKGROUND_OPTIONS.find((b) => b.key === state.background);
 }
@@ -116,6 +115,7 @@ function applyBackgroundStyle(dark: boolean) {
 
 const colorSchemeCache = new Map<string, ThemeSchemeResult>();
 
+/** 应用主题（无动画），用于初始化和系统主题跟随 */
 async function applyTheme(recompute = false) {
   const token = ++initToken;
   const bg = currentBg();
@@ -144,6 +144,46 @@ async function applyTheme(recompute = false) {
   document.documentElement.classList.toggle("light", !dark);
 }
 
+/** 应用主题（带圆形扩散动画），triggerEl 为触发按钮 */
+async function applyThemeWithTransition(
+  triggerEl: HTMLElement,
+  recompute = false,
+) {
+  const token = ++initToken;
+  const bg = currentBg();
+  if (!bg) return;
+
+  let colors = colorSchemeCache.get(bg.key) ?? readCachedColors(bg.key);
+  const needExtract = recompute || !colors;
+
+  if (needExtract) {
+    try {
+      colors = await extractThemeFromImage(bg.url);
+      colorSchemeCache.set(bg.key, colors);
+      writeCachedColors(bg.key, colors);
+    } catch {
+      colors = readCachedColors(bg.key) ?? colorSchemeCache.get(bg.key) ?? null;
+    }
+  }
+
+  if (token !== initToken || !colors) return;
+
+  const dark = effectiveDark();
+  const newScheme = dark ? colors.dark : colors.light;
+  const newBg = newScheme["--md-sys-color-background"] ?? (dark ? "#141218" : "#fef7ff");
+
+  // 启动圆形扩散动画（新背景色从按钮中心向外铺开）
+  const transition = animateThemeTransition(triggerEl, newBg);
+
+  // 立即应用新 CSS 变量，内容色在扩散圈下同步更新
+  applyColorScheme(newScheme);
+  applyBackgroundStyle(dark);
+  document.documentElement.classList.toggle("dark", dark);
+  document.documentElement.classList.toggle("light", !dark);
+
+  await transition;
+}
+
 /** 系统主题变更回调 */
 function onSystemChange() {
   if (state.mode === "system") applyTheme(false);
@@ -163,30 +203,38 @@ export function useTheme() {
     darkMediaQuery.addEventListener("change", onSystemChange);
   }
 
-  function setMode(mode: ThemeMode) {
+  async function setMode(mode: ThemeMode, triggerEl?: HTMLElement) {
     state.mode = mode;
     writeStorage();
-    applyTheme(false);
+    if (triggerEl) {
+      await applyThemeWithTransition(triggerEl, false);
+    } else {
+      await applyTheme(false);
+    }
   }
 
-  function setBackground(bgKey: string) {
+  async function setBackground(bgKey: string, triggerEl?: HTMLElement) {
     if (!BACKGROUND_OPTIONS.some((b) => b.key === bgKey)) return;
     state.background = bgKey;
     writeStorage();
-    applyTheme(true);
+    if (triggerEl) {
+      await applyThemeWithTransition(triggerEl, true);
+    } else {
+      await applyTheme(true);
+    }
   }
 
-  function setRandomBackground() {
+  async function setRandomBackground(triggerEl?: HTMLElement) {
     const others = BACKGROUND_OPTIONS.filter((b) => b.key !== state.background);
     const pick =
       others.length > 0
         ? others[Math.floor(Math.random() * others.length)]!
         : BACKGROUND_OPTIONS[0]!;
-    setBackground(pick.key);
+    await setBackground(pick.key, triggerEl);
   }
 
-  function toggleDark() {
-    setMode(effectiveDark() ? "light" : "dark");
+  async function toggleDark(triggerEl?: HTMLElement) {
+    await setMode(effectiveDark() ? "light" : "dark", triggerEl);
   }
 
   return {
