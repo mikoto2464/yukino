@@ -29,13 +29,14 @@ withDefaults(
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  background-color: var(--md-sys-color-on-surface, #1d1b20);
+  opacity: 0;
   pointer-events: none;
-  transition: background-color
+  transition: opacity
     var(--md-sys-motion-duration-short4, 200ms)
     var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 .md-card:hover > .md-card__state-layer {
-  background-color: var(--md-sys-color-on-surface, #1d1b20);
   opacity: var(--md-sys-state-hover-state-layer-opacity, 0.08);
 }
 

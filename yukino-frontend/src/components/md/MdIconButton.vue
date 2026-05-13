@@ -81,21 +81,20 @@ onUnmounted(() => {
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  background-color: currentColor;
+  opacity: 0;
   pointer-events: none;
-  transition: background-color
+  transition: opacity
     var(--md-sys-motion-duration-short4, 200ms)
     var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 .md-icon-btn:hover > .md-icon-btn__state-layer {
-  background-color: currentColor;
   opacity: var(--md-sys-state-hover-state-layer-opacity, 0.08);
 }
 .md-icon-btn:focus-visible > .md-icon-btn__state-layer {
-  background-color: currentColor;
   opacity: var(--md-sys-state-focus-state-layer-opacity, 0.12);
 }
 .md-icon-btn:active > .md-icon-btn__state-layer {
-  background-color: currentColor;
   opacity: var(--md-sys-state-press-state-layer-opacity, 0.12);
 }
 
