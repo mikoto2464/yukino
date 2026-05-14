@@ -82,7 +82,7 @@
           <MdTextField
             v-model="activationCode"
             placeholder="输入卡密"
-            style="max-width: 280px"
+            style="width: 240px"
           />
           <MdButton variant="filled" :disabled="activationLoading" @click="handleActivation">
             激活卡密
@@ -384,7 +384,6 @@ onMounted(() => {
 .projects-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -392,6 +391,8 @@ onMounted(() => {
   display: flex;
   gap: var(--md-spacing-sm, 12px);
   align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .data-table {

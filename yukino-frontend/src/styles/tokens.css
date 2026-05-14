@@ -76,15 +76,6 @@
     0px 8px 12px 6px rgba(0, 0, 0, 0.15);
 
   /* ============================================================
-   * STATE LAYER — Android R.attr.stateListAnimator 状态叠加层
-   * 使用 on-surface 颜色叠加，透明度遵循 Android MD3 标准
-   * ============================================================ */
-  --md-sys-state-hover-state-layer-opacity: 0.08;
-  --md-sys-state-focus-state-layer-opacity: 0.12;
-  --md-sys-state-press-state-layer-opacity: 0.12;
-  --md-sys-state-drag-state-layer-opacity: 0.16;
-
-  /* ============================================================
    * MOTION — Android MotionSpec 动画曲线与时长
    * 4 条缓动曲线 + 5 档时长，覆盖全部组件动画
    * ============================================================ */

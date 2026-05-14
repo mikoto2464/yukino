@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.3.0",
+    "@material/web": "^2.4.1",
     "pinia": "^2.3.1",
     "vue": "^3.5.16",
     "vue-router": "^4.5.1"

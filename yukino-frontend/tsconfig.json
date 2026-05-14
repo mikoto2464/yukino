@@ -19,5 +19,38 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts"],
+  "vueCompilerOptions": {
+    "isCustomElement": [
+      "md-icon",
+      "md-filled-button",
+      "md-filled-tonal-button",
+      "md-outlined-button",
+      "md-text-button",
+      "md-elevated-button",
+      "md-filled-text-field",
+      "md-outlined-text-field",
+      "md-elevated-card",
+      "md-filled-card",
+      "md-outlined-card",
+      "md-assist-chip",
+      "md-filter-chip",
+      "md-input-chip",
+      "md-suggestion-chip",
+      "md-chip-set",
+      "md-icon-button",
+      "md-filled-icon-button",
+      "md-filled-tonal-icon-button",
+      "md-outlined-icon-button",
+      "md-circular-progress",
+      "md-linear-progress",
+      "md-dialog",
+      "md-menu",
+      "md-menu-item",
+      "md-filled-select",
+      "md-outlined-select",
+      "md-select-option",
+      "md-divider"
+    ]
+  }
 }
