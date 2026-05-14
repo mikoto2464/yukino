@@ -25,11 +25,7 @@
     </MdTopAppBar>
 
     <main class="main-content">
-      <RouterView v-slot="{ Component }">
-        <Transition name="page-fade" mode="out-in">
-          <component :is="Component" />
-        </Transition>
-      </RouterView>
+      <RouterView />
     </main>
   </div>
 </template>
@@ -116,18 +112,4 @@ async function handleLogout() {
   margin: 0 auto;
 }
 
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition:
-    opacity var(--md-sys-motion-duration-medium1, 250ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
-    transform var(--md-sys-motion-duration-medium1, 250ms) var(--md-sys-motion-easing-decelerate, cubic-bezier(0, 0, 0, 1));
-}
-.page-fade-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.page-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
 </style>
