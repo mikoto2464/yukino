@@ -72,11 +72,21 @@ const hostStyle = computed(() => {
 </script>
 
 <style>
-/* 增大 MWC 按钮内边距 — 中文文字在标准 24px padding 下显得拥挤 */
+/* 按 MD3 中号按钮规范: 高度 56dp, 左右留白 24dp, 图标 24dp */
 md-filled-button,
 md-filled-tonal-button,
 md-outlined-button,
 md-elevated-button {
-  --_container-padding-horizontal: 32px;
+  --md-filled-button-container-height: 56px;
+  --md-filled-tonal-button-container-height: 56px;
+  --md-outlined-button-container-height: 56px;
+  --md-elevated-button-container-height: 56px;
+  --_container-height: 56px;
+  --_container-padding-horizontal: 24px !important;
+  --_leading-space: 24px;
+  --_trailing-space: 24px;
+  --md-filled-button-icon-size: 24px;
+  --md-filled-tonal-button-icon-size: 24px;
+  --md-outlined-button-icon-size: 24px;
 }
 </style>
