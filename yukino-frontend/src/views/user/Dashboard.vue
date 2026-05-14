@@ -313,13 +313,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
-    box-shadow var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
-}
-.avatar:hover {
-  transform: scale(1.08);
-  box-shadow: var(--md-sys-elevation-level2);
 }
 .avatar img {
   width: 100%;
