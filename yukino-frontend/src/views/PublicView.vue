@@ -28,7 +28,7 @@ const auth = useAuthStore();
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 112px);
+  min-height: calc(100vh - var(--md-comp-top-app-bar-height, 64px) - var(--md-spacing-lg, 32px));
   padding: 24px;
 }
 

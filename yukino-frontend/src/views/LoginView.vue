@@ -148,7 +148,7 @@ function loginByQQ() {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 112px);
+  min-height: calc(100vh - var(--md-comp-top-app-bar-height, 64px) - var(--md-spacing-lg, 32px));
   padding: 24px;
 }
 
@@ -160,8 +160,8 @@ function loginByQQ() {
 .login-methods {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 28px;
+  gap: var(--md-spacing-sm, 12px);
+  margin-top: var(--md-spacing-md, 24px);
 }
 
 .login-btn {

@@ -106,6 +106,8 @@
   /* ============================================================
    * 组件维度 Token — Android 标准 dp → px (1dp=1px at mdpi)
    * 所有按钮高度/图标尺寸/内边距统一控制
+   * 注意: MWC 组件优先使用自带的 --md-*-* 系统 token，
+   *       以下自定义 token 仅用于尚未迁移的自定义组件
    * ============================================================ */
   /* Button 维度 */
   --md-comp-button-height: 48px;
@@ -124,7 +126,7 @@
   --md-comp-icon-button-icon-size: 28px;
 
   /* Card 维度 */
-  --md-comp-card-padding: 20px;
+  --md-comp-card-padding: 24px;
 
   /* Chip 维度 */
   --md-comp-chip-height: 36px;
@@ -134,11 +136,11 @@
   /* TextField 维度 */
   --md-comp-text-field-height: 60px;
   --md-comp-text-field-padding-horizontal: 20px;
-  --md-comp-text-field-label-top: 8px; /* label in resting position */
+  --md-comp-text-field-label-top: 8px;
 
-  /* TopAppBar 维度 */
-  --md-comp-top-app-bar-height: 72px;
-  --md-comp-top-app-bar-padding: 20px;
+  /* TopAppBar 维度 — 标准 MD3 top app bar 高度 64dp，padding 16dp */
+  --md-comp-top-app-bar-height: 64px;
+  --md-comp-top-app-bar-padding: 16px;
 
   /* Navigation 维度 */
   --md-comp-navigation-bar-height: 88px;
@@ -164,12 +166,12 @@
   --md-comp-linear-progress-height: 4px;
 
   /* ============================================================
-   * 通用间距 — 用于布局与卡片间距
+   * 通用间距 — MD3 布局节奏基于 4dp 网格
    * ============================================================ */
   --md-spacing-xs: 4px;
-  --md-spacing-sm: 8px;
-  --md-spacing-md: 20px;
-  --md-spacing-lg: 28px;
-  --md-spacing-xl: 40px;
-  --md-spacing-2xl: 56px;
+  --md-spacing-sm: 12px;
+  --md-spacing-md: 24px;
+  --md-spacing-lg: 32px;
+  --md-spacing-xl: 48px;
+  --md-spacing-2xl: 64px;
 }

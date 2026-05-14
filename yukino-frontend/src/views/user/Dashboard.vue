@@ -75,7 +75,7 @@
     </div>
 
     <!-- 第二行：项目管理 + 卡密激活 -->
-    <MdCard style="margin-top: var(--md-spacing-md, 20px)">
+    <MdCard style="margin-top: var(--md-spacing-md, 24px)">
       <div class="projects-header">
         <h2 style="font: var(--md-sys-typescale-title-medium)">可用项目</h2>
         <div class="activation-row">
@@ -90,7 +90,7 @@
         </div>
       </div>
 
-      <table class="data-table" style="margin-top: 16px">
+      <table class="data-table" style="margin-top: var(--md-spacing-md, 24px)">
         <thead>
           <tr>
             <th>项目名</th>
@@ -282,13 +282,13 @@ onMounted(() => {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--md-spacing-md, 20px);
+  gap: var(--md-spacing-md, 24px);
 }
 
 .dash-grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--md-spacing-md, 20px);
+  gap: var(--md-spacing-md, 24px);
 }
 
 @media (max-width: 900px) {
@@ -300,8 +300,8 @@ onMounted(() => {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: var(--md-spacing-md, 20px);
-  margin-top: var(--md-spacing-md, 20px);
+  gap: var(--md-spacing-md, 24px);
+  margin-top: var(--md-spacing-md, 24px);
 }
 
 .avatar {
@@ -341,11 +341,11 @@ onMounted(() => {
 .user-actions {
   display: flex;
   gap: var(--md-spacing-sm, 12px);
-  margin-top: var(--md-spacing-md, 20px);
+  margin-top: var(--md-spacing-md, 24px);
 }
 
 .device-list {
-  margin-top: 16px;
+  margin-top: var(--md-spacing-md, 24px);
 }
 .device-item {
   display: flex;
@@ -377,7 +377,7 @@ onMounted(() => {
 .device-add {
   display: flex;
   gap: var(--md-spacing-sm, 12px);
-  margin-top: 16px;
+  margin-top: var(--md-spacing-md, 24px);
   align-items: flex-end;
 }
 
@@ -385,7 +385,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--md-spacing-sm, 12px);
 }
 .activation-row {
   display: flex;

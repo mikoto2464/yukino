@@ -98,7 +98,7 @@ async function handleLogout() {
 
 .main-content {
   flex: 1;
-  padding: var(--md-spacing-lg, 28px);
+  padding: var(--md-spacing-lg, 32px);
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;

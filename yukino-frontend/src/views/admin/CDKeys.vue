@@ -1,7 +1,7 @@
 <template>
   <div class="cdkeys">
     <!-- 卡密生成区 -->
-    <MdCard style="margin-bottom: var(--md-spacing-md, 20px)">
+    <MdCard style="margin-bottom: var(--md-spacing-md, 24px)">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <h1 style="font: var(--md-sys-typescale-headline-small)">卡密生成</h1>
         <MdButton variant="filled-tonal" @click="addConfigRow">
@@ -35,7 +35,7 @@
         variant="filled"
         :disabled="generateLoading"
         :loading="generateLoading"
-        style="margin-top: var(--md-spacing-md, 20px)"
+        style="margin-top: var(--md-spacing-md, 24px)"
         @click="generateKeys"
       >
         生成卡密
@@ -45,7 +45,7 @@
     <!-- 卡密管理列表 -->
     <MdCard>
       <div
-        style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"
+        style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--md-spacing-sm, 12px)"
       >
         <h2 style="font: var(--md-sys-typescale-title-medium)">卡密管理</h2>
         <MdTextField
@@ -56,18 +56,18 @@
       </div>
 
       <!-- 骨架屏 -->
-      <div v-if="tableLoading" style="margin-top: 16px">
+      <div v-if="tableLoading" style="margin-top: var(--md-spacing-md, 24px)">
         <div
           v-for="i in 6"
           :key="i"
           class="md-skeleton"
-          style="height: 48px; margin-bottom: 8px"
+          style="height: 48px; margin-bottom: var(--md-spacing-sm, 12px)"
         />
       </div>
 
       <!-- 表格 -->
       <template v-else>
-        <table class="data-table" style="margin-top: 12px">
+        <table class="data-table" style="margin-top: var(--md-spacing-md, 24px)">
           <thead>
             <tr>
               <th>卡密</th>
@@ -105,7 +105,7 @@
 
         <!-- 分页 -->
         <div
-          style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:8px"
+          style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--md-spacing-md, 24px);flex-wrap:wrap;gap:var(--md-spacing-sm, 12px)"
         >
           <span style="font: var(--md-sys-typescale-body-small); color: var(--md-sys-color-on-surface-variant)">
             共 {{ filteredItems.length }} 条
@@ -365,8 +365,8 @@ watch(filteredItems, () => {
 .gen-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 16px;
+  gap: var(--md-spacing-sm, 12px);
+  margin-top: var(--md-spacing-md, 24px);
   flex-wrap: wrap;
 }
 
@@ -394,7 +394,7 @@ watch(filteredItems, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--md-spacing-sm, 12px);
 }
 .paginator button {
   width: 40px;

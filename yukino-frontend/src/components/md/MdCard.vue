@@ -1,6 +1,8 @@
 <template>
   <component :is="mwcTag">
-    <slot />
+    <div class="md-card__content">
+      <slot />
+    </div>
   </component>
 </template>
 
@@ -24,3 +26,9 @@ const variantTagMap: Record<string, string> = {
 
 const mwcTag = computed(() => variantTagMap[props.variant] ?? "md-elevated-card");
 </script>
+
+<style scoped>
+.md-card__content {
+  padding: var(--md-comp-card-padding, 24px);
+}
+</style>

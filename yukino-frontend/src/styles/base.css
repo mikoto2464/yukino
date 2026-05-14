@@ -87,8 +87,12 @@ a {
   color: var(--md-sys-color-on-primary-container, #21005d);
 }
 
-/* ---- 聚焦环 (Focus Ring) ---- */
-:focus-visible {
+/* ---- 聚焦环 (Focus Ring) — 仅对非 MWC 元素生效 ---- */
+/* MWC 组件自带 focus indicator，此规则仅作为后备 */
+input:not([is]):focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
   outline: 2px solid var(--md-sys-color-primary, #6750a4);
   outline-offset: 2px;
 }

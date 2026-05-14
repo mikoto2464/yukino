@@ -1,7 +1,7 @@
 <template>
   <MdCard>
     <div
-      style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"
+      style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--md-spacing-sm, 12px)"
     >
       <h1 style="font: var(--md-sys-typescale-headline-small)">用户管理</h1>
       <MdTextField
@@ -12,7 +12,7 @@
     </div>
 
     <!-- 骨架屏 -->
-    <div v-if="tableLoading" style="margin-top: 16px">
+    <div v-if="tableLoading" style="margin-top: var(--md-spacing-md, 24px)">
       <div
         v-for="i in 5"
         :key="i"
@@ -23,7 +23,7 @@
 
     <!-- 表格 -->
     <template v-else>
-      <table class="data-table" style="margin-top: 12px">
+      <table class="data-table" style="margin-top: var(--md-spacing-md, 24px)">
         <thead>
           <tr>
             <th>用户名</th>
