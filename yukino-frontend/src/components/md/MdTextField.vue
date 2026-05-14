@@ -55,7 +55,7 @@ const props = withDefaults(
     maxLength?: number;
   }>(),
   {
-    variant: "filled",
+    variant: "outlined",
     type: "text",
     error: false,
     disabled: false,
@@ -73,7 +73,7 @@ const variantTagMap: Record<string, string> = {
   outlined: "md-outlined-text-field",
 };
 
-const mwcTag = computed(() => variantTagMap[props.variant] ?? "md-filled-text-field");
+const mwcTag = computed(() => variantTagMap[props.variant] ?? "md-outlined-text-field");
 
 const showClear = computed(
   () => props.clearable && !!props.modelValue && !props.disabled && !props.readonly,

@@ -389,6 +389,12 @@ watch(filteredItems, () => {
 .data-table td {
   font-size: 0.9375rem;
 }
+.data-table tbody tr {
+  transition: background var(--md-sys-motion-duration-short2, 100ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.data-table tbody tr:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
 
 .paginator {
   display: flex;

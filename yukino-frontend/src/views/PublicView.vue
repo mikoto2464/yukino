@@ -40,12 +40,14 @@ const auth = useAuthStore();
 .hero-title {
   font: var(--md-sys-typescale-display-large);
   color: var(--md-sys-color-primary, #6750a4);
+  animation: hero-title-in 600ms var(--md-sys-motion-easing-emphasized, cubic-bezier(0.05, 0.7, 0.1, 1)) both;
 }
 
 .hero-desc {
   margin-top: 12px;
   font: var(--md-sys-typescale-body-large);
   color: var(--md-sys-color-on-surface-variant, #49454f);
+  animation: hero-fade-up 600ms 150ms var(--md-sys-motion-easing-emphasized, cubic-bezier(0.05, 0.7, 0.1, 1)) both;
 }
 
 .hero-actions {
@@ -53,6 +55,28 @@ const auth = useAuthStore();
   display: flex;
   gap: 12px;
   justify-content: center;
+  animation: hero-fade-up 600ms 300ms var(--md-sys-motion-easing-emphasized, cubic-bezier(0.05, 0.7, 0.1, 1)) both;
+}
+
+@keyframes hero-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-btn-link {

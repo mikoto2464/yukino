@@ -14,7 +14,7 @@ const props = withDefaults(
     variant?: "elevated" | "filled" | "outlined";
   }>(),
   {
-    variant: "elevated",
+    variant: "filled",
   },
 );
 
@@ -24,11 +24,12 @@ const variantTagMap: Record<string, string> = {
   outlined: "md-outlined-card",
 };
 
-const mwcTag = computed(() => variantTagMap[props.variant] ?? "md-elevated-card");
+const mwcTag = computed(() => variantTagMap[props.variant] ?? "md-filled-card");
 </script>
 
 <style scoped>
 .md-card__content {
   padding: var(--md-comp-card-padding, 24px);
+  transition: background var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 </style>

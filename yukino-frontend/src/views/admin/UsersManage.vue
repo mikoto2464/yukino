@@ -388,6 +388,12 @@ watch(editingMaxDevicesStr, (val) => {
 .data-table td {
   font-size: 0.9375rem;
 }
+.data-table tbody tr {
+  transition: background var(--md-sys-motion-duration-short2, 100ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.data-table tbody tr:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+}
 
 .action-menu-wrapper {
   position: relative;
@@ -419,9 +425,13 @@ watch(editingMaxDevicesStr, (val) => {
   font-size: 0.875rem;
   color: var(--md-sys-color-on-surface, #1d1b20);
   cursor: pointer;
+  transition:
+    background var(--md-sys-motion-duration-short2, 100ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
+    padding-left var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 .action-menu-item:hover {
   background: var(--md-sys-color-surface-container-high, #ece6f0);
+  padding-left: 20px;
 }
 
 .md-radio {

@@ -313,6 +313,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
+    box-shadow var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.avatar:hover {
+  transform: scale(1.08);
+  box-shadow: var(--md-sys-elevation-level2);
 }
 .avatar img {
   width: 100%;
@@ -351,8 +358,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 0;
+  padding: 12px 8px;
+  border-radius: 8px;
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+  transition:
+    background var(--md-sys-motion-duration-short2, 100ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
+    padding-left var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.device-item:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
+  padding-left: 12px;
 }
 .device-icon-wrapper {
   width: 40px;
@@ -413,5 +428,11 @@ onMounted(() => {
 }
 .data-table td {
   font-size: 0.9375rem;
+}
+.data-table tbody tr {
+  transition: background var(--md-sys-motion-duration-short2, 100ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.data-table tbody tr:hover {
+  background: var(--md-sys-color-surface-container-highest, #e6e0e9);
 }
 </style>
