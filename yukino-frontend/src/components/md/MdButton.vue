@@ -14,7 +14,7 @@
       :style="{ width: '18px', height: '18px' }"
     />
     <md-icon v-else-if="icon" slot="icon" :icon="icon" :size="iconSize" />
-    <slot />
+    <span class="btn-label"><slot /></span>
   </component>
 </template>
 
@@ -36,7 +36,7 @@ const props = withDefaults(
   {
     variant: "filled",
     iconPosition: "start",
-    iconSize: 20,
+    iconSize: 24,
     loading: false,
     disabled: false,
     type: "button",
@@ -72,7 +72,7 @@ const hostStyle = computed(() => {
 </script>
 
 <style>
-/* 按 MD3 中号按钮规范: 高度 56dp, 左右留白 24dp, 图标 24dp */
+/* MD3 中号按钮: 高度 56dp, 图标 24dp */
 md-filled-button,
 md-filled-tonal-button,
 md-outlined-button,
@@ -82,11 +82,15 @@ md-elevated-button {
   --md-outlined-button-container-height: 56px;
   --md-elevated-button-container-height: 56px;
   --_container-height: 56px;
-  --_container-padding-horizontal: 24px !important;
-  --_leading-space: 24px;
-  --_trailing-space: 24px;
   --md-filled-button-icon-size: 24px;
   --md-filled-tonal-button-icon-size: 24px;
   --md-outlined-button-icon-size: 24px;
+}
+</style>
+
+<style scoped>
+.btn-label {
+  display: inline-block;
+  padding-inline: 8px;
 }
 </style>
