@@ -5,7 +5,7 @@
         <RouterLink to="/" class="brand-link">Yukino</RouterLink>
         <span class="admin-badge">管理</span>
         <nav class="top-bar-nav">
-          <RouterLink to="/admin" class="nav-link" exact>卡密生成</RouterLink>
+          <RouterLink to="/admin" class="nav-link">卡密生成</RouterLink>
           <RouterLink to="/admin/projects" class="nav-link">
             项目管理
           </RouterLink>
@@ -102,8 +102,7 @@ async function handleLogout() {
   transition: background 0.15s;
 }
 .nav-link:hover,
-.nav-link.router-link-exact-active,
-.nav-link.router-link-active {
+.nav-link.router-link-exact-active {
   background: var(--md-sys-color-secondary-container, #e8def8);
   color: var(--md-sys-color-on-secondary-container, #1d192b);
   transform: scale(1.04);

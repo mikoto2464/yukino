@@ -95,7 +95,7 @@ async function handleLogout() {
   transition: background 0.15s;
 }
 .nav-link:hover,
-.nav-link.router-link-active {
+.nav-link.router-link-exact-active {
   background: var(--md-sys-color-secondary-container, #e8def8);
   color: var(--md-sys-color-on-secondary-container, #1d192b);
   transform: scale(1.04);
