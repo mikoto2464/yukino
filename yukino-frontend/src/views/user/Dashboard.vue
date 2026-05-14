@@ -24,19 +24,23 @@
           </div>
         </div>
 
-        <div class="user-actions">
-          <MdButton variant="filled" style="background: var(--md-sys-color-error); color: var(--md-sys-color-on-error)" :disabled="unbindLoading" @click="handleUnbind">
-            解绑
-          </MdButton>
-          <MdButton variant="filled-tonal" :disabled="rebindLoading" @click="handleRebind">
-            换绑
-          </MdButton>
-        </div>
       </MdCard>
 
       <!-- 设备管理卡片 -->
       <MdCard>
-        <h2 style="font: var(--md-sys-typescale-title-medium)">设备列表</h2>
+        <div class="device-header">
+          <h2 style="font: var(--md-sys-typescale-title-medium)">设备列表</h2>
+          <div class="device-add">
+            <MdTextField
+              v-model="bindCode"
+              placeholder="输入绑定代码"
+              style="width: 240px"
+            />
+            <MdButton variant="filled" :disabled="bindLoading" @click="handleCreateDevice">
+              新增设备
+            </MdButton>
+          </div>
+        </div>
 
         <div v-if="devices.length > 0" class="device-list">
           <div v-for="d in devices" :key="d.hardware_id" class="device-item">
@@ -60,17 +64,6 @@
           </div>
         </div>
         <p v-else style="font: var(--md-sys-typescale-body-small); color: var(--md-sys-color-on-surface-variant)">暂无绑定设备</p>
-
-        <div class="device-add">
-          <MdTextField
-            v-model="bindCode"
-            placeholder="输入绑定代码"
-            style="flex: 1"
-          />
-          <MdButton variant="filled" :disabled="bindLoading" @click="handleCreateDevice">
-            新增设备
-          </MdButton>
-        </div>
       </MdCard>
     </div>
 
@@ -160,8 +153,7 @@ const devices = ref<Device[]>([]);
 const bindCode = ref("");
 const bindLoading = ref(false);
 const kickingId = ref("");
-const unbindLoading = ref(false);
-const rebindLoading = ref(false);
+
 
 async function loadDevices() {
   try {
@@ -209,14 +201,6 @@ async function handleDeleteDevice(hardwareId: string) {
   } finally {
     kickingId.value = "";
   }
-}
-
-function handleUnbind() {
-  feedback.open({ type: "info", message: "解绑请求已提交" });
-}
-
-function handleRebind() {
-  feedback.open({ type: "success", message: "换绑验证流程已启动" });
 }
 
 // ---------- 项目与卡密 ----------
@@ -338,10 +322,19 @@ onMounted(() => {
   margin-top: 4px;
 }
 
-.user-actions {
+.device-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--md-spacing-sm, 12px);
+}
+
+.device-add {
   display: flex;
   gap: var(--md-spacing-sm, 12px);
-  margin-top: var(--md-spacing-md, 24px);
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .device-list {
@@ -382,13 +375,6 @@ onMounted(() => {
   font-size: 0.8125rem;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
-.device-add {
-  display: flex;
-  gap: var(--md-spacing-sm, 12px);
-  margin-top: var(--md-spacing-md, 24px);
-  align-items: flex-end;
-}
-
 .projects-header {
   display: flex;
   align-items: center;
