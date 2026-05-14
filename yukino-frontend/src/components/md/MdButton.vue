@@ -91,6 +91,6 @@ md-elevated-button {
 <style scoped>
 .btn-label {
   display: inline-block;
-  padding-inline: 8px;
+  padding-inline: 16px;
 }
 </style>

@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import MdIcon from "./MdIcon.vue";
 import MdIconButton from "./MdIconButton.vue";
 
@@ -30,9 +30,11 @@ const props = withDefaults(
     visible: boolean;
     message: string;
     type?: "success" | "error" | "info";
+    timeout?: number;
   }>(),
   {
     type: "info",
+    timeout: 2800,
   },
 );
 
@@ -48,9 +50,26 @@ const iconMap: Record<"success" | "error" | "info", string> = {
 
 const iconName = computed(() => iconMap[props.type]);
 
+let timer: ReturnType<typeof setTimeout> | null = null;
+
 function close() {
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
   emit("close");
 }
+
+watch(
+  () => props.visible,
+  (val) => {
+    if (val && props.timeout > 0) {
+      timer = setTimeout(() => {
+        emit("close");
+      }, props.timeout);
+    }
+  },
+);
 
 defineExpose({ close });
 </script>

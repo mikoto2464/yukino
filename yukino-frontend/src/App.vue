@@ -3,6 +3,7 @@
     :visible="feedback.visible"
     :message="feedback.message"
     :type="feedback.type"
+    :timeout="feedback.timeout"
     @close="feedback.close()"
   />
   <RouterView />
