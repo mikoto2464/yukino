@@ -85,6 +85,11 @@ md-elevated-button {
   --md-filled-button-icon-size: 24px;
   --md-filled-tonal-button-icon-size: 24px;
   --md-outlined-button-icon-size: 24px;
+  --_container-shape: 8px;
+  --md-filled-button-container-shape: 8px;
+  --md-filled-tonal-button-container-shape: 8px;
+  --md-outlined-button-container-shape: 8px;
+  --md-elevated-button-container-shape: 8px;
 }
 </style>
 
