@@ -11,7 +11,7 @@
 .md-ripple-circle {
   position: absolute;
   border-radius: 50%;
-  background: currentColor;
+  background: var(--md-ripple-color, currentColor);
   opacity: 0;
   transform: scale(0);
   pointer-events: none;

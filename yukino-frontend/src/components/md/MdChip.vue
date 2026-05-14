@@ -1,6 +1,6 @@
 <template>
   <span class="md-chip" :class="[`md-chip--${variant}`, { 'md-chip--clickable': clickable }]">
-    <md-icon v-if="icon" :icon="icon" :size="18" class="md-chip__icon" />
+    <md-icon v-if="icon" :icon="icon" :size="20" class="md-chip__icon" />
     <span class="md-chip__label"><slot /></span>
     <md-icon-button
       v-if="closable"

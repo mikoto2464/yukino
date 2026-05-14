@@ -40,7 +40,7 @@ withDefaults(
     toggle: false,
     disabled: false,
     type: "button",
-    iconSize: 24,
+    iconSize: 28,
   },
 );
 

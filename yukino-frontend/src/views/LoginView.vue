@@ -154,14 +154,14 @@ function loginByQQ() {
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
 }
 
 .login-methods {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 16px;
+  margin-top: 28px;
 }
 
 .login-btn {

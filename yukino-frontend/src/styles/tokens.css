@@ -117,58 +117,58 @@
    * 所有按钮高度/图标尺寸/内边距统一控制
    * ============================================================ */
   /* Button 维度 */
-  --md-comp-button-height: 40px;
-  --md-comp-button-min-width: 48px;
-  --md-comp-button-padding-horizontal: 24px;
-  --md-comp-button-icon-size: 18px;
-  --md-comp-button-gap: 8px;
+  --md-comp-button-height: 48px;
+  --md-comp-button-min-width: 64px;
+  --md-comp-button-padding-horizontal: 32px;
+  --md-comp-button-icon-size: 20px;
+  --md-comp-button-gap: 12px;
 
   /* FAB 维度 */
-  --md-comp-fab-small-container-size: 40px;
-  --md-comp-fab-normal-container-size: 56px;
-  --md-comp-fab-large-container-size: 96px;
+  --md-comp-fab-small-container-size: 48px;
+  --md-comp-fab-normal-container-size: 64px;
+  --md-comp-fab-large-container-size: 104px;
 
   /* IconButton 维度 */
-  --md-comp-icon-button-size: 40px;
-  --md-comp-icon-button-icon-size: 24px;
+  --md-comp-icon-button-size: 48px;
+  --md-comp-icon-button-icon-size: 28px;
 
   /* Card 维度 */
-  --md-comp-card-padding: 16px;
+  --md-comp-card-padding: 20px;
 
   /* Chip 维度 */
-  --md-comp-chip-height: 32px;
-  --md-comp-chip-padding-horizontal: 12px;
-  --md-comp-chip-icon-size: 18px;
+  --md-comp-chip-height: 36px;
+  --md-comp-chip-padding-horizontal: 14px;
+  --md-comp-chip-icon-size: 20px;
 
   /* TextField 维度 */
-  --md-comp-text-field-height: 56px;
-  --md-comp-text-field-padding-horizontal: 16px;
+  --md-comp-text-field-height: 60px;
+  --md-comp-text-field-padding-horizontal: 20px;
   --md-comp-text-field-label-top: 8px; /* label in resting position */
 
   /* TopAppBar 维度 */
-  --md-comp-top-app-bar-height: 64px;
-  --md-comp-top-app-bar-padding: 16px;
+  --md-comp-top-app-bar-height: 72px;
+  --md-comp-top-app-bar-padding: 20px;
 
   /* Navigation 维度 */
-  --md-comp-navigation-bar-height: 80px;
-  --md-comp-navigation-rail-width: 80px;
+  --md-comp-navigation-bar-height: 88px;
+  --md-comp-navigation-rail-width: 88px;
 
   /* Dialog 维度 */
-  --md-comp-dialog-max-width: 560px;
-  --md-comp-dialog-padding: 24px;
-  --md-comp-dialog-title-bottom: 16px;
+  --md-comp-dialog-max-width: 600px;
+  --md-comp-dialog-padding: 28px;
+  --md-comp-dialog-title-bottom: 20px;
 
   /* Snackbar */
-  --md-comp-snackbar-max-width: 360px;
+  --md-comp-snackbar-max-width: 400px;
 
   /* Menu */
-  --md-comp-menu-item-height: 48px;
+  --md-comp-menu-item-height: 52px;
 
   /* Divider */
   --md-comp-divider-thickness: 1px;
 
   /* Progress */
-  --md-comp-circular-progress-size: 48px;
+  --md-comp-circular-progress-size: 52px;
   --md-comp-circular-progress-stroke: 4px;
   --md-comp-linear-progress-height: 4px;
 
@@ -177,8 +177,8 @@
    * ============================================================ */
   --md-spacing-xs: 4px;
   --md-spacing-sm: 8px;
-  --md-spacing-md: 16px;
-  --md-spacing-lg: 24px;
-  --md-spacing-xl: 32px;
-  --md-spacing-2xl: 48px;
+  --md-spacing-md: 20px;
+  --md-spacing-lg: 28px;
+  --md-spacing-xl: 40px;
+  --md-spacing-2xl: 56px;
 }

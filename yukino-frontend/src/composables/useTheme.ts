@@ -2,7 +2,6 @@
 // 主题状态管理 Composable
 // 控制深浅模式、壁纸选择、色彩引擎调度
 // 对外暴露所有主题相关操作
-// 支持 MD3 圆形扩散切换动画
 // ============================================================
 import { reactive, readonly } from "vue";
 import {
@@ -10,7 +9,6 @@ import {
   applyColorScheme,
   type ThemeSchemeResult,
 } from "@/theme/colorEngine";
-import { animateThemeTransition } from "@/composables/useThemeTransition";
 import {
   BACKGROUND_OPTIONS,
   BG_OPACITY,
@@ -144,46 +142,6 @@ async function applyTheme(recompute = false) {
   document.documentElement.classList.toggle("light", !dark);
 }
 
-/** 应用主题（带圆形扩散动画），triggerEl 为触发按钮 */
-async function applyThemeWithTransition(
-  triggerEl: HTMLElement,
-  recompute = false,
-) {
-  const token = ++initToken;
-  const bg = currentBg();
-  if (!bg) return;
-
-  let colors = colorSchemeCache.get(bg.key) ?? readCachedColors(bg.key);
-  const needExtract = recompute || !colors;
-
-  if (needExtract) {
-    try {
-      colors = await extractThemeFromImage(bg.url);
-      colorSchemeCache.set(bg.key, colors);
-      writeCachedColors(bg.key, colors);
-    } catch {
-      colors = readCachedColors(bg.key) ?? colorSchemeCache.get(bg.key) ?? null;
-    }
-  }
-
-  if (token !== initToken || !colors) return;
-
-  const dark = effectiveDark();
-  const newScheme = dark ? colors.dark : colors.light;
-  const newBg = newScheme["--md-sys-color-background"] ?? (dark ? "#141218" : "#fef7ff");
-
-  // 启动圆形扩散动画（新背景色从按钮中心向外铺开）
-  const transition = animateThemeTransition(triggerEl, newBg);
-
-  // 立即应用新 CSS 变量，内容色在扩散圈下同步更新
-  applyColorScheme(newScheme);
-  applyBackgroundStyle(dark);
-  document.documentElement.classList.toggle("dark", dark);
-  document.documentElement.classList.toggle("light", !dark);
-
-  await transition;
-}
-
 /** 系统主题变更回调 */
 function onSystemChange() {
   if (state.mode === "system") applyTheme(false);
@@ -203,38 +161,30 @@ export function useTheme() {
     darkMediaQuery.addEventListener("change", onSystemChange);
   }
 
-  async function setMode(mode: ThemeMode, triggerEl?: HTMLElement) {
+  async function setMode(mode: ThemeMode) {
     state.mode = mode;
     writeStorage();
-    if (triggerEl) {
-      await applyThemeWithTransition(triggerEl, false);
-    } else {
-      await applyTheme(false);
-    }
+    await applyTheme(false);
   }
 
-  async function setBackground(bgKey: string, triggerEl?: HTMLElement) {
+  async function setBackground(bgKey: string) {
     if (!BACKGROUND_OPTIONS.some((b) => b.key === bgKey)) return;
     state.background = bgKey;
     writeStorage();
-    if (triggerEl) {
-      await applyThemeWithTransition(triggerEl, true);
-    } else {
-      await applyTheme(true);
-    }
+    await applyTheme(true);
   }
 
-  async function setRandomBackground(triggerEl?: HTMLElement) {
+  async function setRandomBackground() {
     const others = BACKGROUND_OPTIONS.filter((b) => b.key !== state.background);
     const pick =
       others.length > 0
         ? others[Math.floor(Math.random() * others.length)]!
         : BACKGROUND_OPTIONS[0]!;
-    await setBackground(pick.key, triggerEl);
+    await setBackground(pick.key);
   }
 
-  async function toggleDark(triggerEl?: HTMLElement) {
-    await setMode(effectiveDark() ? "light" : "dark", triggerEl);
+  async function toggleDark() {
+    await setMode(effectiveDark() ? "light" : "dark");
   }
 
   return {

@@ -68,7 +68,7 @@ async function handleLogout() {
 }
 
 .brand-link {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--md-sys-color-on-surface, #1d1b20);
   letter-spacing: 0.01em;
@@ -77,14 +77,14 @@ async function handleLogout() {
 
 .top-bar-nav {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-left: 16px;
 }
 
 .nav-link {
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   color: var(--md-sys-color-on-surface-variant, #49454f);
   text-decoration: none;
@@ -98,8 +98,8 @@ async function handleLogout() {
 
 .main-content {
   flex: 1;
-  padding: 24px;
-  max-width: 1400px;
+  padding: var(--md-spacing-lg, 28px);
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
 }

@@ -28,7 +28,7 @@
       <md-icon-button
         v-if="modelValue && clearable"
         icon="close"
-        :icon-size="18"
+        :icon-size="20"
         class="md-text-field__trailing-icon"
         @click="clear"
       />
@@ -108,7 +108,7 @@ function clear() {
 .md-text-field__input {
   width: 100%;
   height: var(--md-comp-text-field-height, 56px);
-  padding: 24px 16px 8px 16px;
+  padding: 28px var(--md-comp-text-field-padding-horizontal, 20px) 8px var(--md-comp-text-field-padding-horizontal, 20px);
   border: none;
   border-radius: var(--md-sys-shape-corner-small, 8px);
   font-family: var(--md-ref-typeface-plain, "Roboto", sans-serif);
@@ -127,7 +127,7 @@ function clear() {
 .md-text-field__label {
   position: absolute;
   top: 50%;
-  left: 16px;
+  left: var(--md-comp-text-field-padding-horizontal, 20px);
   transform: translateY(-50%);
   font-size: 1rem;
   color: var(--md-sys-color-on-surface-variant, #49454f);

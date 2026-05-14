@@ -1,7 +1,7 @@
 <template>
   <MdCard>
     <div
-      style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"
+      style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"
     >
       <h1 style="font: var(--md-sys-typescale-headline-small)">用户管理</h1>
       <MdTextField
@@ -17,7 +17,7 @@
         v-for="i in 5"
         :key="i"
         class="md-skeleton"
-        style="height: 48px; margin-bottom: 8px"
+        style="height: 52px; margin-bottom: 12px"
       />
     </div>
 
@@ -376,17 +376,17 @@ watch(editingMaxDevicesStr, (val) => {
 .data-table th,
 .data-table td {
   text-align: left;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
 }
 .data-table th {
   font-weight: 500;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.025em;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 .data-table td {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .action-menu-wrapper {
@@ -413,10 +413,10 @@ watch(editingMaxDevicesStr, (val) => {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border: none;
   background: transparent;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--md-sys-color-on-surface, #1d1b20);
   cursor: pointer;
 }

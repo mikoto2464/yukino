@@ -49,6 +49,9 @@ body::before {
   opacity: var(--yukino-bg-mask-opacity, 0.52);
   background: var(--md-sys-color-background, #fef7ff);
   pointer-events: none;
+  transition:
+    background var(--md-sys-motion-duration-medium2, 300ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1)),
+    opacity var(--md-sys-motion-duration-medium2, 300ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 
 #app {

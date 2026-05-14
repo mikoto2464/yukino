@@ -75,7 +75,7 @@
     </div>
 
     <!-- 第二行：项目管理 + 卡密激活 -->
-    <MdCard style="margin-top: 16px">
+    <MdCard style="margin-top: var(--md-spacing-md, 20px)">
       <div class="projects-header">
         <h2 style="font: var(--md-sys-typescale-title-medium)">可用项目</h2>
         <div class="activation-row">
@@ -282,13 +282,13 @@ onMounted(() => {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--md-spacing-md, 20px);
 }
 
 .dash-grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--md-spacing-md, 20px);
 }
 
 @media (max-width: 900px) {
@@ -300,13 +300,13 @@ onMounted(() => {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 16px;
+  gap: var(--md-spacing-md, 20px);
+  margin-top: var(--md-spacing-md, 20px);
 }
 
 .avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--md-sys-color-primary-container, #eaddff);
@@ -329,34 +329,34 @@ onMounted(() => {
   flex: 1;
 }
 .user-name {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 .user-detail {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--md-sys-color-on-surface-variant, #49454f);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .user-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  gap: var(--md-spacing-sm, 12px);
+  margin-top: var(--md-spacing-md, 20px);
 }
 
 .device-list {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 .device-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 16px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
 }
 .device-icon-wrapper {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--md-sys-color-secondary-container, #e8def8);
   display: flex;
@@ -367,17 +367,17 @@ onMounted(() => {
   flex: 1;
 }
 .device-name {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 .device-sub {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 .device-add {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  gap: var(--md-spacing-sm, 12px);
+  margin-top: 16px;
   align-items: flex-end;
 }
 
@@ -386,11 +386,11 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
 }
 .activation-row {
   display: flex;
-  gap: 8px;
+  gap: var(--md-spacing-sm, 12px);
   align-items: flex-end;
 }
 
@@ -401,16 +401,16 @@ onMounted(() => {
 .data-table th,
 .data-table td {
   text-align: left;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
 }
 .data-table th {
   font-weight: 500;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.025em;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 .data-table td {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 </style>

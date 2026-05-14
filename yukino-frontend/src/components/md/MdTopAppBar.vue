@@ -43,6 +43,6 @@ withDefaults(
 .md-top-app-bar__end {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--md-spacing-sm, 12px);
 }
 </style>

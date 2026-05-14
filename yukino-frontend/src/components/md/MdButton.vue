@@ -2,13 +2,15 @@
   <button
     ref="hostRef"
     class="md-btn"
-    :class="[`md-btn--${variant}`]"
+    :class="[`md-btn--${variant}`, { 'md-btn--icon-end': iconPosition === 'end' }]"
+    :style="hostStyle"
     :disabled="disabled"
     :type="type"
     @click="$emit('click', $event)"
   >
+    <span class="md-btn__focus-ring"></span>
     <span class="md-btn__state-layer"></span>
-    <md-icon v-if="icon && !loading" :icon="icon" :size="18" class="md-btn__icon" />
+    <md-icon v-if="icon && !loading" :icon="icon" :size="iconSize" class="md-btn__icon" />
     <md-circular-progress
       v-if="loading"
       :size="18"
@@ -22,21 +24,27 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRipple, removeRipple } from "@/composables/useRipple";
 import MdIcon from "./MdIcon.vue";
 import MdCircularProgress from "./MdCircularProgress.vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     variant?: "filled" | "filled-tonal" | "outlined" | "text" | "elevated";
     icon?: string;
+    iconPosition?: "start" | "end";
+    iconSize?: number;
     loading?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
+    rippleColor?: string;
+    cornerRadius?: number | string;
   }>(),
   {
     variant: "filled",
+    iconPosition: "start",
+    iconSize: 20,
     loading: false,
     disabled: false,
     type: "button",
@@ -49,6 +57,20 @@ defineEmits<{
 
 const hostRef = ref<HTMLElement | null>(null);
 
+const hostStyle = computed(() => {
+  const s: Record<string, string> = {};
+  if (props.rippleColor) {
+    s["--md-ripple-color"] = props.rippleColor;
+  }
+  if (props.cornerRadius !== undefined) {
+    s["--md-btn-corner-radius"] =
+      typeof props.cornerRadius === "number"
+        ? `${props.cornerRadius}px`
+        : props.cornerRadius;
+  }
+  return s;
+});
+
 onMounted(() => {
   useRipple(hostRef.value);
 });
@@ -60,6 +82,8 @@ onUnmounted(() => {
 
 <style scoped>
 .md-btn {
+  --_corner: var(--md-btn-corner-radius, var(--md-sys-shape-corner-full, 9999px));
+
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -69,7 +93,7 @@ onUnmounted(() => {
   min-width: var(--md-comp-button-min-width, 48px);
   padding: 0 var(--md-comp-button-padding-horizontal, 24px);
   border: none;
-  border-radius: var(--md-sys-shape-corner-full, 9999px);
+  border-radius: var(--_corner);
   font-family: var(--md-ref-typeface-plain, "Roboto", sans-serif);
   font-size: var(--md-sys-typescale-label-large);
   font-weight: 500;
@@ -80,6 +104,25 @@ onUnmounted(() => {
   vertical-align: middle;
 }
 
+/* ---- Focus ring (复刻 FocusRingDrawable) ---- */
+.md-btn__focus-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  border: 2px solid transparent;
+  transition: border-color
+    var(--md-sys-motion-duration-short4, 200ms)
+    var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.md-btn:focus-visible {
+  outline: none;
+}
+.md-btn:focus-visible > .md-btn__focus-ring {
+  border-color: var(--md-sys-color-primary, #6750a4);
+}
+
 /* ---- State layer ---- */
 .md-btn__state-layer {
   position: absolute;
@@ -88,6 +131,7 @@ onUnmounted(() => {
   background-color: currentColor;
   opacity: 0;
   pointer-events: none;
+  z-index: 0;
   transition: opacity
     var(--md-sys-motion-duration-short4, 200ms)
     var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
@@ -111,6 +155,9 @@ onUnmounted(() => {
 .md-btn:disabled > .md-btn__state-layer {
   opacity: 0;
 }
+.md-btn:disabled > .md-btn__focus-ring {
+  border-color: transparent;
+}
 
 /* ---- Label ---- */
 .md-btn__label {
@@ -121,11 +168,18 @@ onUnmounted(() => {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
+  order: var(--_icon-order, 0);
 }
 .md-btn__spinner {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
+  order: var(--_icon-order, 0);
+}
+
+/* iconPosition = end: icon 移至 label 之后 */
+.md-btn--icon-end {
+  --_icon-order: 1;
 }
 
 /* ======== FILLED ======== */
@@ -136,6 +190,9 @@ onUnmounted(() => {
 }
 .md-btn--filled:hover {
   box-shadow: var(--md-sys-elevation-level1);
+}
+.md-btn--filled:active {
+  box-shadow: var(--md-sys-elevation-level2);
 }
 
 /* ======== FILLED TONAL ======== */
@@ -149,6 +206,14 @@ onUnmounted(() => {
   background-color: transparent;
   color: var(--md-sys-color-primary, #6750a4);
   border: 1px solid var(--md-sys-color-outline, #79747e);
+}
+.md-btn--outlined:active {
+  background-color: var(--md-sys-color-primary-container, #eaddff);
+  background-color: color-mix(
+    in srgb,
+    var(--md-sys-color-primary, #6750a4) 12%,
+    transparent
+  );
 }
 
 /* ======== TEXT ======== */
@@ -167,5 +232,8 @@ onUnmounted(() => {
 }
 .md-btn--elevated:hover {
   box-shadow: var(--md-sys-elevation-level2);
+}
+.md-btn--elevated:active {
+  box-shadow: var(--md-sys-elevation-level3);
 }
 </style>

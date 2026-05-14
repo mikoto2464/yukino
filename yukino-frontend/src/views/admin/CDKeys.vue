@@ -1,7 +1,7 @@
 <template>
   <div class="cdkeys">
     <!-- 卡密生成区 -->
-    <MdCard style="margin-bottom: 16px">
+    <MdCard style="margin-bottom: var(--md-spacing-md, 20px)">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <h1 style="font: var(--md-sys-typescale-headline-small)">卡密生成</h1>
         <MdButton variant="filled-tonal" @click="addConfigRow">
@@ -14,7 +14,7 @@
           v-model="row.projectId"
           :options="selectOptions"
           placeholder="选择项目"
-          style="max-width: 300px"
+          style="max-width: 320px"
         />
         <MdSelect
           v-model="row.period"
@@ -35,7 +35,7 @@
         variant="filled"
         :disabled="generateLoading"
         :loading="generateLoading"
-        style="margin-top: 16px"
+        style="margin-top: var(--md-spacing-md, 20px)"
         @click="generateKeys"
       >
         生成卡密
@@ -45,7 +45,7 @@
     <!-- 卡密管理列表 -->
     <MdCard>
       <div
-        style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"
+        style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px"
       >
         <h2 style="font: var(--md-sys-typescale-title-medium)">卡密管理</h2>
         <MdTextField
@@ -365,8 +365,8 @@ watch(filteredItems, () => {
 .gen-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 16px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 
@@ -377,28 +377,28 @@ watch(filteredItems, () => {
 .data-table th,
 .data-table td {
   text-align: left;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
 }
 .data-table th {
   font-weight: 500;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.025em;
   color: var(--md-sys-color-on-surface-variant, #49454f);
 }
 .data-table td {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .paginator {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
 }
 .paginator button {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: none;
   border-radius: 50%;
   background: transparent;
