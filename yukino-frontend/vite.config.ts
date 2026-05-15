@@ -6,9 +6,11 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
   plugins: [
     vue({
-      compilerOptions: {
-        // 允许 <md-*> 自定义标签（@material/web 的 Web Components）
-        isCustomElement: (tag) => tag.startsWith("md-"),
+      template: {
+        compilerOptions: {
+          // 允许 <md-*> 自定义标签（@material/web 的 Web Components）
+          isCustomElement: (tag) => tag.startsWith("md-"),
+        },
       },
     }),
   ],
